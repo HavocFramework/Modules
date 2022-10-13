@@ -31,7 +31,7 @@ def PowerPick(demonID, *param):
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to execute unmanaged powershell commands" )
 
     packer.addstr( " " + ''.join( param ) )
-    demon.DllSpawn( TaskID, ":/binaries/PowerPick.x64.dll", packer.getbuffer() )
+    demon.DllSpawn( TaskID, "bin/PowerPick.x64.dll", packer.getbuffer() )
 
     return TaskID
 
