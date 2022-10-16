@@ -8,7 +8,7 @@ def dcenum(demonID, *param):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate domain information using Active Directory Domain Services" )
     
-    demon.InlineExecute( TaskID, "go", "Domaininfo.o", "", False )
+    demon.InlineExecute( TaskID, "go", "Domaininfo.o", b'', False )
 
     return TaskID
 

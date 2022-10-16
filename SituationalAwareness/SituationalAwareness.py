@@ -1,5 +1,4 @@
 from havoc import Demon, RegisterCommand
-from struct import pack, calcsize
 
 def arp( demonID, *param ):
     TaskID : str    = None
@@ -8,7 +7,7 @@ def arp( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite(demon.CONSOLE_TASK, "Tasked demon to lists out ARP table")
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/arp.x64.o", "", False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/arp.x64.o", b'', False )
 
     return TaskID
 
@@ -19,7 +18,7 @@ def driversigs( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite(demon.CONSOLE_TASK, "Tasked demon to check drivers for known edr vendor names")
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/driversigs.x64.o", "", False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/driversigs.x64.o", b'', False )
 
     return TaskID
 
@@ -30,7 +29,7 @@ def ipconfig( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite(demon.CONSOLE_TASK, "Tasked demon to lists out adapters, system hostname and configured dns serve")
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/ipconfig.x64.o", "", False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/ipconfig.x64.o", b'', False )
 
     return TaskID
 
@@ -41,7 +40,7 @@ def listdns( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to lists dns cache entries" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/listdns.x64.o", "", False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/listdns.x64.o", b'', False )
 
     return TaskID
 
@@ -52,7 +51,7 @@ def locale( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite(demon.CONSOLE_TASK, "Tasked demon to retrieve system locale information, date format, and country")
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/locale.x64.o", "", False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/locale.x64.o", b'', False )
 
     return TaskID
 
@@ -63,7 +62,7 @@ def netstat( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to get local ipv4 udp/tcp listening and connected ports" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/netstat.x64.o", "", False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/netstat.x64.o", b'', False )
 
     return TaskID
 
@@ -74,7 +73,7 @@ def resources( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list available memory and space on the primary disk drive" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/resources.x64.o", "", False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/resources.x64.o", b'', False )
 
     return TaskID
 
@@ -85,7 +84,7 @@ def routeprint( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to prints ipv4 routes on the machine" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/routeprint.x64.o", "", False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/routeprint.x64.o", b'', False )
 
     return TaskID
 
@@ -96,7 +95,7 @@ def uptime( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to lists system boot time" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/uptime.x64.o", "", False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/uptime.x64.o", b'', False )
 
     return TaskID
 
@@ -107,7 +106,7 @@ def whoami( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to get the info from whoami /all without starting cmd.exe" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/whoami.x64.o", "", False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/whoami.x64.o", b'', False )
 
     return TaskID
 
@@ -118,7 +117,7 @@ def windowlist( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list windows visible on the users desktop" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/windowlist.x64.o", "", False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/windowlist.x64.o", b'', False )
 
     return TaskID
 
