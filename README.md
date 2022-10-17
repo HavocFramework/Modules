@@ -16,3 +16,11 @@ A bunch of Situational Awareness beacon object files. From [Situational Awarenes
 # Domaininfo
 A BOF tool to enumerate domain information using Active Directory Domain Services.
 Full credit goes to [Cneelis](https://twitter.com/Cneelis). Bof is from his [C2-Tool-Collection](https://github.com/outflanknl/C2-Tool-Collection)
+
+# Jump-exec psexec
+A BOF to lateral move using the psexec technique. 
+
+# Jump-exec scshell
+A BOF to lateral move using the scshell technique. 
+This technique relies on ChangeServiceConfigA to run commands (this case our service executable)
+This BOF is based on [Mr-Un1k0d3r's](https://twitter.com/MrUn1k0d3r) [SCShell](https://github.com/Mr-Un1k0d3r/SCShell/tree/master/CS-BOF)

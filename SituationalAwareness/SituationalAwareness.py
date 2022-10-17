@@ -1,4 +1,4 @@
-from havoc import Demon, RegisterCommand
+from havoc import Demon, RegisterCommand, RegisterModule
 
 def arp( demonID, *param ):
     TaskID : str    = None
