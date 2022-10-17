@@ -129,10 +129,10 @@ VOID go( PVOID Buffer, ULONG Length )
     /* Open Service manager. Create and start our service. The magic happens here :P */
     // NOTE: OpenSCManagerA is going to use SERVICES_ACTIVE_DATABASE by default if lpDatabaseName == NULL. 
     hSvcManager = ADVAPI32$OpenSCManagerA( Host, NULL, SC_MANAGER_ALL_ACCESS );
-  	if ( ! hSvcManager ) 
+    if ( ! hSvcManager ) 
     {
-	    BeaconPrintf( HAVOC_CONSOLE_ERRO, "OpenSCManagerA Failed: %x", KERNEL32$GetLastError() );
-		goto EXIT;
+      BeaconPrintf( HAVOC_CONSOLE_ERRO, "OpenSCManagerA Failed: %x", KERNEL32$GetLastError() );
+      goto EXIT;
     }
 
     hSvcService = ADVAPI32$OpenServiceA( hSvcManager, SvcName, SERVICE_ALL_ACCESS );
