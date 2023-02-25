@@ -167,24 +167,24 @@ void PrintTicketFlags(WCHAR** dispatch, ULONG ticketFlags) {
             PRINT(dispatch, "%s ", flags[i]);
         }
     }
-    PRINT(dispatch, "(0x%lx)\n", ticketFlags);
+    PRINT(dispatch, "(0x%lx)", ticketFlags);
 }
 
 void PrintTicketInfo(WCHAR** dispatch, KERB_TICKET_CACHE_INFO_EX cacheInfo) {
-    PRINT(dispatch, "\tClient name     : %s @ %s\n", GetNarrowStringFromUnicode(cacheInfo.ClientName),
+    PRINT(dispatch, "\tClient name     : %s @ %s", GetNarrowStringFromUnicode(cacheInfo.ClientName),
           GetNarrowStringFromUnicode(cacheInfo.ClientRealm));
-    PRINT(dispatch, "\tServer name     : %s @ %s\n", GetNarrowStringFromUnicode(cacheInfo.ServerName),
+    PRINT(dispatch, "\tServer name     : %s @ %s", GetNarrowStringFromUnicode(cacheInfo.ServerName),
           GetNarrowStringFromUnicode(cacheInfo.ServerRealm));
     SYSTEMTIME st_utc = ConvertToSystemtime(cacheInfo.StartTime);
-    PRINT(dispatch, "\tStart time      : %d/%d/%d %d:%d:%d (UTC)\n", st_utc.wDay, st_utc.wMonth, st_utc.wYear,
+    PRINT(dispatch, "\tStart time      : %d/%d/%d %d:%d:%d (UTC)", st_utc.wDay, st_utc.wMonth, st_utc.wYear,
           st_utc.wHour, st_utc.wMinute, st_utc.wSecond);
     st_utc = ConvertToSystemtime(cacheInfo.EndTime);
-    PRINT(dispatch, "\tEnd time        : %d/%d/%d %d:%d:%d (UTC)\n", st_utc.wDay, st_utc.wMonth, st_utc.wYear,
+    PRINT(dispatch, "\tEnd time        : %d/%d/%d %d:%d:%d (UTC)", st_utc.wDay, st_utc.wMonth, st_utc.wYear,
           st_utc.wHour, st_utc.wMinute, st_utc.wSecond);
     st_utc = ConvertToSystemtime(cacheInfo.RenewTime);
-    PRINT(dispatch, "\tRenew time      : %d/%d/%d %d:%d:%d (UTC)\n", st_utc.wDay, st_utc.wMonth, st_utc.wYear,
+    PRINT(dispatch, "\tRenew time      : %d/%d/%d %d:%d:%d (UTC)", st_utc.wDay, st_utc.wMonth, st_utc.wYear,
           st_utc.wHour, st_utc.wMinute, st_utc.wSecond);
+    PRINT(dispatch, "\tEncryption type : %s\n", GetEncryptionTypeString(cacheInfo.EncryptionType));
     PRINT(dispatch, "\tFlags           : ");
     PrintTicketFlags(dispatch, cacheInfo.TicketFlags);
-    PRINT(dispatch, "\tEncryption type : %s\n", GetEncryptionTypeString(cacheInfo.EncryptionType));
 }
