@@ -351,7 +351,7 @@ def reg_set( demonID, *params ):
 
     # parse parameters that contain quotes
     params = ' '.join(params)
-    params = re.findall(r'".+?"|[^ ]+', params)
+    params = re.findall(r'".*?"|[^ ]+', params)
     params = [param.strip('"') for param in params]
 
     params_parsed = 0
@@ -433,6 +433,217 @@ def reg_set( demonID, *params ):
 
     return TaskID
 
+def sc_create( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = MyPacker()
+    demon  = Demon( demonID )
+
+    service_type = {
+        # SERVICE_FILE_SYSTEM_DRIVER
+        1: 0x02,
+        # SERVICE_KERNEL_DRIVER,
+        2: 0x01,
+        # SERVICE_WIN32_OWN_PROCESS
+        3: 0x10,
+        # SERVICE_WIN32_SHARE_PROCESS
+        4: 0x20
+    }
+
+    # parse parameters that contain quotes
+    params = ' '.join(params)
+    params = re.findall(r'".*?"|[^ ]+', params)
+    params = [param.strip('"') for param in params]
+
+    num_params = len(params)
+    hostname   = ''
+    _type      = service_type[ 3 ] # SERVICE_WIN32_OWN_PROCESS
+
+    if num_params < 6:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return True
+
+    if num_params > 8:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return True
+
+    servicename = params[ 0 ]
+    displayname = params[ 1 ]
+    binpath     = params[ 2 ]
+    desc        = params[ 3 ]
+    errormode   = params[ 4 ]
+    startmode   = params[ 5 ]
+    if num_params == 7:
+        try:
+            _type = int( params[ 6 ] )
+            assert _type in [1, 2, 3, 4]
+            _type = service_type[ _type ]
+        except Exception as e:
+            demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid service type" )
+            return True
+    if num_params == 8:
+        hostname = params[ 7 ]
+
+    if desc == '""':
+        desc = ''
+
+    try:
+        errormode = int( errormode )
+        assert errormode in [0, 1, 2, 3]
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid errormode" )
+        return True
+
+    try:
+        startmode = int( startmode )
+        assert startmode in [2, 3, 4]
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid startmode" )
+        return True
+
+    packer.addstr(hostname)
+    packer.addstr(servicename)
+    packer.addstr(binpath)
+    packer.addstr(displayname)
+    packer.addstr(desc)
+    packer.addshort(errormode)
+    packer.addshort(startmode)
+    packer.adduint32(_type)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to create the {servicename} service" )
+
+    demon.InlineExecute( TaskID, "go", "bin/sc_create.x64.o", packer.getbuffer(), False )
+
+    return TaskID
+
+def sc_start( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = MyPacker()
+    demon  = Demon( demonID )
+
+    num_params = len(params)
+    hostname   = ''
+
+    if num_params < 1:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return True
+
+    if num_params > 2:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return True
+
+    servicename = params[ 0 ]
+    if num_params == 2:
+        hostname = params[ 1 ]
+
+    packer.addstr(hostname)
+    packer.addstr(servicename)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to start the {servicename} service" )
+
+    demon.InlineExecute( TaskID, "go", "bin/sc_start.x64.o", packer.getbuffer(), False )
+
+    return TaskID
+
+def sc_stop( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = MyPacker()
+    demon  = Demon( demonID )
+
+    num_params = len(params)
+    hostname   = ''
+
+    if num_params < 1:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return True
+
+    if num_params > 2:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return True
+
+    servicename = params[ 0 ]
+    if num_params == 2:
+        hostname = params[ 1 ]
+
+    packer.addstr(hostname)
+    packer.addstr(servicename)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to stop the {servicename} service" )
+
+    demon.InlineExecute( TaskID, "go", "bin/sc_stop.x64.o", packer.getbuffer(), False )
+
+    return TaskID
+
+def sc_delete( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = MyPacker()
+    demon  = Demon( demonID )
+
+    num_params = len(params)
+    hostname   = ''
+
+    if num_params < 1:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return True
+
+    if num_params > 2:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return True
+
+    servicename = params[ 0 ]
+    if num_params == 2:
+        hostname = params[ 1 ]
+
+    packer.addstr(hostname)
+    packer.addstr(servicename)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to delete the {servicename} service" )
+
+    demon.InlineExecute( TaskID, "go", "bin/sc_delete.x64.o", packer.getbuffer(), False )
+
+    return TaskID
+
+def sc_description( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = MyPacker()
+    demon  = Demon( demonID )
+
+    # parse parameters that contain quotes
+    params = ' '.join(params)
+    params = re.findall(r'".*?"|[^ ]+', params)
+    params = [param.strip('"') for param in params]
+
+    num_params = len(params)
+    hostname   = ''
+
+    if num_params < 1:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return True
+
+    if num_params > 3:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return True
+
+    servicename = params[ 0 ]
+    description = params[ 1 ]
+
+    if num_params == 3:
+        hostname = params[ 2 ]
+
+    packer.addstr(hostname)
+    packer.addstr(servicename)
+    packer.addstr(description)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to set the description of the {servicename} service" )
+
+    demon.InlineExecute( TaskID, "go", "bin/sc_description.x64.o", packer.getbuffer(), False )
+
+    return TaskID
+
 RegisterCommand( adcs_request, "", "adcs_request", "Request an enrollment certificate", 0, "/CA:ca [/TEMPLATE:template] [/SUBJECT:subject] [/ALTNAME:altname] [/INSTALL] [/MACHINE]", "1337 c:\\windwos\\temp\\test.txt" )
 RegisterCommand( addusertogroup, "", "addusertogroup", "Request an enrollment certificate", 0, """<USERNAME> <GROUPNAME> <Server> <DOMAIN>
          USERNAME   Required. The user name to activate/enable. 
@@ -498,4 +709,45 @@ Note: For REG_BINARY, the VALUE must be the name of a file on disk which will
       read in and its contents used.
 Note: For REG_MULTI_SZ, the VALUE must be specified as a space separated list 
       of quoted strings.
-Note: For REG_QWORD, the VALUE must be less than a DWORD """, "" )
+Note: For REG_QWORD, the VALUE must be less than a DWORD""", "" )
+RegisterCommand( sc_create, "", "sc_create", "This command creates a service on the target host.", 0, """<SVCNAME> <DISPLAYNAME> <BINPATH> <DESCRIPTION> <ERRORMODE> <STARTMODE> <OPT:TYPE> <OPT:HOSTNAME>
+         SVCNAME      Required. The name of the service to create.
+         DISPLAYNAME  Required. The display name of the service.
+         BINPATH      Required. The binary path of the service to execute.
+         DESCRIPTION  Required. The description of the service.
+         ERRORMODE    Required. The error mode of the service. The valid
+                      options are:
+                        0 - ignore errors
+                        1 - normal logging
+                        2 - log severe errors
+                        3 - log critical errors
+         STARTMODE    Required. The start mode for the service. The valid
+                      options are:
+                        2 - auto start
+                        3 - on demand start
+                        4 - disabled
+         TYPE         Optional. The type of service to create. The valid
+                      options are:
+                      1 - SERVICE_FILE_SYSTEM_DRIVER (File system driver service)
+                      2 - SERVICE_KERNEL_DRIVER (Driver service)
+                      3 - SERVICE_WIN32_OWN_PROCESS (Service that runs in its own process) <-- Default
+                      4 - SERVICE_WIN32_SHARE_PROCESS (Service that shares a process with one or more other services)
+         HOSTNAME     Optional. The host to connect to and run the commnad on. The
+                      local system is targeted if a HOSTNAME is not specified.""", "mimidrv mimidrv C:\\Windows\\Temp\\mimidrv.sys \"\" 0 3 2" )
+RegisterCommand( sc_start, "", "sc_start", "This command starts the specified service on the target host.", 0, """<SVCNAME> <OPT:HOSTNAME>
+         SVCNAME  Required. The name of the service to start.
+         HOSTNAME Optional. The host to connect to and run the command on. The
+                  local system is targeted if a HOSTNAME is not specified.""", "mimidrv" )
+RegisterCommand( sc_stop, "", "sc_stop", "This command stops the specified service on the target host.", 0, """<SVCNAME> <OPT:HOSTNAME>
+         SVCNAME  Required. The name of the service to stop.
+         HOSTNAME Optional. The host to connect to and run the commnad on. The
+                  local system is targeted if a HOSTNAME is not specified.""", "mimidrv" )
+RegisterCommand( sc_delete, "", "sc_delete", "This command deletes the specified service on the target host.", 0, """<SVCNAME> <OPT:HOSTNAME>
+         SVCNAME  Required. The name of the service to delete.
+         HOSTNAME Optional. The host to connect to and run the commnad on. The
+                  local system is targeted if a HOSTNAME is not specified.""", "mimidrv" )
+RegisterCommand( sc_description, "", "sc_description", "This command sets the description of an existing service on the target host.", 0, """<SVCNAME> <DESCRIPTION> <OPT:HOSTNAME>
+         SVCNAME      Required. The name of the service to create.
+         DESCRIPTION  Required. The description of the service.
+         HOSTNAME     Optional. The host to connect to and run the commnad on. The
+                      local system is targeted if a HOSTNAME is not specified.""", "mimidrv \"definitely not a mimikatz kernel driver\"" )
