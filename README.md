@@ -27,3 +27,6 @@ This BOF is based on [Mr-Un1k0d3r's](https://twitter.com/MrUn1k0d3r) [SCShell](h
 
 ### nanorobeus
 Kerberos implementation for the Havoc Framework.  
+
+### Delegation
+Find delegation settings, users with SPNs and ASREP using LDAP.  
