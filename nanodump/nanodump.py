@@ -201,7 +201,7 @@ def nanodump(demonID, *params):
             return True
 
     if get_pid is False and write_file is False:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameter: --write" )
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameter: --write or --getpid" )
         return True
 
     if get_pid and \
