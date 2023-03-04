@@ -959,7 +959,7 @@ def netGroupListMembers( demonID, *params ):
 
     return TaskID
 
-def netLocalGroupListMembers( demonID, *params ):
+def netLclGrpLstMmbrs( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
     packer = MyPacker()
@@ -1221,7 +1221,7 @@ RegisterCommand( netsession, "", "get-netsession", "Enumerate sessions on the lo
 RegisterCommand( netGroupList, "", "netGroupList", "List groups from the default or specified domain", 0, "[opt: domain]", "" )
 RegisterCommand( netGroupListMembers, "", "netGroupListMembers", "List group members from the default or specified domain", 0, "groupname [opt: domain]", "" )
 RegisterCommand( netLocalGroupList, "", "netLocalGroupList", "List local groups from the local or specified computer", 0, "[opt: server]", "" )
-RegisterCommand( netLocalGroupListMembers, "", "netLocalGroupListMembers", "List local group members from the local or specified group", 0, "groupname [opt: server]", "Administrators" )
+RegisterCommand( netLclGrpLstMmbrs, "", "netLclGrpLstMmbrs", "List local group members from the local or specified group", 0, "groupname [opt: server]", "Administrators" )
 RegisterCommand( netuser, "", "netuser", "Get info about specific user. Pull from domain if a domainname is specified", 0, "username [opt: domain]", "Administrator" )
 RegisterCommand( userenum, "", "userenum", "Lists user accounts on the current computer", 0, "[opt: <all,locked,disabled,active>]", "" )
 RegisterCommand( domainenum, "", "domainenum", "Lists users accounts in the current domain", 0, "[opt: <all,locked,disabled,active>]", "" )
