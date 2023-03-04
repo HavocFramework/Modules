@@ -200,7 +200,7 @@ def nanodump(demonID, *params):
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"invalid argument: {param}" )
             return True
 
-    if write_file is False:
+    if get_pid is False and write_file is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameter: --write" )
         return True
 
