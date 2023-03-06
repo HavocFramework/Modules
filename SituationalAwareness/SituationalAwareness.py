@@ -1186,6 +1186,31 @@ def netview( demonID, *params ):
 
     return TaskID
 
+def quser( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = MyPacker()
+    demon  = Demon( demonID )
+
+    num_params = len(params)
+    hostname   = ''
+
+    if num_params < 1:
+        hostname = '127.0.0.1'
+    elif num_params == 1:
+        hostname = params[ 0 ]
+    elif num_params > 1:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return True
+
+    packer.addstr(hostname)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to obtain the list RDP connections on {hostname}" )
+
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/quser.x64.o", packer.getbuffer(), False )
+
+    return TaskID
+
 RegisterCommand( arp, "", "arp", "Lists out ARP table", 0, "", "" )
 RegisterCommand( driversigs, "", "driversigs", "checks drivers for known edr vendor names", 0, "", "" )
 RegisterCommand( ipconfig, "", "ipconfig", "Lists out adapters, system hostname and configured dns serve", 0, "", "" )
@@ -1230,3 +1255,4 @@ RegisterCommand( netshares, "", "netshares", "List shares on local or remote com
 RegisterCommand( netsharesAdmin, "", "netsharesAdmin", "List shares on local or remote computer and gets more info then standard netshares (requires admin)", 0, "[opt: \\\\computername]", "" )
 RegisterCommand( netuptime, "", "netuptime", "Returns information about the boot time on the local (or a remote) machine", 0, "[opt: hostname]", "" )
 RegisterCommand( netview, "", "netview", "lists local workstations and servers", 0, "[opt: netbios_domain_name]", "" )
+RegisterCommand( quser, "", "quser", "Simple implementation of quser.exe usingt the Windows API", 0, "<OPT:TARGET>", "10.10.10.10" )
