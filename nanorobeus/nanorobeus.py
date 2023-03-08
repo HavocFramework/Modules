@@ -341,13 +341,11 @@ def kerberoast( demonID, *param ):
 
     return TaskID
 
-RegisterModule( "nanorobeus", "Kerberos module", "", "[exploit] (args)", "", ""  )
-RegisterCommand( luid, "nanorobeus", "luid", "get current logon ID", 0, "", "" )
-RegisterCommand( sessions, "nanorobeus", "sessions", "get logon sessions", 0, "[/luid <0x0> | /all]", "" )
-RegisterCommand( klist, "nanorobeus", "klist", "list Kerberos tickets", 0, "[/luid <0x0> | /all]", "" )
-RegisterCommand( dump, "nanorobeus", "dump", "dump Kerberos tickets", 0, "[/luid <0x0> | /all]", "" )
-RegisterCommand( ptt, "nanorobeus", "ptt", "import Kerberos ticket into a logon session", 0, "<base64> [/luid <0x0>]", "" )
-RegisterCommand( purge, "nanorobeus", "purge", "purge Kerberos tickets", 0, "[/luid <0x0>]", "" )
-RegisterCommand( tgtdeleg, "nanorobeus", "tgtdeleg", "retrieve a usable TGT for the current user", 0, "<spn>", "" )
-RegisterCommand( kerberoast, "nanorobeus", "kerberoast", "perform Kerberoasting against specified SPN", 0, "<spn>", "" )
-
+RegisterCommand( luid, "", "bof-luid", "get current logon ID", 0, "", "" )
+RegisterCommand( sessions, "", "sessions", "get logon sessions", 0, "[/luid <0x0> | /all]", "" )
+RegisterCommand( klist, "", "bof-klist", "list Kerberos tickets", 0, "[/luid <0x0> | /all]", "" )
+RegisterCommand( dump, "", "dump", "dump Kerberos tickets", 0, "[/luid <0x0> | /all]", "" )
+RegisterCommand( ptt, "", "bof-ptt", "import Kerberos ticket into a logon session", 0, "<base64> [/luid <0x0>]", "" )
+RegisterCommand( purge, "", "bof-purge", "purge Kerberos tickets", 0, "[/luid <0x0>]", "" )
+RegisterCommand( tgtdeleg, "", "tgtdeleg", "retrieve a usable TGT for the current user", 0, "<spn>", "" )
+RegisterCommand( kerberoast, "", "kerberoast", "perform Kerberoasting against specified SPN", 0, "<spn>", "" )
