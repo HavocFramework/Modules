@@ -1,7 +1,7 @@
 from havoc import Demon, RegisterCommand, RegisterModule
 import re
 
-class MyPacker:
+class RemOpsPacker:
     def __init__(self):
         self.buffer : bytes = b''
         self.size   : int   = 0
@@ -47,7 +47,7 @@ class MyPacker:
 def adcs_request( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = RemOpsPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -109,7 +109,7 @@ def adcs_request( demonID, *params ):
 def addusertogroup( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = RemOpsPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -150,7 +150,7 @@ def addusertogroup( demonID, *params ):
 def enableuser( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = RemOpsPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -183,7 +183,7 @@ def enableuser( demonID, *params ):
 def setuserpass( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = RemOpsPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -219,7 +219,7 @@ def setuserpass( demonID, *params ):
 def reg_delete( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = RemOpsPacker()
     demon  = Demon( demonID )
 
     reghives = {
@@ -281,7 +281,7 @@ def reg_delete( demonID, *params ):
 def reg_save( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = RemOpsPacker()
     demon  = Demon( demonID )
 
     reghives = {
@@ -325,7 +325,7 @@ def reg_save( demonID, *params ):
 def reg_set( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = RemOpsPacker()
     demon  = Demon( demonID )
 
     regtypes = {
@@ -436,7 +436,7 @@ def reg_set( demonID, *params ):
 def sc_create( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = RemOpsPacker()
     demon  = Demon( demonID )
 
     service_type = {
@@ -519,7 +519,7 @@ def sc_create( demonID, *params ):
 def sc_start( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = RemOpsPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -549,7 +549,7 @@ def sc_start( demonID, *params ):
 def sc_stop( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = RemOpsPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -579,7 +579,7 @@ def sc_stop( demonID, *params ):
 def sc_delete( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = RemOpsPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -609,7 +609,7 @@ def sc_delete( demonID, *params ):
 def sc_description( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = RemOpsPacker()
     demon  = Demon( demonID )
 
     # parse parameters that contain quotes

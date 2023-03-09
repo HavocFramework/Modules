@@ -1,7 +1,7 @@
 from havoc import Demon, RegisterCommand, RegisterModule
 import re
 
-class MyPacker:
+class SAPacker:
     def __init__(self):
         self.buffer : bytes = b''
         self.size   : int   = 0
@@ -168,7 +168,7 @@ def windowlist( demonID, *param ):
 def reg_query( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     reghives = {
@@ -229,7 +229,7 @@ def reg_query( demonID, *params ):
 def reg_query_recursive( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     reghives = {
@@ -286,7 +286,7 @@ def reg_query_recursive( demonID, *params ):
 def wmi_query( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     query     = ''
@@ -328,7 +328,7 @@ def wmi_query( demonID, *params ):
 def nslookup( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     recordmapping = {
@@ -407,7 +407,7 @@ def env( demonID, *params ):
 def get_password_policy( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -431,7 +431,7 @@ def get_password_policy( demonID, *params ):
 def list_firewall_rules( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list all firewall rules" )
@@ -443,7 +443,7 @@ def list_firewall_rules( demonID, *params ):
 def cacls( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -469,7 +469,7 @@ def cacls( demonID, *params ):
 def schtasksenum( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -493,7 +493,7 @@ def schtasksenum( demonID, *params ):
 def schtasksquery( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -525,7 +525,7 @@ def schtasksquery( demonID, *params ):
 def sc_enum( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -549,7 +549,7 @@ def sc_enum( demonID, *params ):
 def sc_qc( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -581,7 +581,7 @@ def sc_qc( demonID, *params ):
 def sc_query( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -611,7 +611,7 @@ def sc_query( demonID, *params ):
 def sc_qdescription( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -643,7 +643,7 @@ def sc_qdescription( demonID, *params ):
 def sc_qfailure( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -675,7 +675,7 @@ def sc_qfailure( demonID, *params ):
 def sc_qtriggerinfo( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -707,7 +707,7 @@ def sc_qtriggerinfo( demonID, *params ):
 def adcs_enum( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -731,7 +731,7 @@ def adcs_enum( demonID, *params ):
 def enumlocalsessions( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -749,7 +749,7 @@ def enumlocalsessions( demonID, *params ):
 def enum_filter_driver( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -773,7 +773,7 @@ def enum_filter_driver( demonID, *params ):
 def ldapsearch( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     # parse parameters that contain quotes
@@ -825,7 +825,7 @@ def ldapsearch( demonID, *params ):
 def netsession( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -848,7 +848,7 @@ def netsession( demonID, *params ):
 def netGroupList( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -874,7 +874,7 @@ def netGroupList( demonID, *params ):
 def netGroupListMembers( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -905,7 +905,7 @@ def netGroupListMembers( demonID, *params ):
 def netLocalGroupList( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -931,7 +931,7 @@ def netLocalGroupList( demonID, *params ):
 def netGroupListMembers( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -962,7 +962,7 @@ def netGroupListMembers( demonID, *params ):
 def netLclGrpLstMmbrs( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -994,7 +994,7 @@ def netLclGrpLstMmbrs( demonID, *params ):
 def netuser( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -1025,7 +1025,7 @@ def netuser( demonID, *params ):
 def userenum( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -1060,7 +1060,7 @@ def userenum( demonID, *params ):
 def domainenum( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -1095,7 +1095,7 @@ def domainenum( demonID, *params ):
 def netshares( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -1119,7 +1119,7 @@ def netshares( demonID, *params ):
 def netsharesAdmin( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -1143,7 +1143,7 @@ def netsharesAdmin( demonID, *params ):
 def netuptime( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -1166,7 +1166,7 @@ def netuptime( demonID, *params ):
 def netview( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -1189,7 +1189,7 @@ def netview( demonID, *params ):
 def quser( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)

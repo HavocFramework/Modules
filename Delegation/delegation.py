@@ -1,7 +1,7 @@
 from havoc import Demon, RegisterCommand, RegisterModule
 import re
 
-class MyPacker:
+class DelegationPacker:
     def __init__(self):
         self.buffer : bytes = b''
         self.size   : int   = 0
@@ -47,7 +47,7 @@ class MyPacker:
 def get_delegation( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = DelegationPacker()
     demon  = Demon( demonID )
 
     del_query = {
@@ -105,7 +105,7 @@ def get_delegation( demonID, *params ):
 def get_spns( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = DelegationPacker()
     demon  = Demon( demonID )
 
     spn_query = {

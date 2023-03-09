@@ -5,7 +5,7 @@ import re
 def is_full_path(path):
     return re.match(r'^[a-zA-Z]:\\', path) is not None
 
-class MyPacker:
+class NNDPacker:
     def __init__(self):
         self.buffer : bytes = b''
         self.size   : int   = 0
@@ -38,7 +38,7 @@ class MyPacker:
 def nanodump(demonID, *params):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = NNDPacker()
 
     num_params = len(params)
     get_pid = False
@@ -370,7 +370,7 @@ def nanodump(demonID, *params):
 def nanodump_ppl(demonID, *params):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = NNDPacker()
 
     num_params = len(params)
     use_valid_sig = False
@@ -446,7 +446,7 @@ def nanodump_ppl(demonID, *params):
 def load_ssp(demonID, *params):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = MyPacker()
+    packer = NNDPacker()
 
     num_params = len(params)
     ssp_path = ''
