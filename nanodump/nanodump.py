@@ -1,6 +1,7 @@
 from havoc import Demon, RegisterCommand
 from struct import pack, calcsize
 import re
+import time
 
 def is_full_path(path):
     return re.match(r'^[a-zA-Z]:\\', path) is not None
@@ -200,9 +201,8 @@ def nanodump(demonID, *params):
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"invalid argument: {param}" )
             return True
 
-    if get_pid is False and write_file is False:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameter: --write or --getpid" )
-        return True
+    if write_file is False:
+        dump_path = f'{int(time.time())}_lsass.dmp'
 
     if get_pid and \
         (write_file or use_valid_sig or snapshot or fork or elevate_handle or duplicate_elevate or

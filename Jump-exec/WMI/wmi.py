@@ -50,10 +50,6 @@ def wmi_eventsub( demonID, *params ):
     packer = WmiPacker()
     demon  = Demon( demonID )
 
-    # parse parameters that contain quotes
-    params = ' '.join(params)
-    params = re.findall(r'".*?"|[^ ]+', params)
-    params = [param.strip('"') for param in params]
     params = params[1:]
     num_params = len(params)
 
