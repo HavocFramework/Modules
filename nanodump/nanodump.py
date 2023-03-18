@@ -156,7 +156,7 @@ def nanodump(demonID, *params):
             else:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, "invalid --spoof-callstack value" )
                 return True
-        elif param == "--help" or parm == "-h":
+        elif param == "--help" or param == "-h":
             demon.ConsoleWrite( demon.CONSOLE_INFO, "usage: nanodump [--write C:\\Windows\\Temp\\doc.docx] [--valid] [--duplicate] [--elevate-handle] [--duplicate-elevate] [--seclogon-leak-local] [--seclogon-leak-remote C:\Windows\notepad.exe] [--seclogon-duplicate] [--spoof-callstack svchost] [--silent-process-exit C:\\Windows\\Temp] [--shtinkering] [--fork] [--snapshot] [--getpid] [--help]" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "Dumpfile options:" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "    --write DUMP_PATH, -w DUMP_PATH" )
@@ -406,7 +406,7 @@ def nanodump_ppl(demonID, *params):
         elif param == '--duplicate' or param == '-d':
             # set arg to true for handle duplication
             dup = True
-        elif param == "--help" or parm == "-h":
+        elif param == "--help" or param == "-h":
             demon.ConsoleWrite( demon.CONSOLE_INFO, "usage: nanodump_ppl --write C:\\Windows\\Temp\\doc.docx [--valid] [--duplicate] [--help]" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "Dumpfile options:" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "    --write DUMP_PATH, -w DUMP_PATH" )
