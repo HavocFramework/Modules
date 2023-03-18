@@ -73,10 +73,10 @@ def get_delegation( demonID, *params ):
         return True
 
     if params[ 0 ].lower() not in del_query:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Wront first parameter" )
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Wrong first parameter" )
         return True
 
-    query = del_query[ params[ 0 ] ]
+    query = del_query[ params[ 0 ].lower() ]
 
     if num_params >= 2:
         attributes = params[ 1 ]
@@ -129,7 +129,7 @@ def get_spns( demonID, *params ):
         return True
 
     if params[ 0 ].lower() not in spn_query:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Wront first parameter" )
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Wrong first parameter" )
         return True
 
     query = spn_query[ params[ 0 ] ]
