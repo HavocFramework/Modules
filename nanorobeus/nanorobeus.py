@@ -33,7 +33,7 @@ def luid( demonID, *param ):
     arg2    : str   = ""
     arg3    : str   = ""
     arg4    : str   = ""
-    num_params = len(param) - 1
+    num_params = len(param)
 
     demon = Demon( demonID )
 
@@ -59,7 +59,7 @@ def sessions( demonID, *param ):
     arg2    : str   = ""
     arg3    : str   = ""
     arg4    : str   = ""
-    num_params = len(param) - 1
+    num_params = len(param)
 
     demon = Demon( demonID )
 
@@ -103,7 +103,7 @@ def klist( demonID, *param ):
     arg2    : str   = ""
     arg3    : str   = ""
     arg4    : str   = ""
-    num_params = len(param) - 1
+    num_params = len(param)
 
     demon = Demon( demonID )
 
@@ -147,7 +147,7 @@ def dump( demonID, *param ):
     arg2    : str   = ""
     arg3    : str   = ""
     arg4    : str   = ""
-    num_params = len(param) - 1
+    num_params = len(param)
 
     demon = Demon( demonID )
 
@@ -191,7 +191,7 @@ def ptt( demonID, *param ):
     arg2    : str   = ""
     arg3    : str   = ""
     arg4    : str   = ""
-    num_params = len(param) - 1
+    num_params = len(param)
 
     demon = Demon( demonID )
 
@@ -244,7 +244,7 @@ def purge( demonID, *param ):
     arg2    : str   = ""
     arg3    : str   = ""
     arg4    : str   = ""
-    num_params = len(param) - 1
+    num_params = len(param)
 
     demon = Demon( demonID )
 
@@ -287,12 +287,12 @@ def tgtdeleg( demonID, *param ):
     arg2    : str   = ""
     arg3    : str   = ""
     arg4    : str   = ""
-    num_params = len(param) - 1
+    num_params = len(param)
 
     demon = Demon( demonID )
 
     if num_params != 1:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "One argumnet must be entered" )
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "One argument must be entered" )
         return
 
     arg1 = param[ 1 ]
@@ -319,12 +319,12 @@ def kerberoast( demonID, *param ):
     arg2    : str   = ""
     arg3    : str   = ""
     arg4    : str   = ""
-    num_params = len(param) - 1
+    num_params = len(param)
 
     demon = Demon( demonID )
 
     if num_params != 1:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "One argumnet must be entered" )
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "One argument must be entered" )
         return
 
     arg1 = param[ 1 ]
@@ -341,11 +341,12 @@ def kerberoast( demonID, *param ):
 
     return TaskID
 
-RegisterCommand( luid, "", "bof-luid", "get current logon ID", 0, "", "" )
+#RegisterCommand( luid, "", "luid", "get current logon ID", 0, "", "" )
+#RegisterCommand( klist, "", "klist", "list Kerberos tickets", 0, "[/luid <0x0> | /all]", "" )
+#RegisterCommand( dump, "", "dump", "dump Kerberos tickets", 0, "[/luid <0x0> | /all]", "" )
+#RegisterCommand( ptt, "", "ptt", "import Kerberos ticket into a logon session", 0, "<base64> [/luid <0x0>]", "" )
+#RegisterCommand( purge, "", "purge", "purge Kerberos tickets", 0, "[/luid <0x0>]", "" )
+
 RegisterCommand( sessions, "", "sessions", "get logon sessions", 0, "[/luid <0x0> | /all]", "" )
-RegisterCommand( klist, "", "bof-klist", "list Kerberos tickets", 0, "[/luid <0x0> | /all]", "" )
-RegisterCommand( dump, "", "dump", "dump Kerberos tickets", 0, "[/luid <0x0> | /all]", "" )
-RegisterCommand( ptt, "", "bof-ptt", "import Kerberos ticket into a logon session", 0, "<base64> [/luid <0x0>]", "" )
-RegisterCommand( purge, "", "bof-purge", "purge Kerberos tickets", 0, "[/luid <0x0>]", "" )
 RegisterCommand( tgtdeleg, "", "tgtdeleg", "retrieve a usable TGT for the current user", 0, "<spn>", "" )
 RegisterCommand( kerberoast, "", "kerberoast", "perform Kerberoasting against specified SPN", 0, "<spn>", "" )
