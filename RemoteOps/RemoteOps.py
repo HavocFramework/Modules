@@ -349,11 +349,6 @@ def reg_set( demonID, *params ):
         'REG_QWORD': 1
     }
 
-    # parse parameters that contain quotes
-    params = ' '.join(params)
-    params = re.findall(r'".*?"|[^ ]+', params)
-    params = [param.strip('"') for param in params]
-
     params_parsed = 0
     num_params    = len(params)
     hostname      = ''
@@ -449,11 +444,6 @@ def sc_create( demonID, *params ):
         # SERVICE_WIN32_SHARE_PROCESS
         4: 0x20
     }
-
-    # parse parameters that contain quotes
-    params = ' '.join(params)
-    params = re.findall(r'".*?"|[^ ]+', params)
-    params = [param.strip('"') for param in params]
 
     num_params = len(params)
     hostname   = ''
@@ -611,11 +601,6 @@ def sc_description( demonID, *params ):
     demon  : Demon  = None
     packer = RemOpsPacker()
     demon  = Demon( demonID )
-
-    # parse parameters that contain quotes
-    params = ' '.join(params)
-    params = re.findall(r'".*?"|[^ ]+', params)
-    params = [param.strip('"') for param in params]
 
     num_params = len(params)
     hostname   = ''

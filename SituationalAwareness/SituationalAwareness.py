@@ -293,10 +293,6 @@ def wmi_query( demonID, *params ):
     server    = '.'
     namespace = 'root\\cimv2'
 
-    # parse parameters that contain quotes
-    params = ' '.join(params)
-    params = re.findall(r'".*?"|[^ ]+', params)
-    params = [param.strip('"') for param in params]
     num_params = len(params)
 
     if num_params < 1:
@@ -776,10 +772,6 @@ def ldapsearch( demonID, *params ):
     packer = SAPacker()
     demon  = Demon( demonID )
 
-    # parse parameters that contain quotes
-    params = ' '.join(params)
-    params = re.findall(r'".*?"|[^ ]+', params)
-    params = [param.strip('"') for param in params]
     num_params = len(params)
 
     query = ''
