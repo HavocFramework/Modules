@@ -63,10 +63,6 @@ def nanodump(demonID, *params):
 
     demon = Demon( demonID )
 
-    if demon.ProcessArch == "x86":
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support x86" )
-        return True
-
     if demon.ProcessArch != demon.OSArch:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support WoW64" )
         return True
