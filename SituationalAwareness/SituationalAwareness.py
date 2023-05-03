@@ -51,7 +51,7 @@ def arp( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite(demon.CONSOLE_TASK, "Tasked demon to lists out ARP table")
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/arp.x64.o", b'', False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/arp.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -62,7 +62,7 @@ def driversigs( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite(demon.CONSOLE_TASK, "Tasked demon to check drivers for known edr vendor names")
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/driversigs.x64.o", b'', False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/driversigs.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -73,7 +73,7 @@ def ipconfig( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite(demon.CONSOLE_TASK, "Tasked demon to lists out adapters, system hostname and configured dns serve")
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/ipconfig.x64.o", b'', False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/ipconfig.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -84,7 +84,7 @@ def listdns( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to lists dns cache entries" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/listdns.x64.o", b'', False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/listdns.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -95,7 +95,7 @@ def locale( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite(demon.CONSOLE_TASK, "Tasked demon to retrieve system locale information, date format, and country")
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/locale.x64.o", b'', False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/locale.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -106,7 +106,7 @@ def netstat( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to get local ipv4 udp/tcp listening and connected ports" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/netstat.x64.o", b'', False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/netstat.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -117,7 +117,7 @@ def resources( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list available memory and space on the primary disk drive" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/resources.x64.o", b'', False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/resources.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -128,7 +128,7 @@ def routeprint( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to prints ipv4 routes on the machine" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/routeprint.x64.o", b'', False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/routeprint.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -139,7 +139,7 @@ def uptime( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to lists system boot time" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/uptime.x64.o", b'', False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/uptime.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -150,7 +150,7 @@ def whoami( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to get the info from whoami /all without starting cmd.exe" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/whoami.x64.o", b'', False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/whoami.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -161,7 +161,7 @@ def windowlist( demonID, *param ):
     demon  = Demon( demonID )
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list windows visible on the users desktop" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/windowlist.x64.o", b'', False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/windowlist.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -222,7 +222,7 @@ def reg_query( demonID, *params ):
     packer.addstr(key)
     packer.addbool(False) # recursive
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/reg_query.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/reg_query.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -279,7 +279,7 @@ def reg_query_recursive( demonID, *params ):
     packer.addstr(key)
     packer.addbool(True) # recursive
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/reg_query.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/reg_query.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -317,7 +317,7 @@ def wmi_query( demonID, *params ):
     packer.addWstr(namespace)
     packer.addWstr(query)
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/wmi_query.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/wmi_query.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -385,7 +385,7 @@ def nslookup( demonID, *params ):
     packer.addstr(server)
     packer.addshort(_type)
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/nslookup.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/nslookup.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -396,7 +396,7 @@ def env( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to obtain the environment variables for the current process" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/env.x64.o", b'', False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/env.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -420,7 +420,7 @@ def get_password_policy( demonID, *params ):
 
     packer.addWstr(hostname)
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/get_password_policy.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/get_password_policy.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -432,7 +432,7 @@ def list_firewall_rules( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list all firewall rules" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/get_password_policy.x64.o", b'', False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/get_password_policy.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -458,7 +458,7 @@ def cacls( demonID, *params ):
 
     packer.addWstr(filepath)
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/cacls.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/cacls.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -482,7 +482,7 @@ def schtasksenum( demonID, *params ):
 
     packer.addWstr(server)
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/schtasksenum.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/schtasksenum.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -514,7 +514,7 @@ def schtasksquery( demonID, *params ):
     packer.addWstr(server)
     packer.addWstr(service)
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/schtasksquery.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/schtasksquery.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -538,7 +538,7 @@ def sc_enum( demonID, *params ):
 
     packer.addstr(server)
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/sc_enum.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/sc_enum.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -570,7 +570,7 @@ def sc_qc( demonID, *params ):
     packer.addstr(server)
     packer.addstr(service)
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/sc_qc.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/sc_qc.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -600,7 +600,7 @@ def sc_query( demonID, *params ):
     packer.addstr(server)
     packer.addstr(service)
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/sc_query.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/sc_query.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -632,7 +632,7 @@ def sc_qdescription( demonID, *params ):
     packer.addstr(server)
     packer.addstr(service)
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/sc_qdescription.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/sc_qdescription.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -664,7 +664,7 @@ def sc_qfailure( demonID, *params ):
     packer.addstr(server)
     packer.addstr(service)
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/sc_qfailure.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/sc_qfailure.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -696,7 +696,7 @@ def sc_qtriggerinfo( demonID, *params ):
     packer.addstr(server)
     packer.addstr(service)
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/sc_qtriggerinfo.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/sc_qtriggerinfo.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -720,7 +720,7 @@ def adcs_enum( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate CAs and templates in the AD" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/adcs_enum.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/adcs_enum.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -738,7 +738,7 @@ def enumlocalsessions( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate currently attached user sessions both local and over RDP" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/enumlocalsessions.x64.o", b'', False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/enumlocalsessions.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -762,7 +762,7 @@ def enum_filter_driver( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate filter drivers" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/enum_filter_driver.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/enum_filter_driver.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -810,7 +810,7 @@ def ldapsearch( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run ldap query" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/ldapsearch.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/ldapsearch.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -833,7 +833,7 @@ def netsession( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate sessions on the local or specified computer" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/get-netsession.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/get-netsession.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -859,7 +859,7 @@ def netGroupList( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list groups from the default or specified domain" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/netgroup.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/netgroup.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -890,7 +890,7 @@ def netGroupListMembers( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list group members from the default or specified domain" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/netgroup.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/netgroup.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -916,7 +916,7 @@ def netLocalGroupList( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list local groups from the local or specified computer" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/netlocalgroup.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/netlocalgroup.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -947,7 +947,7 @@ def netGroupListMembers( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list local group members" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/netlocalgroup.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/netlocalgroup.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -979,7 +979,7 @@ def netLclGrpLstMmbrs( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list local group members" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/netlocalgroup.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/netlocalgroup.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -1010,7 +1010,7 @@ def netuser( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to get info about specific user" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/netuser.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/netuser.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -1045,7 +1045,7 @@ def userenum( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list user accounts on the current computer" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/netuserenum.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/netuserenum.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -1080,7 +1080,7 @@ def domainenum( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list user accounts in the current domain" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/netuserenum.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/netuserenum.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -1104,7 +1104,7 @@ def netshares( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list shares on local or remote computer" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/netshares.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/netshares.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -1128,7 +1128,7 @@ def netsharesAdmin( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list shares on local or remote computer" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/netshares.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/netshares.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -1151,7 +1151,7 @@ def netuptime( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list local workstations and servers" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/netuptime.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/netuptime.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -1174,7 +1174,7 @@ def netview( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list local workstations and servers" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/netview.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/netview.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -1199,7 +1199,7 @@ def quser( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to obtain the list RDP connections on {hostname}" )
 
-    demon.InlineExecute( TaskID, "go", "ObjectFiles/quser.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", "ObjectFiles/quser.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -1248,3 +1248,19 @@ RegisterCommand( netsharesAdmin, "", "netsharesAdmin", "List shares on local or 
 RegisterCommand( netuptime, "", "netuptime", "Returns information about the boot time on the local (or a remote) machine", 0, "[opt: hostname]", "" )
 RegisterCommand( netview, "", "netview", "lists local workstations and servers", 0, "[opt: netbios_domain_name]", "" )
 RegisterCommand( quser, "", "quser", "Simple implementation of quser.exe usingt the Windows API", 0, "<OPT:TARGET>", "10.10.10.10" )
+
+"""
+def generic_callback( demonID, worked, output ):
+    if worked:
+        with open('/tmp/bof_output.txt', 'a'):
+            f.write(output)
+
+def sit_aw( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    return demon.InlineExecuteGetOutput( my_callback, "go", "ObjectFiles/reg_query.{demon.ProcessArch}.o", b'' )
+
+RegisterCommand( sit_aw, "", "sit-aw", "Get basic information about the current system", 0, "", "" )
+"""
