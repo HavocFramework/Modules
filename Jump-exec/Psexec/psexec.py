@@ -52,7 +52,7 @@ def psexec( demonID, *param ):
     packer.addstr( SvcBinary )
     packer.addstr( "\\\\" + Host + "\\C$\\Windows\\" + SvcName + ".exe" )
 
-    demon.InlineExecute( TaskID, "go", "psexec.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"psexec.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 

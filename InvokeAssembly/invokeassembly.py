@@ -43,6 +43,11 @@ def InvokeAssembly( demonID, *param ):
     packer   = Packer()
 
     demon  = Demon( demonID )
+
+    if demon.ProcessArch == 'x86':
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "x86 is not supported" )
+        return True
+
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon spawn and inject an assembly executable" )
     
     if len( param ) < 2:
@@ -63,7 +68,7 @@ def InvokeAssembly( demonID, *param ):
 
     arg = packer.getbuffer() 
 
-    demon.DllSpawn( TaskID, "bin/InvokeAssembly.x64.dll", arg )
+    demon.DllSpawn( TaskID, f"bin/InvokeAssembly.{demon.ProcessArch}.dll", arg )
 
     return TaskID
 

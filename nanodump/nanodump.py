@@ -63,6 +63,14 @@ def nanodump(demonID, *params):
 
     demon = Demon( demonID )
 
+    if demon.ProcessArch == "x86":
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support x86" )
+        return True
+
+    if demon.ProcessArch != demon.OSArch:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support WoW64" )
+        return True
+
     skip = False
     for i in range(num_params):
         if skip:
@@ -363,7 +371,7 @@ def nanodump(demonID, *params):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute nanodump BOF" )
 
-    demon.InlineExecute( TaskID, "go", "bin/nanodump.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/nanodump.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -380,7 +388,15 @@ def nanodump_ppl_dump(demonID, *params):
 
     demon = Demon( demonID )
 
-    with open('bin/nanodump_ppl_dump.x64.dll', 'rb') as f:
+    if demon.ProcessArch == "x86":
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support x86" )
+        return True
+
+    if demon.ProcessArch != demon.OSArch:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support WoW64" )
+        return True
+
+    with open(f'bin/nanodump_ppl_dump.{demon.ProcessArch}.dll', 'rb') as f:
         dll = f.read()
     if len(dll) == 0:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "could not read dll file" )
@@ -439,7 +455,7 @@ def nanodump_ppl_dump(demonID, *params):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute nanodump_ppl_dump BOF" )
 
-    demon.InlineExecute( TaskID, "go", "bin/nanodump_ppl_dump.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/nanodump_ppl_dump.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -456,7 +472,15 @@ def nanodump_ppl_medic(demonID, *params):
 
     demon = Demon( demonID )
 
-    with open('bin/nanodump_ppl_medic.x64.dll', 'rb') as f:
+    if demon.ProcessArch == "x86":
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support x86" )
+        return True
+
+    if demon.ProcessArch != demon.OSArch:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support WoW64" )
+        return True
+
+    with open(f'bin/nanodump_ppl_medic.{demon.ProcessArch}.dll', 'rb') as f:
         dll = f.read()
     if len(dll) == 0:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "could not read dll file" )
@@ -515,7 +539,7 @@ def nanodump_ppl_medic(demonID, *params):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute nanodump_ppl_medic BOF" )
 
-    demon.InlineExecute( TaskID, "go", "bin/nanodump_ppl_medic.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/nanodump_ppl_medic.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -533,6 +557,14 @@ def nanodump_ssp(demonID, *params):
     write_file = False
 
     demon = Demon( demonID )
+
+    if demon.ProcessArch == "x86":
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support x86" )
+        return True
+
+    if demon.ProcessArch != demon.OSArch:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support WoW64" )
+        return True
 
     skip = False
     for i in range(num_params):
@@ -600,7 +632,7 @@ def nanodump_ssp(demonID, *params):
         return True
 
     if load_path == '':
-        with open('bin/nanodump_ssp.x64.dll', 'rb') as f:
+        with open(f'bin/nanodump_ssp.{demon.ProcessArch}.dll', 'rb') as f:
             nanodump_ssp_dll = f.read()
         if len(nanodump_ssp_dll) == 0:
             demon.ConsoleWrite( demon.CONSOLE_ERROR, "could not read dll file" )
@@ -614,7 +646,7 @@ def nanodump_ssp(demonID, *params):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute nanodump_ssp BOF" )
 
-    demon.InlineExecute( TaskID, "go", "bin/nanodump_ssp.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/nanodump_ssp.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 

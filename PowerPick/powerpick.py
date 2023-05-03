@@ -24,6 +24,10 @@ def PowerPick(demonID, *param):
 
     demon  = Demon( demonID )
 
+    if demon.ProcessArch == 'x86':
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "x86 is not supported" )
+        return True
+
     if len( param ) < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough arguments" )
         return

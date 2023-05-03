@@ -45,7 +45,7 @@ def luid( demonID, *param ):
     packer.addstr( arg3 )
     packer.addstr( arg4 )
 
-    demon.InlineExecute( TaskID, "go", "bin/nanorobeus.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/nanorobeus.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -89,7 +89,7 @@ def sessions( demonID, *param ):
     packer.addstr( arg3 )
     packer.addstr( arg4 )
 
-    demon.InlineExecute( TaskID, "go", "bin/nanorobeus.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/nanorobeus.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -133,7 +133,7 @@ def klist( demonID, *param ):
     packer.addstr( arg3 )
     packer.addstr( arg4 )
 
-    demon.InlineExecute( TaskID, "go", "bin/nanorobeus.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/nanorobeus.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -177,7 +177,7 @@ def dump( demonID, *param ):
     packer.addstr( arg3 )
     packer.addstr( arg4 )
 
-    demon.InlineExecute( TaskID, "go", "bin/nanorobeus.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/nanorobeus.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -230,7 +230,7 @@ def ptt( demonID, *param ):
     packer.addstr( arg3 )
     packer.addstr( arg4 )
 
-    demon.InlineExecute( TaskID, "go", "bin/nanorobeus.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/nanorobeus.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -273,7 +273,7 @@ def purge( demonID, *param ):
     packer.addstr( arg3 )
     packer.addstr( arg4 )
 
-    demon.InlineExecute( TaskID, "go", "bin/nanorobeus.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/nanorobeus.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -305,7 +305,7 @@ def tgtdeleg( demonID, *param ):
     packer.addstr( arg3 )
     packer.addstr( arg4 )
 
-    demon.InlineExecute( TaskID, "go", "bin/nanorobeus.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/nanorobeus.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -337,7 +337,7 @@ def kerberoast( demonID, *param ):
     packer.addstr( arg3 )
     packer.addstr( arg4 )
 
-    demon.InlineExecute( TaskID, "go", "bin/nanorobeus.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/nanorobeus.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 

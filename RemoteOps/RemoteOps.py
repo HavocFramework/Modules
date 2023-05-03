@@ -102,7 +102,7 @@ def adcs_request( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to request an enrollment certificate" )
 
-    demon.InlineExecute( TaskID, "go", "bin/adcs_request.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/adcs_request.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -143,7 +143,7 @@ def addusertogroup( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to add the user {username} to the {groupname} group" )
 
-    demon.InlineExecute( TaskID, "go", "bin/addusertogroup.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/addusertogroup.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -176,7 +176,7 @@ def enableuser( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to enable the user {username}" )
 
-    demon.InlineExecute( TaskID, "go", "bin/enableuser.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/enableuser.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -212,7 +212,7 @@ def setuserpass( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to change the password of the user {username} to {password}" )
 
-    demon.InlineExecute( TaskID, "go", "bin/setuserpass.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/setuserpass.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -274,7 +274,7 @@ def reg_delete( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to delete a registry entry" )
 
-    demon.InlineExecute( TaskID, "go", "bin/reg_delete.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/reg_delete.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -318,7 +318,7 @@ def reg_save( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to save a registry entry" )
 
-    demon.InlineExecute( TaskID, "go", "bin/reg_save.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/reg_save.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -424,7 +424,7 @@ def reg_set( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to save a registry entry" )
 
-    demon.InlineExecute( TaskID, "go", "bin/reg_set.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/reg_set.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -502,7 +502,7 @@ def sc_create( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to create the {servicename} service" )
 
-    demon.InlineExecute( TaskID, "go", "bin/sc_create.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/sc_create.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -532,7 +532,7 @@ def sc_start( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to start the {servicename} service" )
 
-    demon.InlineExecute( TaskID, "go", "bin/sc_start.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/sc_start.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -562,7 +562,7 @@ def sc_stop( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to stop the {servicename} service" )
 
-    demon.InlineExecute( TaskID, "go", "bin/sc_stop.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/sc_stop.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -592,7 +592,7 @@ def sc_delete( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to delete the {servicename} service" )
 
-    demon.InlineExecute( TaskID, "go", "bin/sc_delete.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/sc_delete.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -625,7 +625,7 @@ def sc_description( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to set the description of the {servicename} service" )
 
-    demon.InlineExecute( TaskID, "go", "bin/sc_description.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"bin/sc_description.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 

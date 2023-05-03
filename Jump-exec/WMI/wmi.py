@@ -50,6 +50,10 @@ def wmi_eventsub( demonID, *params ):
     packer = WmiPacker()
     demon  = Demon( demonID )
 
+    if demon.ProcessArch == 'x86':
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "x86 is not supported" )
+        return True
+
     params = params[1:]
     num_params = len(params)
 
@@ -95,7 +99,7 @@ def wmi_eventsub( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to run a VBS script in {target} via wmi" )
 
-    demon.InlineExecute( TaskID, "go", "EventSub/bin/EventSub.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"EventSub/bin/EventSub.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -104,6 +108,10 @@ def wmi_proccreate( demonID, *params ):
     demon  : Demon  = None
     packer = WmiPacker()
     demon  = Demon( demonID )
+
+    if demon.ProcessArch == 'x86':
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "x86 is not supported" )
+        return True
 
     params = params[1:]
     num_params = len(params)
@@ -145,7 +153,7 @@ def wmi_proccreate( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to run a VBS script in {target} via wmi" )
 
-    demon.InlineExecute( TaskID, "go", "ProcCreate/bin/ProcCreate.x64.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ProcCreate/bin/ProcCreate.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
