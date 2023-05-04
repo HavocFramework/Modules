@@ -630,7 +630,7 @@ def sc_description( demonID, *params ):
     return TaskID
 
 RegisterCommand( adcs_request, "", "adcs_request", "Request an enrollment certificate", 0, "/CA:ca [/TEMPLATE:template] [/SUBJECT:subject] [/ALTNAME:altname] [/INSTALL] [/MACHINE]", "1337 c:\\windwos\\temp\\test.txt" )
-RegisterCommand( addusertogroup, "", "addusertogroup", "Request an enrollment certificate", 0, """<USERNAME> <GROUPNAME> <Server> <DOMAIN>
+RegisterCommand( addusertogroup, "", "addusertogroup", "Add the specified user to the specified group", 0, """<USERNAME> <GROUPNAME> <Server> <DOMAIN>
          USERNAME   Required. The user name to activate/enable. 
          GROUPNAME  Required. The group to add the user to.
          Server     Required. The target computer to perform the addition on. use \"\" for the local machine
