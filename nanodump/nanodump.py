@@ -63,7 +63,7 @@ def nanodump(demonID, *params):
 
     demon = Demon( demonID )
 
-    if demon.ProcessArch != demon.OSArch:
+    if demon.OSArch.startswith(demon.ProcessArch) is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support WoW64" )
         return True
 
@@ -388,7 +388,7 @@ def nanodump_ppl_dump(demonID, *params):
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support x86" )
         return True
 
-    if demon.ProcessArch != demon.OSArch:
+    if demon.OSArch.startswith(demon.ProcessArch) is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support WoW64" )
         return True
 
@@ -472,7 +472,7 @@ def nanodump_ppl_medic(demonID, *params):
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support x86" )
         return True
 
-    if demon.ProcessArch != demon.OSArch:
+    if demon.OSArch.startswith(demon.ProcessArch) is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support WoW64" )
         return True
 
@@ -558,7 +558,7 @@ def nanodump_ssp(demonID, *params):
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support x86" )
         return True
 
-    if demon.ProcessArch != demon.OSArch:
+    if demon.OSArch.startswith(demon.ProcessArch) is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support WoW64" )
         return True
 
