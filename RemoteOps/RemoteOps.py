@@ -498,7 +498,7 @@ def sc_create( demonID, *params ):
     packer.addstr(desc)
     packer.addshort(errormode)
     packer.addshort(startmode)
-    packer.adduint32(_type)
+    packer.addshort(_type)
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to create the {servicename} service" )
 
