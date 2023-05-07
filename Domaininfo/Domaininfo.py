@@ -9,7 +9,7 @@ def dcenum(demonID, *param):
 
     if demon.ProcessArch == "x86":
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "x86 is not supported" )
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate domain information using Active Directory Domain Services" )
     

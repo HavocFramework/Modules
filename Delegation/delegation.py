@@ -66,15 +66,15 @@ def get_delegation( demonID, *params ):
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 5:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     if params[ 0 ].lower() not in del_query:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Wrong first parameter" )
-        return True
+        return False
 
     query = del_query[ params[ 0 ].lower() ]
 
@@ -122,15 +122,15 @@ def get_spns( demonID, *params ):
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 5:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     if params[ 0 ].lower() not in spn_query:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Wrong first parameter" )
-        return True
+        return False
 
     query = spn_query[ params[ 0 ] ]
 

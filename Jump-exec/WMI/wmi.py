@@ -52,7 +52,7 @@ def wmi_eventsub( demonID, *params ):
 
     if demon.ProcessArch == 'x86':
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "x86 is not supported" )
-        return True
+        return False
 
     params = params[1:]
     num_params = len(params)
@@ -65,11 +65,11 @@ def wmi_eventsub( demonID, *params ):
 
     if num_params < 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 5:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     target = f'\\\\{params[ 0 ]}\\ROOT\\SUBSCRIPTION'
 
@@ -78,11 +78,11 @@ def wmi_eventsub( demonID, *params ):
             vbscript = f.read()
     except Exception as e:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid vbscript path" )
-        return True
+        return False
 
     if num_params > 2 and num_params < 5:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params == 5:
         is_current = False
@@ -111,7 +111,7 @@ def wmi_proccreate( demonID, *params ):
 
     if demon.ProcessArch == 'x86':
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "x86 is not supported" )
-        return True
+        return False
 
     params = params[1:]
     num_params = len(params)
@@ -125,18 +125,18 @@ def wmi_proccreate( demonID, *params ):
 
     if num_params < 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 5:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     target  = f'\\\\{params[ 0 ]}\\ROOT\\CIMV2'
     command = params[ 1 ]
 
     if num_params > 2 and num_params < 5:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params == 6:
         is_current = False

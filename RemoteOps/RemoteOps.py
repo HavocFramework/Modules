@@ -60,15 +60,15 @@ def adcs_request( demonID, *params ):
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 6:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     if not params[ 0 ].startswith('/CA:'):
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid first parameter" )
-        return True
+        return False
 
     adcs_request_ca = params[ 0 ][len('/CA:'):]
 
@@ -120,11 +120,11 @@ def addusertogroup( demonID, *params ):
 
     if num_params < 4:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 4:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     username  = params[ 0 ]
     groupname = params[ 1 ]
@@ -159,11 +159,11 @@ def enableuser( demonID, *params ):
 
     if num_params < 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     username  = params[ 0 ]
     hostname    = params[ 1 ]
@@ -193,11 +193,11 @@ def setuserpass( demonID, *params ):
 
     if num_params < 3:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 3:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     username  = params[ 0 ]
     password  = params[ 1 ]
@@ -239,11 +239,11 @@ def reg_delete( demonID, *params ):
 
     if num_params < 3:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 3:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     if params[ params_parsed ].upper() not in reghives:
         hostname = params[ params_parsed ]
@@ -251,7 +251,7 @@ def reg_delete( demonID, *params ):
 
     if params[ params_parsed ].upper() not in reghives:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid Hive value" )
-        return True
+        return False
 
     hive = reghives[ params[ params_parsed ].upper() ]
     params_parsed += 1
@@ -298,15 +298,15 @@ def reg_save( demonID, *params ):
 
     if num_params < 3:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 3:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     if params[ 0 ].upper() not in reghives:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid Hive" )
-        return True
+        return False
 
     hive     = reghives[ params[ 0 ].upper() ]
     regpath  = params[ 1 ]
@@ -359,11 +359,11 @@ def reg_set( demonID, *params ):
 
     if num_params < 5:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 6:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     if params[ params_parsed ].upper() not in reghives:
         hostname = f"\\\\{params[ params_parsed ]}"
@@ -371,7 +371,7 @@ def reg_set( demonID, *params ):
 
     if params[ params_parsed ].upper() not in reghives:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid hive" )
-        return True
+        return False
 
     hive     = reghives[ params[ params_parsed ].upper() ]
     params_parsed += 1
@@ -384,7 +384,7 @@ def reg_set( demonID, *params ):
 
     if params[ params_parsed ].upper() not in regtypes:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid type" )
-        return True
+        return False
 
     regstr = params[ params_parsed ].upper()
     params_parsed += 1
@@ -403,7 +403,7 @@ def reg_set( demonID, *params ):
             assert data <= 0xffffffff
         except Exception as e:
             demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid data" )
-            return True
+            return False
         packer.adduint32(data)
     elif regstr == 'REG_MULTI_SZ':
         data = params[ params_parsed ]
@@ -420,7 +420,7 @@ def reg_set( demonID, *params ):
     elif regstr == 'REG_BINARY':
         # TODO: implement openf, readb and closef
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "REG_BINARY is not supported" )
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to save a registry entry" )
 
@@ -451,11 +451,11 @@ def sc_create( demonID, *params ):
 
     if num_params < 6:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 8:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     servicename = params[ 0 ]
     displayname = params[ 1 ]
@@ -470,7 +470,7 @@ def sc_create( demonID, *params ):
             _type = service_type[ _type ]
         except Exception as e:
             demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid service type" )
-            return True
+            return False
     if num_params == 8:
         hostname = params[ 7 ]
 
@@ -482,14 +482,14 @@ def sc_create( demonID, *params ):
         assert errormode in [0, 1, 2, 3]
     except Exception as e:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid errormode" )
-        return True
+        return False
 
     try:
         startmode = int( startmode )
         assert startmode in [2, 3, 4]
     except Exception as e:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid startmode" )
-        return True
+        return False
 
     packer.addstr(hostname)
     packer.addstr(servicename)
@@ -517,11 +517,11 @@ def sc_start( demonID, *params ):
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     servicename = params[ 0 ]
     if num_params == 2:
@@ -547,11 +547,11 @@ def sc_stop( demonID, *params ):
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     servicename = params[ 0 ]
     if num_params == 2:
@@ -577,11 +577,11 @@ def sc_delete( demonID, *params ):
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     servicename = params[ 0 ]
     if num_params == 2:
@@ -607,11 +607,11 @@ def sc_description( demonID, *params ):
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
 
     if num_params > 3:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     servicename = params[ 0 ]
     description = params[ 1 ]

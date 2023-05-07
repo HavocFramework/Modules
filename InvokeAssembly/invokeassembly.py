@@ -46,7 +46,7 @@ def InvokeAssembly( demonID, *param ):
 
     if demon.ProcessArch == 'x86':
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "x86 is not supported" )
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon spawn and inject an assembly executable" )
     

@@ -226,7 +226,7 @@ def reg_query( demonID, *params ):
 
     packed_params = reg_query_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to query the windows registry" )
 
@@ -240,7 +240,7 @@ def reg_query_with_callback( demonID, callback, *params ):
 
     packed_params = reg_query_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/reg_query.{demon.ProcessArch}.o", packed_params )
 
@@ -317,7 +317,7 @@ def reg_query_recursive( demonID, *params ):
 
     packed_params = reg_query_recursive_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to query the windows registry recursively" )
 
@@ -364,7 +364,7 @@ def wmi_query( demonID, *params ):
 
     packed_params = wmi_query_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to query the Windows Management Toolkit" )
 
@@ -440,7 +440,7 @@ def nslookup( demonID, *params ):
 
     packed_params = nslookup_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run DNS query" )
 
@@ -485,7 +485,7 @@ def get_password_policy( demonID, *params ):
 
     packed_params = get_password_policy_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to obtain the password policy" )
 
@@ -531,7 +531,7 @@ def cacls( demonID, *params ):
 
     packed_params = cacls_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to obtain file permissions" )
 
@@ -563,7 +563,7 @@ def schtasksenum( demonID, *params ):
 
     packed_params = schtasksenum_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list all scheduled tasks" )
 
@@ -603,7 +603,7 @@ def schtasksquery( demonID, *params ):
 
     packed_params = schtasksquery_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to query a given scheduled task" )
 
@@ -635,7 +635,7 @@ def sc_enum( demonID, *params ):
 
     packed_params = sc_enum_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate all service configs" )
 
@@ -675,7 +675,7 @@ def sc_qc( demonID, *params ):
 
     packed_params = sc_qc_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run sc qc" )
 
@@ -713,7 +713,7 @@ def sc_query( demonID, *params ):
 
     packed_params = sc_query_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run sc query" )
 
@@ -753,7 +753,7 @@ def sc_qdescription( demonID, *params ):
 
     packed_params = sc_qdescription_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to get the description of a service" )
 
@@ -793,7 +793,7 @@ def sc_qfailure( demonID, *params ):
 
     packed_params = sc_qfailure_get_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to get the failure reason for a service" )
 
@@ -833,7 +833,7 @@ def sc_qtriggerinfo( demonID, *params ):
 
     packed_params = sc_qtriggerinfo_get_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to get the failure reason for a service" )
 
@@ -865,7 +865,7 @@ def adcs_enum( demonID, *params ):
 
     packed_params = adcs_enum_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate CAs and templates in the AD" )
 
@@ -883,7 +883,7 @@ def enumlocalsessions( demonID, *params ):
 
     if num_params > 0:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate currently attached user sessions both local and over RDP" )
 
@@ -915,7 +915,7 @@ def enum_filter_driver( demonID, *params ):
 
     packed_params = enum_filter_driver_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate filter drivers" )
 
@@ -971,7 +971,7 @@ def ldapsearch( demonID, *params ):
 
     packed_params = ldapsearch_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run ldap query" )
 
@@ -1002,7 +1002,7 @@ def netsession( demonID, *params ):
 
     packed_params = netsession_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate sessions on the local or specified computer" )
 
@@ -1036,7 +1036,7 @@ def netGroupList( demonID, *params ):
 
     packed_params = netGroupList_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list groups from the default or specified domain" )
 
@@ -1075,7 +1075,7 @@ def netGroupListMembers( demonID, *params ):
 
     packed_params = netGroupListMembers_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list group members from the default or specified domain" )
 
@@ -1109,7 +1109,7 @@ def netLocalGroupList( demonID, *params ):
 
     packed_params = netLocalGroupList_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list local groups from the local or specified computer" )
 
@@ -1149,7 +1149,7 @@ def netLclGrpLstMmbrs( demonID, *params ):
 
     packed_params = netLclGrpLstMmbrs_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list local group members" )
 
@@ -1188,7 +1188,7 @@ def netuser( demonID, *params ):
 
     packed_params = netuser_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to get info about specific user" )
 
@@ -1231,7 +1231,7 @@ def userenum( demonID, *params ):
 
     packed_params = userenum_parse_parans( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list user accounts on the current computer" )
 
@@ -1274,7 +1274,7 @@ def domainenum( demonID, *params ):
 
     packed_params = domainenum_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list user accounts in the current domain" )
 
@@ -1292,7 +1292,7 @@ def netshares_parse_params( demon, params ):
         computer = params[ 0 ]
     elif num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     packer.addWstr(computer)
     packer.adduint32(0)
@@ -1306,7 +1306,7 @@ def netshares( demonID, *params ):
 
     packed_params = netshares_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list shares on local or remote computer" )
 
@@ -1338,7 +1338,7 @@ def netsharesAdmin( demonID, *params ):
 
     packed_params = netsharesAdmin_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list shares on local or remote computer" )
 
@@ -1369,7 +1369,7 @@ def netuptime( demonID, *params ):
 
     packed_params = netuptime_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list local workstations and servers" )
 
@@ -1400,7 +1400,7 @@ def netview( demonID, *params ):
 
     packed_params = netview_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list local workstations and servers" )
 
@@ -1435,7 +1435,7 @@ def quser( demonID, *params ):
 
     packed_params = quser_parse_params( demon, params )
     if packed_params is None:
-        return True
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to obtain the list RDP connections on {hostname}" )
 
