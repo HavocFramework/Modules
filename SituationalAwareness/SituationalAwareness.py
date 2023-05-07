@@ -165,11 +165,8 @@ def windowlist( demonID, *param ):
 
     return TaskID
 
-def reg_query( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def reg_query_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     reghives = {
         'HKCR': 0,
@@ -183,11 +180,11 @@ def reg_query( demonID, *params ):
 
     if num_params < 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameters" )
-        return True
+        return None
 
     if num_params > 4:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     if params[ params_parsed ].upper() not in reghives:
         hostname = params[ params_parsed ]
@@ -197,14 +194,14 @@ def reg_query( demonID, *params ):
 
     if params[ params_parsed ].upper() not in reghives:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Provided registry hive value is invalid" )
-        return True
+        return None
 
     hive = reghives[ params[ params_parsed ].upper() ]
     params_parsed += 1
 
     if num_params < params_parsed + 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameters" )
-        return True
+        return None
 
     path = params[ params_parsed ]
     params_parsed += 1
@@ -214,23 +211,56 @@ def reg_query( demonID, *params ):
     else:
         key = None
 
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to query the windows registry" )
-
     packer.addstr(hostname)
     packer.adduint32(hive)
     packer.addstr(path)
     packer.addstr(key)
     packer.addbool(False) # recursive
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/reg_query.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    return packer.getbuffer()
+
+def reg_query( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = reg_query_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to query the windows registry" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/reg_query.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def reg_query_recursive( demonID, *params ):
+def reg_query_with_callback( demonID, callback, *params ):
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = reg_query_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
+    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/reg_query.{demon.ProcessArch}.o", packed_params )
+
+def generic_callback( demonID, worked, output ):
+    if worked:
+        with open('/tmp/bof_output.txt', 'a'):
+            f.write(output)
+
+def sit_aw( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = SAPacker()
     demon  = Demon( demonID )
+
+    return demon.InlineExecuteGetOutput( my_callback, "go", f"ObjectFiles/reg_query.{demon.ProcessArch}.o", b'' )
+
+RegisterCommand( sit_aw, "", "sit-aw", "Get basic information about the current system", 0, "", "" )
+
+
+def reg_query_recursive_parse_params( demon, params ):
+    packer = SAPacker()
 
     reghives = {
         'HKCR': 0,
@@ -244,11 +274,11 @@ def reg_query_recursive( demonID, *params ):
 
     if num_params < 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameters" )
-        return True
+        return None
 
     if num_params > 3:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     if params[ params_parsed ].upper() not in reghives:
         hostname = params[ params_parsed ]
@@ -258,20 +288,18 @@ def reg_query_recursive( demonID, *params ):
 
     if params[ params_parsed ].upper() not in reghives:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Provided registry hive value is invalid" )
-        return True
+        return None
 
     hive = reghives[ params[ params_parsed ].upper() ]
     params_parsed += 1
 
     if num_params < params_parsed + 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameters" )
-        return True
+        return None
 
     path = params[ params_parsed ]
 
     key = None
-
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to query the windows registry recursively" )
 
     packer.addstr(hostname)
     packer.adduint32(hive)
@@ -279,15 +307,26 @@ def reg_query_recursive( demonID, *params ):
     packer.addstr(key)
     packer.addbool(True) # recursive
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/reg_query.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    return packer.getbuffer()
 
-    return TaskID
-
-def wmi_query( demonID, *params ):
+def reg_query_recursive( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
     packer = SAPacker()
     demon  = Demon( demonID )
+
+    packed_params = reg_query_recursive_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to query the windows registry recursively" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/reg_query.{demon.ProcessArch}.o", packed_params, False )
+
+    return TaskID
+
+def wmi_query_parse_params( demon, params ):
+    packer = SAPacker()
 
     query     = ''
     server    = '.'
@@ -297,11 +336,11 @@ def wmi_query( demonID, *params ):
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameters" )
-        return True
+        return None
 
     if num_params > 3:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     query = params[ 0 ]
 
@@ -311,21 +350,30 @@ def wmi_query( demonID, *params ):
     if num_params > 2:
         namespace = params[ 2 ]
 
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to query the Windows Management Toolkit" )
-
     packer.addWstr(server)
     packer.addWstr(namespace)
     packer.addWstr(query)
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/wmi_query.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    return packer.getbuffer()
 
-    return TaskID
-
-def nslookup( demonID, *params ):
+def wmi_query( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
     packer = SAPacker()
     demon  = Demon( demonID )
+
+    packed_params = wmi_query_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to query the Windows Management Toolkit" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/wmi_query.{demon.ProcessArch}.o", packed_params, False )
+
+    return TaskID
+
+def nslookup_parse_params( demon, params ):
+    packer = SAPacker()
 
     recordmapping = {
         'A': 1,
@@ -362,7 +410,7 @@ def nslookup( demonID, *params ):
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Missing parameters" )
-        return True
+        return None
 
     lookup = params[ 0 ]
 
@@ -370,22 +418,33 @@ def nslookup( demonID, *params ):
         server = params[ 1 ]
         if server == '127.0.0.1':
             demon.ConsoleWrite( demon.CONSOLE_ERROR, "Localhost dns query's have a potential to crash, refusing" )
-            return True
+            return None
 
     if num_params > 2 and params[ 2 ].upper() in recordmapping:
         _type = recordmapping[ params[ 2 ].upper() ]
 
     if num_params > 3:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
-
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run DNS query" )
+        return None
 
     packer.addstr(lookup)
     packer.addstr(server)
     packer.addshort(_type)
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/nslookup.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    return packer.getbuffer()
+
+def nslookup( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = nslookup_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run DNS query" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/nslookup.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
@@ -400,11 +459,8 @@ def env( demonID, *params ):
 
     return TaskID
 
-def get_password_policy( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def get_password_policy_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     hostname = '.'
@@ -414,13 +470,26 @@ def get_password_policy( demonID, *params ):
 
     if num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
-
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to obtain the password policy" )
+        return None
 
     packer.addWstr(hostname)
 
     demon.InlineExecute( TaskID, "go", f"ObjectFiles/get_password_policy.{demon.ProcessArch}.o", packer.getbuffer(), False )
+
+    return packer.getbuffer()
+
+def get_password_policy( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = get_password_policy_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to obtain the password policy" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/get_password_policy.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
@@ -436,37 +505,42 @@ def list_firewall_rules( demonID, *params ):
 
     return TaskID
 
-def cacls( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def cacls_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return None
 
     filepath = params[ 0 ]
 
     if num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return None
+
+    packer.addWstr(filepath)
+
+    return packer.getbuffer()
+
+def cacls( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = cacls_parse_params( demon, params )
+    if packed_params is None:
         return True
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to obtain file permissions" )
 
-    packer.addWstr(filepath)
-
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/cacls.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/cacls.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def schtasksenum( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def schtasksenum_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     server = ''
@@ -476,21 +550,29 @@ def schtasksenum( demonID, *params ):
 
     if num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return None
+
+    packer.addWstr(server)
+
+    return packer.getbuffer()
+
+def schtasksenum( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = schtasksenum_parse_params( demon, params )
+    if packed_params is None:
         return True
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list all scheduled tasks" )
 
-    packer.addWstr(server)
-
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/schtasksenum.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/schtasksenum.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def schtasksquery( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def schtasksquery_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     service = ''
@@ -498,7 +580,7 @@ def schtasksquery( demonID, *params ):
 
     if num_params == 0:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return None
 
     if num_params == 1:
         service = params[ 0 ]
@@ -507,22 +589,30 @@ def schtasksquery( demonID, *params ):
         service = params[ 1 ]
     else:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
-
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to query a given scheduled task" )
+        return None
 
     packer.addWstr(server)
     packer.addWstr(service)
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/schtasksquery.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    return packer.getbuffer()
+
+def schtasksquery( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = schtasksquery_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to query a given scheduled task" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/schtasksquery.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def sc_enum( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def sc_enum_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     server = ''
@@ -532,21 +622,29 @@ def sc_enum( demonID, *params ):
 
     if num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return None
+
+    packer.addstr(server)
+
+    return packer.getbuffer()
+
+def sc_enum( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = sc_enum_parse_params( demon, params )
+    if packed_params is None:
         return True
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate all service configs" )
 
-    packer.addstr(server)
-
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/sc_enum.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/sc_enum.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def sc_qc( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def sc_qc_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     service = ''
@@ -554,7 +652,7 @@ def sc_qc( demonID, *params ):
 
     if num_params == 0:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return None
 
     if num_params == 1:
         service = params[ 0 ]
@@ -563,22 +661,30 @@ def sc_qc( demonID, *params ):
         server = params[ 1 ]
     else:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
-
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run sc qc" )
+        return None
 
     packer.addstr(server)
     packer.addstr(service)
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/sc_qc.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    return packer.getbuffer()
+
+def sc_qc( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = sc_qc_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run sc qc" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/sc_qc.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def sc_query( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def sc_query_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     service = ''
@@ -593,54 +699,110 @@ def sc_query( demonID, *params ):
         server = params[ 1 ]
     else:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return None
+
+    packer.addstr(server)
+    packer.addstr(service)
+
+    return packer.getbuffer()
+
+def sc_query( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = sc_query_parse_params( demon, params )
+    if packed_params is None:
         return True
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run sc query" )
 
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/sc_query.{demon.ProcessArch}.o", packed_params, False )
+
+    return TaskID
+
+def sc_qdescription_parse_params( demon, params ):
+    packer = SAPacker()
+
+    num_params = len(params)
+    service = ''
+    server = ''
+
+    if num_params == 0:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return None
+
+    if num_params == 1:
+        service = params[ 0 ]
+    elif num_params == 2:
+        service = params[ 0 ]
+        server = params[ 1 ]
+    else:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return None
+
     packer.addstr(server)
     packer.addstr(service)
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/sc_query.{demon.ProcessArch}.o", packer.getbuffer(), False )
-
-    return TaskID
+    return packer.getbuffer()
 
 def sc_qdescription( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = SAPacker()
     demon  = Demon( demonID )
 
-    num_params = len(params)
-    service = ''
-    server = ''
-
-    if num_params == 0:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
-
-    if num_params == 1:
-        service = params[ 0 ]
-    elif num_params == 2:
-        service = params[ 0 ]
-        server = params[ 1 ]
-    else:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+    packed_params = sc_qdescription_parse_params( demon, params )
+    if packed_params is None:
         return True
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to get the description of a service" )
 
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/sc_qdescription.{demon.ProcessArch}.o", packed_params, False )
+
+    return TaskID
+
+def sc_qfailure_get_params( demon, params ):
+    packer = SAPacker()
+
+    num_params = len(params)
+    service = ''
+    server = ''
+
+    if num_params == 0:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return None
+
+    if num_params == 1:
+        service = params[ 0 ]
+    elif num_params == 2:
+        service = params[ 0 ]
+        server = params[ 1 ]
+    else:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return None
+
     packer.addstr(server)
     packer.addstr(service)
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/sc_qdescription.{demon.ProcessArch}.o", packer.getbuffer(), False )
-
-    return TaskID
+    return packer.getbuffer()
 
 def sc_qfailure( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = SAPacker()
     demon  = Demon( demonID )
+
+    packed_params = sc_qfailure_get_params( demon, params )
+    if packed_params is None:
+        return True
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to get the failure reason for a service" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/sc_qfailure.{demon.ProcessArch}.o", packed_params, False )
+
+    return TaskID
+
+def sc_qtriggerinfo_get_params( demon, params ):
+    packer = SAPacker()
 
     num_params = len(params)
     service = ''
@@ -648,7 +810,7 @@ def sc_qfailure( demonID, *params ):
 
     if num_params == 0:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return None
 
     if num_params == 1:
         service = params[ 0 ]
@@ -657,70 +819,57 @@ def sc_qfailure( demonID, *params ):
         server = params[ 1 ]
     else:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
-
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to get the failure reason for a service" )
+        return None
 
     packer.addstr(server)
     packer.addstr(service)
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/sc_qfailure.{demon.ProcessArch}.o", packer.getbuffer(), False )
-
-    return TaskID
+    return packer.getbuffer()
 
 def sc_qtriggerinfo( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = SAPacker()
     demon  = Demon( demonID )
 
-    num_params = len(params)
-    service = ''
-    server = ''
-
-    if num_params == 0:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
-
-    if num_params == 1:
-        service = params[ 0 ]
-    elif num_params == 2:
-        service = params[ 0 ]
-        server = params[ 1 ]
-    else:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+    packed_params = sc_qtriggerinfo_get_params( demon, params )
+    if packed_params is None:
         return True
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to get the failure reason for a service" )
 
-    packer.addstr(server)
-    packer.addstr(service)
-
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/sc_qtriggerinfo.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/sc_qtriggerinfo.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def adcs_enum( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def adcs_enum_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     domain = ''
 
     if num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     if num_params == 1:
         domain = params[ 0 ]
 
     packer.addWstr(domain)
 
+    return packer.getbuffer()
+
+def adcs_enum( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = adcs_enum_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate CAs and templates in the AD" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/adcs_enum.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/adcs_enum.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
@@ -742,35 +891,40 @@ def enumlocalsessions( demonID, *params ):
 
     return TaskID
 
-def enum_filter_driver( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def enum_filter_driver_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     system = ''
 
     if num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     if num_params == 1:
         system = params[ 0 ]
 
     packer.addstr(system)
 
+    return packer.getbuffer()
+
+def enum_filter_driver( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = enum_filter_driver_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate filter drivers" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/enum_filter_driver.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/enum_filter_driver.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def ldapsearch( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def ldapsearch_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
 
@@ -782,11 +936,11 @@ def ldapsearch( demonID, *params ):
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return None
 
     if num_params > 5:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     query = params[ 0 ]
 
@@ -808,17 +962,25 @@ def ldapsearch( demonID, *params ):
     packer.addstr(hostname)
     packer.addstr(domain)
 
+    return packer.getbuffer()
+
+def ldapsearch( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = ldapsearch_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run ldap query" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/ldapsearch.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/ldapsearch.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def netsession( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def netsession_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     computer = ''
@@ -827,21 +989,29 @@ def netsession( demonID, *params ):
         computer = params[ 0 ]
     elif num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     packer.addWstr(computer)
 
+    return packer.getbuffer()
+
+def netsession( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = netsession_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate sessions on the local or specified computer" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/get-netsession.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/get-netsession.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def netGroupList( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def netGroupList_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     domain = ''
@@ -851,23 +1021,31 @@ def netGroupList( demonID, *params ):
         domain = params[ 0 ]
     elif num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     packer.addshort(0)
     packer.addWstr(domain)
     packer.addWstr(group)
 
+    return packer.getbuffer()
+
+def netGroupList( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = netGroupList_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list groups from the default or specified domain" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netgroup.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netgroup.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def netGroupListMembers( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def netGroupListMembers_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     domain = ''
@@ -875,30 +1053,38 @@ def netGroupListMembers( demonID, *params ):
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return None
     elif num_params == 1:
         group = params[ 0 ]
     elif num_params == 2:
         domain = params[ 1 ]
     else:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     packer.addshort(1)
     packer.addWstr(domain)
     packer.addWstr(group)
 
+    return packer.getbuffer()
+
+def netGroupListMembers( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = netGroupListMembers_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list group members from the default or specified domain" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netgroup.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netgroup.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def netLocalGroupList( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def netLocalGroupList_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     server = ''
@@ -908,23 +1094,31 @@ def netLocalGroupList( demonID, *params ):
         server = params[ 0 ]
     elif num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     packer.addshort(0)
     packer.addWstr(server)
     packer.addWstr(group)
 
+    return packer.getbuffer()
+
+def netLocalGroupList( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = netLocalGroupList_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list local groups from the local or specified computer" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netlocalgroup.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netlocalgroup.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def netGroupListMembers( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def netLclGrpLstMmbrs_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     domain = ''
@@ -932,62 +1126,39 @@ def netGroupListMembers( demonID, *params ):
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return None
     elif num_params == 1:
         group = params[ 0 ]
     elif num_params == 2:
+        group = params[ 0 ]
         domain = params[ 1 ]
     else:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     packer.addshort(1)
     packer.addWstr(domain)
     packer.addWstr(group)
 
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list local group members" )
-
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netlocalgroup.{demon.ProcessArch}.o", packer.getbuffer(), False )
-
-    return TaskID
+    return packer.getbuffer()
 
 def netLclGrpLstMmbrs( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = SAPacker()
     demon  = Demon( demonID )
 
-    num_params = len(params)
-    domain = ''
-    group = ''
-
-    if num_params < 1:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+    packed_params = netLclGrpLstMmbrs_parse_params( demon, params )
+    if packed_params is None:
         return True
-    elif num_params == 1:
-        group = params[ 0 ]
-    elif num_params == 2:
-        group = params[ 0 ]
-        domain = params[ 1 ]
-    else:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
-
-    packer.addshort(1)
-    packer.addWstr(domain)
-    packer.addWstr(group)
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list local group members" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netlocalgroup.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netlocalgroup.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def netuser( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def netuser_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     username = ''
@@ -995,7 +1166,7 @@ def netuser( demonID, *params ):
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return None
     elif num_params == 1:
         username = params[ 0 ]
     elif num_params == 2:
@@ -1003,22 +1174,73 @@ def netuser( demonID, *params ):
         domain = params[ 1 ]
     else:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     packer.addWstr(username)
     packer.addWstr(domain)
 
+    return packer.getbuffer()
+
+def netuser( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = netuser_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to get info about specific user" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netuser.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netuser.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
+
+def userenum_parse_parans( demon, params ):
+    packer = SAPacker()
+
+    num_params = len(params)
+
+    enumtype = {
+        'all': 1,
+        'locked': 2,
+        'disabled': 3,
+        'active': 4
+    }
+
+    _type = enumtype[ 'all' ]
+
+    if num_params == 1:
+        if params[ 0 ].lower() not in enumtype:
+            demon.ConsoleWrite( demon.CONSOLE_ERROR, "Parameter not in: [all, locked, disabled, active]" )
+            return None
+        _type = enumtype[ params[ 0 ].lower() ]
+    elif num_params > 1:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return None
+
+    packer.adduint32(0)
+    packer.adduint32(_type)
+
+    return packer.getbuffer()
 
 def userenum( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = SAPacker()
     demon  = Demon( demonID )
+
+    packed_params = userenum_parse_parans( demon, params )
+    if packed_params is None:
+        return True
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list user accounts on the current computer" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netuserenum.{demon.ProcessArch}.o", packed_params, False )
+
+    return TaskID
+
+def domainenum_parse_params( demon, params ):
+    packer = SAPacker()
 
     num_params = len(params)
 
@@ -1034,61 +1256,34 @@ def userenum( demonID, *params ):
     if num_params == 1:
         if params[ 0 ].lower() not in enumtype:
             demon.ConsoleWrite( demon.CONSOLE_ERROR, "Parameter not in: [all, locked, disabled, active]" )
-            return True
+            return None
         _type = enumtype[ params[ 0 ].lower() ]
     elif num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
-    packer.adduint32(0)
+    packer.adduint32(1)
     packer.adduint32(_type)
 
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list user accounts on the current computer" )
-
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netuserenum.{demon.ProcessArch}.o", packer.getbuffer(), False )
-
-    return TaskID
+    return packer.getbuffer()
 
 def domainenum( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = SAPacker()
     demon  = Demon( demonID )
 
-    num_params = len(params)
-
-    enumtype = {
-        'all': 1,
-        'locked': 2,
-        'disabled': 3,
-        'active': 4
-    }
-
-    _type = enumtype[ 'all' ]
-
-    if num_params == 1:
-        if params[ 0 ].lower() not in enumtype:
-            demon.ConsoleWrite( demon.CONSOLE_ERROR, "Parameter not in: [all, locked, disabled, active]" )
-            return True
-        _type = enumtype[ params[ 0 ].lower() ]
-    elif num_params > 1:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+    packed_params = domainenum_parse_params( demon, params )
+    if packed_params is None:
         return True
-
-    packer.adduint32(1)
-    packer.adduint32(_type)
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list user accounts in the current domain" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netuserenum.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netuserenum.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def netshares( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def netshares_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     computer = ''
@@ -1102,17 +1297,25 @@ def netshares( demonID, *params ):
     packer.addWstr(computer)
     packer.adduint32(0)
 
+    return packer.getbuffer()
+
+def netshares( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = netshares_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list shares on local or remote computer" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netshares.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netshares.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def netsharesAdmin( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def netsharesAdmin_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     computer = ''
@@ -1121,22 +1324,30 @@ def netsharesAdmin( demonID, *params ):
         computer = params[ 0 ]
     elif num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     packer.addWstr(computer)
     packer.adduint32(1)
 
+    return packer.getbuffer()
+
+def netsharesAdmin( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = netsharesAdmin_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list shares on local or remote computer" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netshares.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netshares.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def netuptime( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def netuptime_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     hostname = ''
@@ -1145,21 +1356,29 @@ def netuptime( demonID, *params ):
         hostname = params[ 0 ]
     elif num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     packer.addWstr(hostname)
 
+    return packer.getbuffer()
+
+def netuptime( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = netuptime_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list local workstations and servers" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netuptime.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netuptime.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def netview( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def netview_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     computer = ''
@@ -1168,21 +1387,29 @@ def netview( demonID, *params ):
         computer = params[ 0 ]
     elif num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     packer.addWstr(computer)
 
+    return packer.getbuffer()
+
+def netview( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = netview_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list local workstations and servers" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netview.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netview.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
-def quser( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
+def quser_parse_params( demon, params ):
     packer = SAPacker()
-    demon  = Demon( demonID )
 
     num_params = len(params)
     hostname   = ''
@@ -1193,13 +1420,26 @@ def quser( demonID, *params ):
         hostname = params[ 0 ]
     elif num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return None
 
     packer.addstr(hostname)
 
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/quser.{demon.ProcessArch}.o", packer.getbuffer(), False )
+
+    return packer.getbuffer()
+
+def quser( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = quser_parse_params( demon, params )
+    if packed_params is None:
+        return True
+
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to obtain the list RDP connections on {hostname}" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/quser.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/quser.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
@@ -1248,19 +1488,3 @@ RegisterCommand( netsharesAdmin, "", "netsharesAdmin", "List shares on local or 
 RegisterCommand( netuptime, "", "netuptime", "Returns information about the boot time on the local (or a remote) machine", 0, "[opt: hostname]", "" )
 RegisterCommand( netview, "", "netview", "lists local workstations and servers", 0, "[opt: netbios_domain_name]", "" )
 RegisterCommand( quser, "", "quser", "Simple implementation of quser.exe usingt the Windows API", 0, "<OPT:TARGET>", "10.10.10.10" )
-
-"""
-def generic_callback( demonID, worked, output ):
-    if worked:
-        with open('/tmp/bof_output.txt', 'a'):
-            f.write(output)
-
-def sit_aw( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
-    demon  = Demon( demonID )
-
-    return demon.InlineExecuteGetOutput( my_callback, "go", f"ObjectFiles/reg_query.{demon.ProcessArch}.o", b'' )
-
-RegisterCommand( sit_aw, "", "sit-aw", "Get basic information about the current system", 0, "", "" )
-"""
