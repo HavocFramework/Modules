@@ -1824,58 +1824,51 @@ def open_windows_info(data):
         info['open_windows'] = []
     return info
 
-def bofseatbelt_report( demonID ):
+def bofseatbelt_report( demonID, data ):
     demon  : Demon  = None
     demon  = Demon( demonID )
 
-    with open('/tmp/bofseatbelt.txt', 'r') as f:
-        data = f.read()
+    #print(json.dumps(data, indent=2))
+    return False
 
-    report = {}
-    report['os'] = os_info(data)
-    report['user'] = user_info(data)
-    report['ps'] = ps_info(data)
-    report['dotnet'] = dotnet_info(data)
-    report['avedr'] = avedr_info(data)
-    report['processes'] = processes_info(data)
-    report['uac'] = uac_info(data)
-    report['local_users'] = local_users_info(data)
-    report['local_sessions'] = local_sessions_info(data)
-    report['open_windows'] = open_windows_info(data)
+    #report = {}
+    #report['os'] = os_info(data)
+    #report['user'] = user_info(data)
+    #report['ps'] = ps_info(data)
+    #report['dotnet'] = dotnet_info(data)
+    #report['avedr'] = avedr_info(data)
+    #report['processes'] = processes_info(data)
+    #report['uac'] = uac_info(data)
+    #report['local_users'] = local_users_info(data)
+    #report['local_sessions'] = local_sessions_info(data)
+    #report['open_windows'] = open_windows_info(data)
     #print(json.dumps(report, indent=2))
 
-    #demon.ConsoleWrite( demon.CONSOLE_INFO, 'OS Information' )
-
-def bofseatbelt_callback( demonID, worked, output ):
-    # check how many times we got a callback
+def bofseatbelt_callback( demonID, worked, output, error ):
+    filename = '/tmp/bofseatbelt.json'
     try:
-        with open('/tmp/bofseatbelt_num.txt', 'r') as f:
-            bofs_ran = int(f.read())
-    except:
-        bofs_ran = 0
+        with open(filename, 'r') as f:
+            data = json.load(f)
+    except Exception as e:
+        data = {}
 
-    # if this is the first time, remove the bofseatbelt file
-    if bofs_ran == 35:
-        bofs_ran = 0
-        os.remove('/tmp/bofseatbelt_num.txt')
+    num_entries  = len(data)
+    num_entries += 1
 
-    # add the output of this callback to the bofseatbelt file
-    with open('/tmp/bofseatbelt.txt', 'a') as f:
-        if worked:
-            f.write(f'BOF worked: {output}')
-        else:
-            f.write(f'BOF failed')
-        f.write('\n---------------------\n')
-
-    # store that we got a new callback
-    bofs_ran += 1
-    with open('/tmp/bofseatbelt_num.txt', 'w') as f:
-        f.write(f'{bofs_ran}')
+    data[num_entries] = {
+        'worked': worked,
+        'output': output,
+        'error': error
+    }
 
     # are we done?
-    if bofs_ran == 35:
-        os.remove('/tmp/bofseatbelt_num.txt')
-        bofseatbelt_report( demonID )
+    if num_entries == 35:
+        os.remove(filename)
+        bofseatbelt_report( demonID, data )
+        return True
+
+    with open(filename, 'w') as f:
+        f.write(json.dumps(data))
 
 def bofseatbelt( demonID, *params ):
     TaskID : str    = None
