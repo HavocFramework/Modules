@@ -1613,47 +1613,47 @@ def callback_output_failed(bof_output):
 def os_info(bof_output):
     info = {}
 
-    bof_num = 1
+    bof_num = 0
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['ProductName'] = '?'
     else:
-        info['ProductName'] = bof_output[str(bof_num)]['output'].split('REG_SZ')[1].strip()
+        info['ProductName'] = bof_output[bof_num]['output'].split('REG_SZ')[1].strip()
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['ReleaseId'] = '?'
     else:
-        info['ReleaseId'] = bof_output[str(bof_num)]['output'].split(' ')[-1].strip()
+        info['ReleaseId'] = bof_output[bof_num]['output'].split(' ')[-1].strip()
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['CurrentMajorVersionNumber'] = '?'
     else:
-        info['CurrentMajorVersionNumber'] = bof_output[str(bof_num)]['output'].split(' ')[-1].strip()
+        info['CurrentMajorVersionNumber'] = bof_output[bof_num]['output'].split(' ')[-1].strip()
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['CurrentVersion'] = '?'
     else:
-        info['CurrentVersion'] = bof_output[str(bof_num)]['output'].split(' ')[-1].strip()
+        info['CurrentVersion'] = bof_output[bof_num]['output'].split(' ')[-1].strip()
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['CurrentBuildNumber'] = '?'
     else:
-        info['CurrentBuildNumber'] = bof_output[str(bof_num)]['output'].split(' ')[-1].strip()
+        info['CurrentBuildNumber'] = bof_output[bof_num]['output'].split(' ')[-1].strip()
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['arch'] = '?'
     else:
-        match = re.search(r'PROCESSOR_ARCHITECTURE=(.*)', bof_output[str(bof_num)]['output'])
+        match = re.search(r'PROCESSOR_ARCHITECTURE=(.*)', bof_output[bof_num]['output'])
         if match is not None:
             info['arch'] = match.group(1)
         else:
@@ -1661,17 +1661,17 @@ def os_info(bof_output):
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['ip'] = '?'
         info['DNS'] = '?'
     else:
-        match = re.search(r'\s+(.+)\nHostname:', bof_output[str(bof_num)]['output'], re.MULTILINE)
+        match = re.search(r'\s+(.+)\nHostname:', bof_output[bof_num]['output'], re.MULTILINE)
         if match is not None:
             info['ip'] = match.group(1)
         else:
             info['ip'] = '?'
 
-        match = re.search(r'DNS Server:\s+(.*)', bof_output[str(bof_num)]['output'])
+        match = re.search(r'DNS Server:\s+(.*)', bof_output[bof_num]['output'])
         if match is not None:
             info['DNS'] = match.group(1)
         else:
@@ -1679,10 +1679,10 @@ def os_info(bof_output):
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['Domain'] = '?'
     else:
-        match = re.search(r'Domain\n(.*)', bof_output[str(bof_num)]['output'])
+        match = re.search(r'Domain\n(.*)', bof_output[bof_num]['output'])
         if match is not None:
             info['Domain'] = match.group(1)
         else:
@@ -1695,10 +1695,10 @@ def os_info(bof_output):
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['uptime'] = '?'
     else:
-        match = re.search(r'Uptime: (.*)', bof_output[str(bof_num)]['output'])
+        match = re.search(r'Uptime: (.*)', bof_output[bof_num]['output'])
         if match is not None:
             info['uptime'] = match.group(1)
         else:
@@ -1709,9 +1709,9 @@ def os_info(bof_output):
 def user_info(bof_output):
     info = {}
 
-    bof_num = 11
+    bof_num = 10
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['username'] = '?'
         info['integrity'] = '?'
         info['groups'] = ['?']
@@ -1719,21 +1719,21 @@ def user_info(bof_output):
         info['privs'] = ['?']
         info['isadmin'] = '?'
     else:
-        match = re.search(r'UserName\s+SID\s*\n[=\s]+\n(.*?)\s*S-', bof_output[str(bof_num)]['output'])
+        match = re.search(r'UserName\s+SID\s*\n[=\s]+\n(.*?)\s*S-', bof_output[bof_num]['output'])
         if match is not None:
             info['username'] = match.group(1)
         else:
             info['username'] = '?'
 
-        match = re.search(r'Mandatory Label\\(\S+)', bof_output[str(bof_num)]['output'])
+        match = re.search(r'Mandatory Label\\(\S+)', bof_output[bof_num]['output'])
         if match is not None:
             info['integrity'] = match.group(1)
         else:
             info['integrity'] = '?'
 
-        info['groups'] = re.findall(r'^(.+?)\s*(?:Well-known group|Group|Alias)',  bof_output[str(bof_num)]['output'], re.MULTILINE)
-        info['isLocalAdmin'] = 'S-1-5-32-544' in  bof_output[str(bof_num)]['output']
-        info['privs'] = re.findall(r'(Se\S*).*Enabled\s*', bof_output[str(bof_num)]['output'])
+        info['groups'] = re.findall(r'^(.+?)\s*(?:Well-known group|Group|Alias)',  bof_output[bof_num]['output'], re.MULTILINE)
+        info['isLocalAdmin'] = 'S-1-5-32-544' in  bof_output[bof_num]['output']
+        info['privs'] = re.findall(r'(Se\S*).*Enabled\s*', bof_output[bof_num]['output'])
         info['isadmin'] = False # TODO: add
 
     return info
@@ -1741,56 +1741,56 @@ def user_info(bof_output):
 def ps_info(bof_output):
     info = {}
 
-    bof_num = 12
+    bof_num = 11
 
     info['CLRs'] = []
     info['versions'] = []
 
-    if callback_output_failed(bof_output[str(bof_num)]) is False:
+    if callback_output_failed(bof_output[bof_num]) is False:
         info['CLRs'].append('v1.0.3705')
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]) is False:
+    if callback_output_failed(bof_output[bof_num]) is False:
         info['CLRs'].append('v1.1.4322')
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]) is False:
+    if callback_output_failed(bof_output[bof_num]) is False:
         info['CLRs'].append('v2.0.50727')
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]) is False:
+    if callback_output_failed(bof_output[bof_num]) is False:
         info['CLRs'].append('v3.0')
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]) is False:
+    if callback_output_failed(bof_output[bof_num]) is False:
         info['CLRs'].append('v3.5')
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]) is False:
+    if callback_output_failed(bof_output[bof_num]) is False:
         info['CLRs'].append('v4.0.30319')
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]) is False:
-        info['versions'].append(bof_output[str(bof_num)]['output'].split('REG_SZ')[1].strip())
+    if callback_output_failed(bof_output[bof_num]) is False:
+        info['versions'].append(bof_output[bof_num]['output'].split('REG_SZ')[1].strip())
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]) is False:
-        info['versions'].append(bof_output[str(bof_num)]['output'].split('REG_SZ')[1].strip())
+    if callback_output_failed(bof_output[bof_num]) is False:
+        info['versions'].append(bof_output[bof_num]['output'].split('REG_SZ')[1].strip())
 
     bof_num += 1
 
     # TODO: test these regexes in a Windows machine with logging enabled
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['EnableTranscripting'] = False
     else:
-        match = re.search(r'EnableTranscripting\s+\w+\s+(\d+)', bof_output[str(bof_num)]['output'])
+        match = re.search(r'EnableTranscripting\s+\w+\s+(\d+)', bof_output[bof_num]['output'])
         if match is not None:
             info['EnableTranscripting'] = int(match.group(1)) == 1
         else:
@@ -1798,10 +1798,10 @@ def ps_info(bof_output):
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['EnableInvocationHeader'] = False
     else:
-        match = re.search(r'EnableInvocationHeader\s+\w+\s+(\d+)', bof_output[str(bof_num)]['output'])
+        match = re.search(r'EnableInvocationHeader\s+\w+\s+(\d+)', bof_output[bof_num]['output'])
         if match is not None:
             info['EnableInvocationHeader'] = int(match.group(1)) == 1
         else:
@@ -1809,10 +1809,10 @@ def ps_info(bof_output):
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['EnableModuleLogging'] = False
     else:
-        match = re.search(r'EnableModuleLogging\s+\w+\s+(\d+)', bof_output[str(bof_num)]['output'])
+        match = re.search(r'EnableModuleLogging\s+\w+\s+(\d+)', bof_output[bof_num]['output'])
         if match is not None:
             info['EnableModuleLogging'] = int(match.group(1)) == 1
         else:
@@ -1820,10 +1820,10 @@ def ps_info(bof_output):
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['EnableScriptBlockLogging'] = False
     else:
-        match = re.search(r'EnableScriptBlockLogging\s+\w+\s+(\d+)', bof_output[str(bof_num)]['output'])
+        match = re.search(r'EnableScriptBlockLogging\s+\w+\s+(\d+)', bof_output[bof_num]['output'])
         if match is not None:
             info['EnableScriptBlockLogging'] = int(match.group(1)) == 1
         else:
@@ -1831,10 +1831,10 @@ def ps_info(bof_output):
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['EnableScriptBlockInvocationLogging'] = False
     else:
-        match = re.search(r'EnableScriptBlockInvocationLogging\s+\w+\s+(\d+)', bof_output[str(bof_num)]['output'])
+        match = re.search(r'EnableScriptBlockInvocationLogging\s+\w+\s+(\d+)', bof_output[bof_num]['output'])
         if match is not None:
             info['EnableScriptBlockInvocationLogging'] = int(match.group(1)) == 1
         else:
@@ -1850,24 +1850,24 @@ def dotnet_info(bof_output):
     info['CLR']['versions'] = []
     info['.NET']['versions'] = []
 
-    bof_num = 25
+    bof_num = 24
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['CLR']['versions'] = ['?']
     else:
-        info['CLR']['versions'] = re.findall(r'<dir> (v.*)', bof_output[str(bof_num)]['output'])
+        info['CLR']['versions'] = re.findall(r'<dir> (v.*)', bof_output[bof_num]['output'])
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]) is False:
-        match = re.search(r'\s+Version\s+REG_SZ\s+(.*)', bof_output[str(bof_num)]['output'])
+    if callback_output_failed(bof_output[bof_num]) is False:
+        match = re.search(r'\s+Version\s+REG_SZ\s+(.*)', bof_output[bof_num]['output'])
         if match is not None:
             info['.NET']['versions'].append(match.group(1))
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]) is False:
-        match = re.search(r'\s+Version\s+REG_SZ\s+(.*)', bof_output[str(bof_num)]['output'])
+    if callback_output_failed(bof_output[bof_num]) is False:
+        match = re.search(r'\s+Version\s+REG_SZ\s+(.*)', bof_output[bof_num]['output'])
         if match is not None:
             info['.NET']['versions'].append(match.group(1))
 
@@ -1876,12 +1876,12 @@ def dotnet_info(bof_output):
 def avedr_info(bof_output):
     info = {}
 
-    bof_num = 28
+    bof_num = 27
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['AVs'] = []
     else:
-        data = bof_output[str(bof_num)].split('displayName, instanceGuid')
+        data = bof_output[bof_num].split('displayName, instanceGuid')
         if len(bof_output) != 2:
             return info
         data = data[1]
@@ -1896,15 +1896,15 @@ def avedr_info(bof_output):
 def processes_info(bof_output):
     info = {}
 
-    bof_num = 29
+    bof_num = 28
 
     info['names'] = []
     info['browser']     = []
     info['interesting'] = []
     info['defensive']   = []
 
-    if callback_output_failed(bof_output[str(bof_num)]) is False:
-        data = bof_output[str(bof_num)]['output']
+    if callback_output_failed(bof_output[bof_num]) is False:
+        data = bof_output[bof_num]['output']
         data = data.split('\n')[1:]
         for entry in data:
             match = re.search(r'^(.*?)\s+\d', entry)
@@ -1926,12 +1926,12 @@ def processes_info(bof_output):
 def uac_info(bof_output):
     info = {}
 
-    bof_num = 30
+    bof_num = 29
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['ConsentPromptBehaviorAdmin'] = '?'
     else:
-        match = re.search(r'ConsentPromptBehaviorAdmin\s+REG_DWORD\s+(\d+)', bof_output[str(bof_num)]['output'])
+        match = re.search(r'ConsentPromptBehaviorAdmin\s+REG_DWORD\s+(\d+)', bof_output[bof_num]['output'])
         if match is not None:
             info['ConsentPromptBehaviorAdmin'] = int(match.group(1))
         else:
@@ -1939,10 +1939,10 @@ def uac_info(bof_output):
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['EnableLUA'] = False
     else:
-        match = re.search(r'EnableLUA\s+REG_DWORD\s+(\d+)', bof_output[str(bof_num)]['output'])
+        match = re.search(r'EnableLUA\s+REG_DWORD\s+(\d+)', bof_output[bof_num]['output'])
         if match is not None:
             info['EnableLUA'] = int(match.group(1)) == 1
         else:
@@ -1950,10 +1950,10 @@ def uac_info(bof_output):
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['LocalAccountTokenFilterPolicy'] = False
     else:
-        match = re.search(r'LocalAccountTokenFilterPolicy\s+REG_DWORD\s+(\d+)', bof_output[str(bof_num)]['output'])
+        match = re.search(r'LocalAccountTokenFilterPolicy\s+REG_DWORD\s+(\d+)', bof_output[bof_num]['output'])
         if match is not None:
             info['LocalAccountTokenFilterPolicy'] = int(match.group(1)) == 1
         else:
@@ -1961,10 +1961,10 @@ def uac_info(bof_output):
 
     bof_num += 1
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['FilterAdministratorToken'] = False
     else:
-        match = re.search(r'FilterAdministratorToken\s+REG_DWORD\s+(\d+)', bof_output[str(bof_num)]['output'])
+        match = re.search(r'FilterAdministratorToken\s+REG_DWORD\s+(\d+)', bof_output[bof_num]['output'])
         if match is not None:
             info['FilterAdministratorToken'] = int(match.group(1)) == 1
         else:
@@ -1975,36 +1975,36 @@ def uac_info(bof_output):
 def local_users_info(bof_output):
     info = {}
 
-    bof_num = 34
+    bof_num = 33
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['local_users'] = ['?']
     else:
-        info['local_users'] = re.findall(rf'^-- (.*)$', bof_output[str(bof_num)]['output'], re.MULTILINE)
+        info['local_users'] = re.findall(rf'^-- (.*)$', bof_output[bof_num]['output'], re.MULTILINE)
 
     return info
 
 def local_sessions_info(bof_output):
     info = {}
 
-    bof_num = 35
+    bof_num = 34
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['local_sessions'] = ['?']
     else:
-        info['local_sessions'] = re.findall(r'^  - \[\d\] (.*?)$', bof_output[str(bof_num)]['output'], re.MULTILINE)
+        info['local_sessions'] = re.findall(r'^  - \[\d\] (.*?)$', bof_output[bof_num]['output'], re.MULTILINE)
 
     return info
 
 def open_windows_info(bof_output):
     info = {}
 
-    bof_num = 36
+    bof_num = 35
 
-    if callback_output_failed(bof_output[str(bof_num)]):
+    if callback_output_failed(bof_output[bof_num]):
         info['open_windows'] = ['?']
     else:
-        data = bof_output[str(bof_num)]['output']
+        data = bof_output[bof_num]['output']
         data = data.split('\n')
         info['open_windows'] = [entry for entry in data if entry != '']
 
@@ -2015,19 +2015,16 @@ def bofbelt_report( demonID, bof_output ):
     demon  = Demon( demonID )
 
     report = {}
-    report['os']        = os_info(bof_output)
-    report['user']      = user_info(bof_output)
-    try:
-        report['ps']        = ps_info(bof_output)
-    except Exception as e:
-        print(f'-< {e}')
-    report['dotnet']    = dotnet_info(bof_output)
-    report['avedr']     = avedr_info(bof_output)
-    report['processes'] = processes_info(bof_output)
-    report['uac'] = uac_info(bof_output)
-    report['local_users'] = local_users_info(bof_output)
+    report['os']             = os_info(bof_output)
+    report['user']           = user_info(bof_output)
+    report['ps']             = ps_info(bof_output)
+    report['dotnet']         = dotnet_info(bof_output)
+    report['avedr']          = avedr_info(bof_output)
+    report['processes']      = processes_info(bof_output)
+    report['uac']            = uac_info(bof_output)
+    report['local_users']    = local_users_info(bof_output)
     report['local_sessions'] = local_sessions_info(bof_output)
-    report['open_windows'] = open_windows_info(bof_output)
+    report['open_windows']   = open_windows_info(bof_output)
     #print(json.dumps(bof_output, indent=2))
     #print(json.dumps(report, indent=2))
 
@@ -2236,38 +2233,36 @@ def bofbelt_report( demonID, bof_output ):
     except Exception as e:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f'Error obtaining Open windows Information: {e}')
 
-    return False
-
-
 # this callback is triggered by every BOF
 # demonID: the ID of the demon that ran the BOF
+# TaskID : the ID of the task returned by demon.InlineExecuteGetOutput
 # worked : weather the BOF was able to run or not
 # output : the content of all CALLBACK_OUTPUT
 # error  : the content of all CALLBACK_ERROR
-def bofbelt_callback( demonID, worked, output, error ):
-    # first, get the json that contains all the previous BOF output
+def bofbelt_callback( demonID, TaskID, worked, output, error ):
     filename = '/tmp/bofbelt.json'
+
+    # first, get the json that contains all the previous BOF output
     try:
         with open(filename, 'r') as f:
             bof_output = json.load(f)
     except:
-        bof_output = {}
-
-    # get how many BOFs have completed
-    num_entries  = len(bof_output)
-    # add one entry
-    num_entries += 1
+        bof_output = []
 
     # add the data for this BOF callback
-    bof_output[str(num_entries)] = {
+    bof_output.append({
         'worked': worked,
+        'TaskID': TaskID,
         'output': output,
-        'error': error
-    }
+        'error' : error
+    })
 
     # save all the data
     with open(filename, 'w') as f:
         f.write(json.dumps(bof_output))
+
+    # get how many BOFs have completed
+    num_entries  = len(bof_output)
 
     # are we done?
     if num_entries == 36:
