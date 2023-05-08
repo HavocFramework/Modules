@@ -1607,339 +1607,745 @@ def tasklist_with_callback( demonID, callback, *params ):
 
     return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/tasklist.{demon.ProcessArch}.o", packed_params )
 
-def os_info(data):
+def callback_output_failed(bof_output):
+    return bof_output['worked'] is False or bof_output['error'] != '' or bof_output['output'] == ''
+
+def os_info(bof_output):
     info = {}
-    keys = ['ProductName',
-            'ReleaseId',
-            'CurrentMajorVersionNumber',
-            'CurrentVersion',
-            'CurrentBuildNumber']
-    for k in keys:
-        regex = re.compile(rf'{k}\s+REG_\w+\s+(.*)')
-        match = re.search(regex, data)
-        if match is not None:
-            info[k] = match.group(1)
-        else:
-            info[k] = '?'
-    match = re.search(r'PROCESSOR_ARCHITECTURE=(.*)', data)
-    if match is not None:
-        info['arch'] = match.group(1)
+
+    bof_num = 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
+        info['ProductName'] = '?'
     else:
+        info['ProductName'] = bof_output[str(bof_num)]['output'].split('REG_SZ')[1].strip()
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
+        info['ReleaseId'] = '?'
+    else:
+        info['ReleaseId'] = bof_output[str(bof_num)]['output'].split(' ')[-1].strip()
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
+        info['CurrentMajorVersionNumber'] = '?'
+    else:
+        info['CurrentMajorVersionNumber'] = bof_output[str(bof_num)]['output'].split(' ')[-1].strip()
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
+        info['CurrentVersion'] = '?'
+    else:
+        info['CurrentVersion'] = bof_output[str(bof_num)]['output'].split(' ')[-1].strip()
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
+        info['CurrentBuildNumber'] = '?'
+    else:
+        info['CurrentBuildNumber'] = bof_output[str(bof_num)]['output'].split(' ')[-1].strip()
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
         info['arch'] = '?'
-    match = re.search(r'^\s+(.+)\nHostname:\s+\S+\nDNS', data, re.MULTILINE)
-    if match is not None:
-        info['ip'] = match.group(1)
     else:
-        info['ip'] = '?'
-    match = re.search(r'DNS Server:\s+(.*)', data)
-    if match is not None:
-        info['DNS'] = match.group(1)
-    else:
-        info['DNS'] = '?'
-    match = re.search(r'DNS Server:\s+.*[\s\S]*?Domain\n(.*)', data)
-    if match is not None:
-        info['Domain'] = match.group(1)
-    else:
-        info['Domain'] = '?'
-    match = re.search(r'^AdminPasswordStatus, AutomaticManagedPagefile.*', data, re.MULTILINE)
-    if match is not None:
-        line = match.group(0)
-        subdata = data.split(line)[1].split('\n')[1]
-        subdata = subdata.split(', ')
-        if len(subdata) >= 30:
-            manufacturer = subdata[28]
-            model = subdata[29]
-            info['manufacturer'] = manufacturer
-            info['model'] = model
+        match = re.search(r'PROCESSOR_ARCHITECTURE=(.*)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['arch'] = match.group(1)
         else:
-            info['manufacturer'] = '?'
-            info['model'] = '?'
+            info['arch'] = '?'
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
+        info['ip'] = '?'
+        info['DNS'] = '?'
     else:
-        info['manufacturer'] = '?'
-        info['model'] = '?'
-    match = re.search(r'Uptime: (.*)', data)
-    if match is not None:
-        info['uptime'] = match.group(1)
+        match = re.search(r'\s+(.+)\nHostname:', bof_output[str(bof_num)]['output'], re.MULTILINE)
+        if match is not None:
+            info['ip'] = match.group(1)
+        else:
+            info['ip'] = '?'
+
+        match = re.search(r'DNS Server:\s+(.*)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['DNS'] = match.group(1)
+        else:
+            info['DNS'] = '?'
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
+        info['Domain'] = '?'
     else:
+        match = re.search(r'Domain\n(.*)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['Domain'] = match.group(1)
+        else:
+            info['Domain'] = '?'
+
+    bof_num += 1
+
+    info['manufacturer'] = '?'
+    info['model'] = '?'
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
         info['uptime'] = '?'
+    else:
+        match = re.search(r'Uptime: (.*)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['uptime'] = match.group(1)
+        else:
+            info['uptime'] = '?'
+
     return info
 
-def user_info(data):
+def user_info(bof_output):
     info = {}
-    match = re.search(r'UserName\s+SID\s*\n[=\s]+\n(.*?)\s*S-', data)
-    if match is not None:
-        info['username'] = match.group(1)
-    else:
+
+    bof_num = 11
+
+    if callback_output_failed(bof_output[str(bof_num)]):
         info['username'] = '?'
-    match = re.search(r'Mandatory Label\\(\S+)', data)
-    if match is not None:
-        info['integrity'] = match.group(1)
-    else:
         info['integrity'] = '?'
-    match = re.search(r'GROUP INFORMATION\s+Type\s+SID\s+Attributes', data)
-    if match is not None:
-        line = match.group(0)
-        subdata = data.split(line)[1].split('\n\n')[0]
-        subdata = '\n'.join(subdata.split('\n')[2:])
-        info['groups'] = re.findall(r'^(.+?)\s*(?:Well-known group|Group|Alias)', subdata, re.MULTILINE)
-        info['isLocalAdmin'] = 'S-1-5-32-544' in subdata
-    else:
         info['groups'] = ['?']
         info['isLocalAdmin'] = '?'
-    match = re.search(r'Privilege Name\s*Description\s*State.*', data)
-    if match is not None:
-        line = match.group(0)
-        subdata = data.split(line)[1].split('\n\n')[0]
-        subdata = '\n'.join(subdata.split('\n')[2:])
-        info['privs'] = re.findall(r'^(\S*?)\s+', subdata, re.MULTILINE)
-    else:
         info['privs'] = ['?']
-    # info['isadmin'] = aggressor.isadmin()
-    info['isadmin'] = False
-    return info
-
-def ps_info(data):
-    info = {}
-    info['versions'] = re.findall(r'PowerShellVersion\s+REG_SZ\s+(.*)', data)
-    info['CLRs'] = []
-    clrs = ['v1.0.3705', 'v1.1.4322', 'v2.0.50727', 'v3.0', 'v3.5', 'v4.0.30319']
-    for clr in clrs:
-        match = re.search(rf'^Contents of .*Framework\\{re.escape(clr)}\\System\.dll:', data, re.MULTILINE)
+        info['isadmin'] = '?'
+    else:
+        match = re.search(r'UserName\s+SID\s*\n[=\s]+\n(.*?)\s*S-', bof_output[str(bof_num)]['output'])
         if match is not None:
-            info['CLRs'].append(clr)
+            info['username'] = match.group(1)
+        else:
+            info['username'] = '?'
+
+        match = re.search(r'Mandatory Label\\(\S+)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['integrity'] = match.group(1)
+        else:
+            info['integrity'] = '?'
+
+        info['groups'] = re.findall(r'^(.+?)\s*(?:Well-known group|Group|Alias)',  bof_output[str(bof_num)]['output'], re.MULTILINE)
+        info['isLocalAdmin'] = 'S-1-5-32-544' in  bof_output[str(bof_num)]['output']
+        info['privs'] = re.findall(r'(Se\S*).*Enabled\s*', bof_output[str(bof_num)]['output'])
+        info['isadmin'] = False # TODO: add
+
+    return info
+
+def ps_info(bof_output):
+    info = {}
+
+    bof_num = 12
+
+    info['CLRs'] = []
+    info['versions'] = []
+
+    if callback_output_failed(bof_output[str(bof_num)]) is False:
+        info['CLRs'].append('v1.0.3705')
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]) is False:
+        info['CLRs'].append('v1.1.4322')
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]) is False:
+        info['CLRs'].append('v2.0.50727')
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]) is False:
+        info['CLRs'].append('v3.0')
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]) is False:
+        info['CLRs'].append('v3.5')
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]) is False:
+        info['CLRs'].append('v4.0.30319')
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]) is False:
+        info['versions'].append(bof_output[str(bof_num)]['output'].split('REG_SZ')[1].strip())
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]) is False:
+        info['versions'].append(bof_output[str(bof_num)]['output'].split('REG_SZ')[1].strip())
+
+    bof_num += 1
+
     # TODO: test these regexes in a Windows machine with logging enabled
-    match = re.search(r'EnableTranscripting\s+\w+\s+(\d+)', data)
-    if match is not None:
-        info['EnableTranscripting'] = int(match.group(1)) == 1
-    else:
+    if callback_output_failed(bof_output[str(bof_num)]):
         info['EnableTranscripting'] = False
-    match = re.search(r'EnableInvocationHeader\s+\w+\s+(\d+)', data)
-    if match is not None:
-        info['EnableInvocationHeader'] = int(match.group(1)) == 1
     else:
+        match = re.search(r'EnableTranscripting\s+\w+\s+(\d+)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['EnableTranscripting'] = int(match.group(1)) == 1
+        else:
+            info['EnableTranscripting'] = False
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
         info['EnableInvocationHeader'] = False
-    match = re.search(r'EnableModuleLogging\s+\w+\s+(\d+)', data)
-    if match is not None:
-        info['EnableModuleLogging'] = int(match.group(1)) == 1
     else:
+        match = re.search(r'EnableInvocationHeader\s+\w+\s+(\d+)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['EnableInvocationHeader'] = int(match.group(1)) == 1
+        else:
+            info['EnableInvocationHeader'] = False
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
         info['EnableModuleLogging'] = False
-    match = re.search(r'EnableScriptBlockLogging\s+\w+\s+(\d+)', data)
-    if match is not None:
-        info['EnableScriptBlockLogging'] = int(match.group(1)) == 1
     else:
+        match = re.search(r'EnableModuleLogging\s+\w+\s+(\d+)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['EnableModuleLogging'] = int(match.group(1)) == 1
+        else:
+            info['EnableModuleLogging'] = False
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
         info['EnableScriptBlockLogging'] = False
-    match = re.search(r'EnableScriptBlockInvocationLogging\s+\w+\s+(\d+)', data)
-    if match is not None:
-        info['EnableScriptBlockInvocationLogging'] = int(match.group(1)) == 1
     else:
+        match = re.search(r'EnableScriptBlockLogging\s+\w+\s+(\d+)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['EnableScriptBlockLogging'] = int(match.group(1)) == 1
+        else:
+            info['EnableScriptBlockLogging'] = False
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
         info['EnableScriptBlockInvocationLogging'] = False
+    else:
+        match = re.search(r'EnableScriptBlockInvocationLogging\s+\w+\s+(\d+)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['EnableScriptBlockInvocationLogging'] = int(match.group(1)) == 1
+        else:
+            info['EnableScriptBlockInvocationLogging'] = False
+
     return info
 
-def dotnet_info(data):
+def dotnet_info(bof_output):
     info = {}
-    match = re.search(r'Contents of C:\\Windows\\Microsoft\.Net\\Framework\\([\s\S]*?)Total File Size', data)
-    if match is None:
-        return info
-    dirs = match.group(1)
+
     info['CLR'] = {}
-    info['CLR']['versions'] = re.findall(r'<dir> (v.*)', dirs)
     info['.NET'] = {}
-    info['.NET']['versions'] = re.findall(r'\s+Version\s+REG_SZ\s+(.*)', data)
-    return info
+    info['CLR']['versions'] = []
+    info['.NET']['versions'] = []
 
-def avedr_info(data):
-    info = {}
-    data = data.split('displayName, instanceGuid')
-    if len(data) != 2:
-        return info
-    data = data[1]
-    data = data.split('\n\n')
-    if len(data) < 2:
-        return info
-    data = data[0]
-    info['AVs'] = re.findall(r'^([^,]+), .+?, .+?, ([^,]+), ', data, re.MULTILINE)
-    return info
+    bof_num = 25
 
-def processes_info(data):
-    info = {}
-    # all processes
-    match = re.search(r'Name\s+ProcessId\s+ParentProcessId\s+SessionId\s+CommandLine', data)
-    if match is None:
-        return info
-    data = data.split(match.group(0))[1]
-    info['names'] = re.findall(r'^(\w+\.exe)\s+\d+\s+\d+', data, re.MULTILINE)
-    proctypes = ['browser', 'interesting', 'defensive']
-    for proctype in proctypes:
-        info[proctype] = {}
-        with open(os.path.join(os.path.dirname(os.path.realpath('__file__')), 'client/Modules/SituationalAwareness/', f'{proctype}.json')) as f:
-            j = json.load(f)
-        for type_example in j:
-            for proc in info['names']:
-                if type_example == proc[:-4]:
-                    info[proctype][proc] = j[type_example]
-    return info
-
-def uac_info(data):
-    info = {}
-    match = re.search(r'ConsentPromptBehaviorAdmin\s+REG_DWORD\s+(\d+)', data)
-    if match is not None:
-        info['ConsentPromptBehaviorAdmin'] = int(match.group(1))
+    if callback_output_failed(bof_output[str(bof_num)]):
+        info['CLR']['versions'] = ['?']
     else:
-        info['ConsentPromptBehaviorAdmin'] = ''
-    match = re.search(r'EnableLUA\s+REG_DWORD\s+(\d+)', data)
-    if match is not None:
-        info['EnableLUA'] = int(match.group(1)) == 1
+        info['CLR']['versions'] = re.findall(r'<dir> (v.*)', bof_output[str(bof_num)]['output'])
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]) is False:
+        match = re.search(r'\s+Version\s+REG_SZ\s+(.*)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['.NET']['versions'].append(match.group(1))
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]) is False:
+        match = re.search(r'\s+Version\s+REG_SZ\s+(.*)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['.NET']['versions'].append(match.group(1))
+
+    return info
+
+def avedr_info(bof_output):
+    info = {}
+
+    bof_num = 28
+
+    if callback_output_failed(bof_output[str(bof_num)]):
+        info['AVs'] = []
     else:
+        data = bof_output[str(bof_num)].split('displayName, instanceGuid')
+        if len(bof_output) != 2:
+            return info
+        data = data[1]
+        data = data.split('\n\n')
+        if len(bof_output) < 2:
+            return info
+        data = data[0]
+        info['AVs'] = re.findall(r'^([^,]+), .+?, .+?, ([^,]+), ', data, re.MULTILINE)
+
+    return info
+
+def processes_info(bof_output):
+    info = {}
+
+    bof_num = 29
+
+    info['names'] = []
+    info['browser']     = []
+    info['interesting'] = []
+    info['defensive']   = []
+
+    if callback_output_failed(bof_output[str(bof_num)]) is False:
+        data = bof_output[str(bof_num)]['output']
+        data = data.split('\n')[1:]
+        for entry in data:
+            match = re.search(r'^(.*?)\s+\d', entry)
+            if match is not None:
+                info['names'].append(match.group(1))
+
+        proctypes = ['browser', 'interesting', 'defensive']
+        for proctype in proctypes:
+            info[proctype] = {}
+            with open(os.path.join(os.path.dirname(os.path.realpath('__file__')), 'client/Modules/SituationalAwareness/', f'{proctype}.json')) as f:
+                j = json.load(f)
+            for type_example in j:
+                for proc in info['names']:
+                    if type_example == proc.replace('.exe', ''):
+                        info[proctype][proc] = j[type_example]
+
+    return info
+
+def uac_info(bof_output):
+    info = {}
+
+    bof_num = 30
+
+    if callback_output_failed(bof_output[str(bof_num)]):
+        info['ConsentPromptBehaviorAdmin'] = '?'
+    else:
+        match = re.search(r'ConsentPromptBehaviorAdmin\s+REG_DWORD\s+(\d+)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['ConsentPromptBehaviorAdmin'] = int(match.group(1))
+        else:
+            info['ConsentPromptBehaviorAdmin'] = '?'
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
         info['EnableLUA'] = False
-    match = re.search(r'LocalAccountTokenFilterPolicy\s+REG_DWORD\s+(\d+)', data)
-    if match is not None:
-        info['LocalAccountTokenFilterPolicy'] = int(match.group(1)) == 1
     else:
+        match = re.search(r'EnableLUA\s+REG_DWORD\s+(\d+)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['EnableLUA'] = int(match.group(1)) == 1
+        else:
+            info['EnableLUA'] = False
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
         info['LocalAccountTokenFilterPolicy'] = False
-    match = re.search(r'FilterAdministratorToken\s+REG_DWORD\s+(\d+)', data)
-    if match is not None:
-        info['FilterAdministratorToken'] = int(match.group(1)) == 1
     else:
+        match = re.search(r'LocalAccountTokenFilterPolicy\s+REG_DWORD\s+(\d+)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['LocalAccountTokenFilterPolicy'] = int(match.group(1)) == 1
+        else:
+            info['LocalAccountTokenFilterPolicy'] = False
+
+    bof_num += 1
+
+    if callback_output_failed(bof_output[str(bof_num)]):
         info['FilterAdministratorToken'] = False
-    return info
-
-def local_users_info(data):
-    info = {}
-    info['local_users'] = re.findall(rf'^-- (.*)$', data, re.MULTILINE)
-    return info
-
-def local_sessions_info(data):
-    info = {}
-    info['local_sessions'] = re.findall(r'^  - \[\d\] (.*?)$', data, re.MULTILINE)
-    return info
-
-def open_windows_info(data):
-    info = {}
-    # the windowlist command should be ran last
-    match = re.search(r'Total of \d+ entries enumerated([\S\s]*)$', data)
-    if match is not None:
-        data = match.group(1)
-        info['open_windows'] = re.findall(r'^(.+)$', data, re.MULTILINE)
     else:
-        info['open_windows'] = []
+        match = re.search(r'FilterAdministratorToken\s+REG_DWORD\s+(\d+)', bof_output[str(bof_num)]['output'])
+        if match is not None:
+            info['FilterAdministratorToken'] = int(match.group(1)) == 1
+        else:
+            info['FilterAdministratorToken'] = False
+
     return info
 
-def bofseatbelt_report( demonID, data ):
+def local_users_info(bof_output):
+    info = {}
+
+    bof_num = 34
+
+    if callback_output_failed(bof_output[str(bof_num)]):
+        info['local_users'] = ['?']
+    else:
+        info['local_users'] = re.findall(rf'^-- (.*)$', bof_output[str(bof_num)]['output'], re.MULTILINE)
+
+    return info
+
+def local_sessions_info(bof_output):
+    info = {}
+
+    bof_num = 35
+
+    if callback_output_failed(bof_output[str(bof_num)]):
+        info['local_sessions'] = ['?']
+    else:
+        info['local_sessions'] = re.findall(r'^  - \[\d\] (.*?)$', bof_output[str(bof_num)]['output'], re.MULTILINE)
+
+    return info
+
+def open_windows_info(bof_output):
+    info = {}
+
+    bof_num = 36
+
+    if callback_output_failed(bof_output[str(bof_num)]):
+        info['open_windows'] = ['?']
+    else:
+        data = bof_output[str(bof_num)]['output']
+        data = data.split('\n')
+        info['open_windows'] = [entry for entry in data if entry != '']
+
+    return info
+
+def bofbelt_report( demonID, bof_output ):
     demon  : Demon  = None
     demon  = Demon( demonID )
 
-    #print(json.dumps(data, indent=2))
-    return False
-
-    #report = {}
-    #report['os'] = os_info(data)
-    #report['user'] = user_info(data)
-    #report['ps'] = ps_info(data)
-    #report['dotnet'] = dotnet_info(data)
-    #report['avedr'] = avedr_info(data)
-    #report['processes'] = processes_info(data)
-    #report['uac'] = uac_info(data)
-    #report['local_users'] = local_users_info(data)
-    #report['local_sessions'] = local_sessions_info(data)
-    #report['open_windows'] = open_windows_info(data)
+    report = {}
+    report['os']        = os_info(bof_output)
+    report['user']      = user_info(bof_output)
+    try:
+        report['ps']        = ps_info(bof_output)
+    except Exception as e:
+        print(f'-< {e}')
+    report['dotnet']    = dotnet_info(bof_output)
+    report['avedr']     = avedr_info(bof_output)
+    report['processes'] = processes_info(bof_output)
+    report['uac'] = uac_info(bof_output)
+    report['local_users'] = local_users_info(bof_output)
+    report['local_sessions'] = local_sessions_info(bof_output)
+    report['open_windows'] = open_windows_info(bof_output)
+    #print(json.dumps(bof_output, indent=2))
     #print(json.dumps(report, indent=2))
 
-def bofseatbelt_callback( demonID, worked, output, error ):
-    filename = '/tmp/bofseatbelt.json'
+    # OS
+
+    try:
+        demon.ConsoleWrite( demon.CONSOLE_INFO, "OS Information" )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"OS           : {report['os']['ProductName']}" )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"Version      : max:{report['os']['CurrentMajorVersionNumber']}, min:{report['os']['CurrentVersion']}" )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"Build        : {report['os']['CurrentBuildNumber']}" )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"Arch         : {report['os']['arch']}" )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"IP           : {report['os']['ip']}" )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"DNS          : {report['os']['DNS']}" )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, '')
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Error obtaining OS Information: {e}" )
+
+    # user
+
+    try:
+        demon.ConsoleWrite( demon.CONSOLE_INFO, "User Information" )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"Username        : {report['user']['username']}" )
+        isLocalAdmin_text = 'Yes' if report['user']['isLocalAdmin'] else 'No'
+        integrity_text = report['user']['integrity']
+        if report['user']['isLocalAdmin'] and report['user']['integrity'] == 'Medium':
+            integrity_text += '[!] In medium integrity but user is a local administrator - UAC can be bypassed.'
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"IsLocalAdmin    : {isLocalAdmin_text}" )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"Integrity Level : {integrity_text}" )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"Group memberships" )
+        for group in report['user']['groups']:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f' - {group}' )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"Privileges" )
+        for priv in report['user']['privs']:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f' - {priv}' )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f'' )
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Error obtaining User Information: {e}" )
+
+    # powershell
+
+    try:
+        demon.ConsoleWrite( demon.CONSOLE_INFO, "PowerShell Information" )
+        osSupportsAmsi = int(report['os']['CurrentMajorVersionNumber']) >= 10
+        supported_text = 'Yes' if osSupportsAmsi else 'No'
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"AMSI support: {supported_text}" )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"CLRs installed" )
+        for clr in report['ps']['CLRs']:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f' - {clr[1:]}' )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"Versions installed" )
+        for ver in report['ps']['versions']:
+            if ver == '2.0':
+                if 'v2.0.50727' not in report['ps']['CLRs']:
+                    ver += ' [!] Version 2.0.50727 of the CLR is not installed - PowerShell v2.0 won\'t be able to run.'
+                elif osSupportsAmsi:
+                    ver += ' [!] This version does not support AMSI'
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f' - {ver}' )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f'Transcription Logging Settings' )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f'    Enabled            : {report["ps"]["EnableTranscripting"]}')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f'    Invocation Logging : {report["ps"]["EnableInvocationHeader"]}')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, 'Module Logging Settings')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f'    Enabled            : {report["ps"]["EnableModuleLogging"]}')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, 'Script Block Logging Settings')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f'    Enabled            : {report["ps"]["EnableScriptBlockLogging"]}')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f'    Invocation Logging : {report["ps"]["EnableScriptBlockInvocationLogging"]}')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, '')
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Error obtaining PowerShell Information: {e}" )
+
+    # .NET
+
+    try:
+        demon.ConsoleWrite( demon.CONSOLE_INFO, '.NET Information')
+        latest_version = report['dotnet']['.NET']['versions'][-1]
+        highestVersion_Major = int(latest_version.split('.')[0])
+        highestVersion_Minor = int(latest_version.split('.')[1])
+        supports_amsi = highestVersion_Major > 4 or (highestVersion_Major == 4 and highestVersion_Minor >= 8)
+        supported_text = 'Yes' if supports_amsi else 'No'
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f'AMSI support: {supported_text}')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, 'CLRs installed')
+        for clr in report['ps']['CLRs']:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f' - {clr[1:]}')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, '.NET versions installed')
+        for ver in report['dotnet']['.NET']['versions']:
+            high = int(ver.split('.')[0])
+            low = int(ver.split('.')[1])
+            if (high < 4 or (high == 4 and low < 8)) and supports_amsi:
+                ver += ' [!] This version does not support AMSI'
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f' - {ver}')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, '')
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f'Error obtaining .NET Information: {e}')
+
+    # AV/EDR
+
+    try:
+        demon.ConsoleWrite( demon.CONSOLE_INFO, ('AVs/EDRs Information'))
+        for name, path in report['avedr']['AVs']:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f' - {name}, {path}')
+        if len(report['avedr']['AVs']) == 0:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, '- None found')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, '')
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f'Error obtaining AVs/EDRs Information: {e}')
+
+    # processes
+
+    try:
+        demon.ConsoleWrite( demon.CONSOLE_INFO, 'Processes Information')
+        # TODO: add PID
+        proctypes = ['browser', 'interesting', 'defensive']
+        submenus = ['Browsers', 'Interesting processes', 'Defensive processes']
+        for i in range(len(proctypes)):
+            proctype = proctypes[i]
+            submenu = submenus[i]
+            if len(report['processes'][proctype]) == 0:
+                continue
+            demon.ConsoleWrite( demon.CONSOLE_INFO, submenu)
+            for elem in report['processes'][proctype]:
+                demon.ConsoleWrite( demon.CONSOLE_INFO, f' - {elem} -> {report["processes"][proctype][elem]}')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, '')
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f'Error obtaining Processes Information: {e}')
+
+    # UAC
+
+    try:
+        demon.ConsoleWrite( demon.CONSOLE_INFO, 'UAC Information')
+        meaning = {
+            '': 'PromptForNonWindowsBinaries',
+            0: 'No prompting',
+            1: 'PromptOnSecureDesktop',
+            2: 'PromptPermitDenyOnSecureDesktop',
+            3: 'PromptForCredsNotOnSecureDesktop',
+            4: 'PromptForPermitDenyNotOnSecureDesktop',
+            5: 'PromptForNonWindowsBinaries'
+        }
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f'ConsentPromptBehaviorAdmin    : {report["uac"]["ConsentPromptBehaviorAdmin"]} - {meaning[report["uac"]["ConsentPromptBehaviorAdmin"]]}')
+        text = 'Yes' if report['uac']['EnableLUA'] else 'No'
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f'EnableLUA (Is UAC enabled?)   : {text}')
+        text = 'Yes' if report['uac']['LocalAccountTokenFilterPolicy'] else 'No'
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f'LocalAccountTokenFilterPolicy : {text}')
+        text = 'Yes' if report['uac']['FilterAdministratorToken'] else 'No'
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f'FilterAdministratorToken      : {text}')
+        if report['uac']['EnableLUA'] is False:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, '[*] UAC is disabled. Any administrative local account can be used for lateral movement.')
+        else:
+            if report['uac']['LocalAccountTokenFilterPolicy'] is False and report['uac']['FilterAdministratorToken'] is False:
+                demon.ConsoleWrite( demon.CONSOLE_INFO, '[*] Default Windows settings - Only the RID-500 local admin account can be used for lateral movement.')
+            elif report['uac']['LocalAccountTokenFilterPolicy'] is True:
+                demon.ConsoleWrite( demon.CONSOLE_INFO, '[*] LocalAccountTokenFilterPolicy == 1. Any administrative local account can be used for lateral movement.')
+            else:
+                demon.ConsoleWrite( demon.CONSOLE_INFO, '[*] LocalAccountTokenFilterPolicy set to 0 and FilterAdministratorToken == 1. Local accounts cannot be used for lateral movement.')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, '')
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f'Error obtaining UAC Information: {e}')
+
+    # Local users
+
+    try:
+        demon.ConsoleWrite( demon.CONSOLE_INFO, 'Local Users Information')
+        usernames = report['local_users']['local_users']
+        num_users = len(usernames)
+        max_num = 10
+        if num_users > max_num:
+            usernames = usernames[:max_num]
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f'Only showing {max_num} users of {num_users}. Run \'userenum\' to get the full list.')
+        if num_users == 0:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f'No users found')
+        for username in usernames:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f'  - {username}')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, '')
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f'Error obtaining Local Users Information: {e}')
+
+    # Local sessions
+
+    try:
+        demon.ConsoleWrite( demon.CONSOLE_INFO, 'Local Sessions Information')
+        sessions = report['local_sessions']['local_sessions']
+        num_sessions = len(sessions)
+        max_num = 10
+        if num_sessions > max_num:
+            sessions = sessions[:max_num]
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f'Only showing {max_num} session of {num_sessions}. Run \'enumLocalSessions\' to get the full list.')
+        if num_sessions == 0:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f'No sessions found')
+        for session in sessions:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f'  - {session}')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, '')
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f'Error obtaining Local Sessions Information: {e}')
+
+    try:
+        demon.ConsoleWrite( demon.CONSOLE_INFO, 'Open windows Information')
+        windows = report['open_windows']['open_windows']
+        num_windows = len(windows)
+        max_num = 10
+        if num_windows > max_num:
+            windows = windows[:max_num]
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f'Only showing {max_num} windows of {num_windows}. Run \'windowlist\' to get the full list.')
+        if num_windows == 0:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f'No windows found')
+        for window in windows:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f'  - {window}')
+        demon.ConsoleWrite( demon.CONSOLE_INFO, '')
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f'Error obtaining Open windows Information: {e}')
+
+    return False
+
+
+# this callback is triggered by every BOF
+# demonID: the ID of the demon that ran the BOF
+# worked : weather the BOF was able to run or not
+# output : the content of all CALLBACK_OUTPUT
+# error  : the content of all CALLBACK_ERROR
+def bofbelt_callback( demonID, worked, output, error ):
+    # first, get the json that contains all the previous BOF output
+    filename = '/tmp/bofbelt.json'
     try:
         with open(filename, 'r') as f:
-            data = json.load(f)
-    except Exception as e:
-        data = {}
+            bof_output = json.load(f)
+    except:
+        bof_output = {}
 
-    num_entries  = len(data)
+    # get how many BOFs have completed
+    num_entries  = len(bof_output)
+    # add one entry
     num_entries += 1
 
-    data[num_entries] = {
+    # add the data for this BOF callback
+    bof_output[str(num_entries)] = {
         'worked': worked,
         'output': output,
         'error': error
     }
 
-    # are we done?
-    if num_entries == 35:
-        os.remove(filename)
-        bofseatbelt_report( demonID, data )
-        return True
-
+    # save all the data
     with open(filename, 'w') as f:
-        f.write(json.dumps(data))
+        f.write(json.dumps(bof_output))
 
-def bofseatbelt( demonID, *params ):
+    # are we done?
+    if num_entries == 36:
+        os.remove(filename)
+        bofbelt_report( demonID, bof_output )
+
+    return True
+
+def bofbelt( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
     demon  = Demon( demonID )
 
     # Getting basic OS information
-
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductName" )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "CurrentMajorVersionNumber" )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "CurrentVersion" )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "CurrentBuildNumber" )
-    env_with_callback( demonID, bofseatbelt_callback )
-    ipconfig_with_callback( demonID, bofseatbelt_callback )
-    wmi_query_with_callback( demonID, bofseatbelt_callback, "Select Domain from Win32_ComputerSystem" )
-    wmi_query_with_callback( demonID, bofseatbelt_callback, "Select * from Win32_ComputerSystem" )
-    uptime_with_callback( demonID, bofseatbelt_callback )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ProductName" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "ReleaseId" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "CurrentMajorVersionNumber" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "CurrentVersion" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "CurrentBuildNumber" )
+    env_with_callback( demonID, bofbelt_callback )
+    ipconfig_with_callback( demonID, bofbelt_callback )
+    wmi_query_with_callback( demonID, bofbelt_callback, "Select Domain from Win32_ComputerSystem" )
+    wmi_query_with_callback( demonID, bofbelt_callback, "Select * from Win32_ComputerSystem" )
+    uptime_with_callback( demonID, bofbelt_callback )
 
     # Getting User information
 
-    whoami_with_callback( demonID, bofseatbelt_callback )
+    whoami_with_callback( demonID, bofbelt_callback )
 
     # Getting PowerShell information
 
-    bofdir_with_callback( demonID, bofseatbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v1.0.3705\\System.dll' )
-    bofdir_with_callback( demonID, bofseatbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v1.1.4322\\System.dll' )
-    bofdir_with_callback( demonID, bofseatbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v2.0.50727\\System.dll' )
-    bofdir_with_callback( demonID, bofseatbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v3.0\\System.dll' )
-    bofdir_with_callback( demonID, bofseatbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v3.5\\System.dll' )
-    bofdir_with_callback( demonID, bofseatbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v4.0.30319\\System.dll' )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\PowerShell\\1\\PowerShellEngine", "PowerShellVersion" )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\PowerShell\\3\\PowerShellEngine", "PowerShellVersion" )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\Transcription", "EnableTranscripting" )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\Transcription", "EnableInvocationHeader" )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ModuleLogging", "EnableModuleLogging" )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging", "EnableScriptBlockLogging" )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging", "EnableScriptBlockInvocationLogging" )
+    bofdir_with_callback( demonID, bofbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v1.0.3705\\System.dll' )
+    bofdir_with_callback( demonID, bofbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v1.1.4322\\System.dll' )
+    bofdir_with_callback( demonID, bofbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v2.0.50727\\System.dll' )
+    bofdir_with_callback( demonID, bofbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v3.0\\System.dll' )
+    bofdir_with_callback( demonID, bofbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v3.5\\System.dll' )
+    bofdir_with_callback( demonID, bofbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\v4.0.30319\\System.dll' )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\PowerShell\\1\\PowerShellEngine", "PowerShellVersion" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\PowerShell\\3\\PowerShellEngine", "PowerShellVersion" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\Transcription", "EnableTranscripting" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\Transcription", "EnableInvocationHeader" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ModuleLogging", "EnableModuleLogging" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging", "EnableScriptBlockLogging" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\PowerShell\\ScriptBlockLogging", "EnableScriptBlockInvocationLogging" )
 
     # Getting .NET information
 
-    bofdir_with_callback( demonID, bofseatbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\' )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v3.5", "Version" )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v4\\Full", "Version" )
+    bofdir_with_callback( demonID, bofbelt_callback, 'C:\\Windows\\Microsoft.Net\\Framework\\' )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v3.5", "Version" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v4\\Full", "Version" )
 
     # Getting AVs/EDRs information
 
-    wmi_query_with_callback( demonID, bofseatbelt_callback, "SELECT * FROM AntiVirusProduct", ".", "root\\SecurityCenter2" )
+    wmi_query_with_callback( demonID, bofbelt_callback, "SELECT * FROM AntiVirusProduct", ".", "root\\SecurityCenter2" )
 
     # Getting information about the running processes
 
-    tasklist_with_callback( demonID, bofseatbelt_callback )
+    tasklist_with_callback( demonID, bofbelt_callback )
 
     # Getting UAC information
 
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "ConsentPromptBehaviorAdmin" )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "EnableLUA" )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "LocalAccountTokenFilterPolicy" )
-    reg_query_with_callback( demonID, bofseatbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "FilterAdministratorToken" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "ConsentPromptBehaviorAdmin" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "EnableLUA" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "LocalAccountTokenFilterPolicy" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", "FilterAdministratorToken" )
 
     # Getting Local Users information
-    userenum_with_callback( demonID, bofseatbelt_callback )
+    userenum_with_callback( demonID, bofbelt_callback )
 
     # Getting Local Sessions information
 
-    enumlocalsessions_with_callback( demonID, bofseatbelt_callback )
+    enumlocalsessions_with_callback( demonID, bofbelt_callback )
 
     # Getting Open windows information
 
-    windowlist_with_callback( demonID, bofseatbelt_callback )
+    windowlist_with_callback( demonID, bofbelt_callback )
 
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to run BofSeatbelt" )
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to run Bofbelt" )
 
     return TaskID
 
@@ -1990,4 +2396,4 @@ RegisterCommand( netview, "", "netview", "lists local workstations and servers",
 RegisterCommand( quser, "", "quser", "Simple implementation of quser.exe usingt the Windows API", 0, "<OPT:TARGET>", "10.10.10.10" )
 RegisterCommand( bofdir, "", "bofdir", "Lists a target directory using BOF.", 0, "[directory] [/s]", "C:\\Windows\\Temp" )
 RegisterCommand( tasklist, "", "tasklist", "This command displays a list of currently running processes on either a local or remote machine.\nUsage:   tasklist [hostname]\n         hostname    - Optional. Specifies the remote system to connect to. Do\n                        not include or use '.' to indicate the command should\n                        be run on the local system.\nNote:   You must have a valid login token for the system specified if not\n         local. This token can be obtained using make_token.", 0, "[hostname]", "" )
-RegisterCommand( bofseatbelt, "", "bofseatbelt", "A Seatbelt port using BOFs", 0, "", "" )
+RegisterCommand( bofbelt, "", "bofbelt", "A Seatbelt port using BOFs", 0, "", "" )
