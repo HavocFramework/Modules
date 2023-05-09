@@ -1532,4 +1532,4 @@ RegisterCommand( netuptime, "", "netuptime", "Returns information about the boot
 RegisterCommand( netview, "", "netview", "lists local workstations and servers", 0, "[opt: netbios_domain_name]", "" )
 RegisterCommand( quser, "", "quser", "Simple implementation of quser.exe usingt the Windows API", 0, "<OPT:TARGET>", "10.10.10.10" )
 #RegisterCommand( bofdir, "", "bofdir", "Lists a target directory using BOF.", 0, "[directory] [/s]", "C:\\Windows\\Temp" )
-RegisterCommand( tasklist, "", "tasklist", "This command displays a list of currently running processes on either a local or remote machine.\nUsage:   tasklist [hostname]\n         hostname    - Optional. Specifies the remote system to connect to. Do\n                        not include or use '.' to indicate the command should\n                        be run on the local system.\nNote:   You must have a valid login token for the system specified if not\n         local. This token can be obtained using make_token.", 0, "[hostname]", "" )
+RegisterCommand( tasklist, "", "tasklist", "This command displays a list of currently running processes on either a local or remote machine.", 0, "[hostname]", "" )
