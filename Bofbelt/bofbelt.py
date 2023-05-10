@@ -615,15 +615,8 @@ def avedr_info(bof_output):
     if callback_output_failed(bof_output[bof_num]):
         info['AVs'] = []
     else:
-        data = bof_output[bof_num].split('displayName, instanceGuid')
-        if len(bof_output) != 2:
-            return info
-        data = data[1]
-        data = data.split('\n\n')
-        if len(bof_output) < 2:
-            return info
-        data = data[0]
-        info['AVs'] = re.findall(r'^([^,]+), .+?, .+?, ([^,]+), ', data, re.MULTILINE)
+        data = bof_output[bof_num]['output'].split('\n')[1:]
+        info['AVs'] = [entry.split(',')[0] for entry in data if entry != '']
 
     return info
 
@@ -748,19 +741,25 @@ def bofbelt_report( demonID, bof_output ):
     demon  : Demon  = None
     demon  = Demon( demonID )
 
-    report = {}
-    report['os']             = os_info(bof_output)
-    report['user']           = user_info(bof_output)
-    report['ps']             = ps_info(bof_output)
-    report['dotnet']         = dotnet_info(bof_output)
-    report['avedr']          = avedr_info(bof_output)
-    report['processes']      = processes_info(bof_output)
-    report['uac']            = uac_info(bof_output)
-    report['local_users']    = local_users_info(bof_output)
-    report['local_sessions'] = local_sessions_info(bof_output)
-    report['open_windows']   = open_windows_info(bof_output)
     #print(json.dumps(bof_output, indent=2))
-    #print(json.dumps(report, indent=2))
+
+    report = {}
+
+    try:
+        report['os']             = os_info(bof_output)
+        report['user']           = user_info(bof_output)
+        report['ps']             = ps_info(bof_output)
+        report['dotnet']         = dotnet_info(bof_output)
+        report['avedr']          = avedr_info(bof_output)
+        report['processes']      = processes_info(bof_output)
+        report['uac']            = uac_info(bof_output)
+        report['local_users']    = local_users_info(bof_output)
+        report['local_sessions'] = local_sessions_info(bof_output)
+        report['open_windows']   = open_windows_info(bof_output)
+        #print(json.dumps(report, indent=2))
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Failed to parse BOF data: {e}" )
+        return True
 
     # OS
 
@@ -857,8 +856,8 @@ def bofbelt_report( demonID, bof_output ):
 
     try:
         demon.ConsoleWrite( demon.CONSOLE_INFO, ('AVs/EDRs Information'))
-        for name, path in report['avedr']['AVs']:
-            demon.ConsoleWrite( demon.CONSOLE_INFO, f' - {name}, {path}')
+        for name in report['avedr']['AVs']:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f' - {name}')
         if len(report['avedr']['AVs']) == 0:
             demon.ConsoleWrite( demon.CONSOLE_INFO, '- None found')
         demon.ConsoleWrite( demon.CONSOLE_INFO, '')
