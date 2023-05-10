@@ -426,7 +426,7 @@ def os_info(bof_output):
     if callback_output_failed(bof_output[bof_num]):
         info['PPL'] = False
     else:
-        info['PPL'] = bof_output[bof_num]['output'].split(' ')[-1] == '1'
+        info['PPL'] = bof_output[bof_num]['output'].split(' ')[-1].strip() == '1'
 
     return info
 
