@@ -159,9 +159,12 @@ def wmi_query_parse_params( demon, params ):
     if num_params > 2:
         namespace = params[ 2 ]
 
+    resource = f"\\\\{server}\\{namespace}"
+
     packer.addWstr(server)
     packer.addWstr(namespace)
     packer.addWstr(query)
+    packer.addWstr(resource)
 
     return packer.getbuffer()
 
