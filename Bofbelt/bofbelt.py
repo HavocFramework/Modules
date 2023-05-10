@@ -428,12 +428,19 @@ def os_info(bof_output):
     else:
         info['PPL'] = bof_output[bof_num]['output'].split(' ')[-1].strip() == '1'
 
+    bof_num += 1
+
+    if callback_output_failed(bof_output[bof_num]):
+        info['AppLocker'] = False
+    else:
+        info['AppLocker'] = re.search(r'EnforcementMode *REG_DWORD *1', bof_output[bof_num]['output']) is not None
+
     return info
 
 def user_info(bof_output):
     info = {}
 
-    bof_num = 11
+    bof_num = 12
 
     if callback_output_failed(bof_output[bof_num]):
         info['username'] = '?'
@@ -465,7 +472,7 @@ def user_info(bof_output):
 def ps_info(bof_output):
     info = {}
 
-    bof_num = 12
+    bof_num = 13
 
     info['CLRs'] = []
     info['versions'] = []
@@ -574,7 +581,7 @@ def dotnet_info(bof_output):
     info['CLR']['versions'] = []
     info['.NET']['versions'] = []
 
-    bof_num = 25
+    bof_num = 26
 
     if callback_output_failed(bof_output[bof_num]):
         info['CLR']['versions'] = ['?']
@@ -600,7 +607,7 @@ def dotnet_info(bof_output):
 def avedr_info(bof_output):
     info = {}
 
-    bof_num = 28
+    bof_num = 29
 
     if callback_output_failed(bof_output[bof_num]):
         info['AVs'] = []
@@ -620,7 +627,7 @@ def avedr_info(bof_output):
 def processes_info(bof_output):
     info = {}
 
-    bof_num = 29
+    bof_num = 30
 
     info['names'] = []
     info['browser']     = []
@@ -650,7 +657,7 @@ def processes_info(bof_output):
 def uac_info(bof_output):
     info = {}
 
-    bof_num = 30
+    bof_num = 31
 
     if callback_output_failed(bof_output[bof_num]):
         info['ConsentPromptBehaviorAdmin'] = '?'
@@ -699,7 +706,7 @@ def uac_info(bof_output):
 def local_users_info(bof_output):
     info = {}
 
-    bof_num = 34
+    bof_num = 35
 
     if callback_output_failed(bof_output[bof_num]):
         info['local_users'] = ['?']
@@ -711,7 +718,7 @@ def local_users_info(bof_output):
 def local_sessions_info(bof_output):
     info = {}
 
-    bof_num = 35
+    bof_num = 36
 
     if callback_output_failed(bof_output[bof_num]):
         info['local_sessions'] = ['?']
@@ -723,7 +730,7 @@ def local_sessions_info(bof_output):
 def open_windows_info(bof_output):
     info = {}
 
-    bof_num = 36
+    bof_num = 37
 
     if callback_output_failed(bof_output[bof_num]):
         info['open_windows'] = ['?']
@@ -762,7 +769,8 @@ def bofbelt_report( demonID, bof_output ):
         demon.ConsoleWrite( demon.CONSOLE_INFO, f"Arch         : {report['os']['arch']}" )
         demon.ConsoleWrite( demon.CONSOLE_INFO, f"IP           : {report['os']['ip']}" )
         demon.ConsoleWrite( demon.CONSOLE_INFO, f"DNS          : {report['os']['DNS']}" )
-        demon.ConsoleWrite( demon.CONSOLE_INFO, f"PPL          : {'Enabled' if report['os']['PPL'] else 'Disabled'}" )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"PPL          : {'Enabled (!)' if report['os']['PPL'] else 'Disabled'}" )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"AppLocker    : {'Enabled (!)' if report['os']['AppLocker'] else 'Disabled'}" )
         demon.ConsoleWrite( demon.CONSOLE_INFO, '')
     except Exception as e:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Error obtaining OS Information: {e}" )
@@ -990,7 +998,7 @@ def bofbelt_callback( demonID, TaskID, worked, output, error ):
     num_entries  = len(bof_output)
 
     # are we done?
-    if num_entries == 37:
+    if num_entries == 38:
         os.remove(filename)
         bofbelt_report( demonID, bof_output )
 
@@ -1013,6 +1021,7 @@ def bofbelt( demonID, *params ):
     wmi_query_with_callback( demonID, bofbelt_callback, "Select * from Win32_ComputerSystem" )
     uptime_with_callback( demonID, bofbelt_callback )
     reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SYSTEM\\CurrentControlSet\\Control\\Lsa", "RunAsPPL" )
+    reg_query_with_callback( demonID, bofbelt_callback, "HKLM", "SOFTWARE\\Policies\\Microsoft\\Windows\\SrpV2\\Exe", "EnforcementMode" )
 
     # Getting User information
 
