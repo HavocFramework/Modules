@@ -721,7 +721,7 @@ def local_sessions_info(bof_output):
     bof_num = 36
 
     if callback_output_failed(bof_output[bof_num]):
-        info['local_sessions'] = ['?']
+        info['local_sessions'] = None
     else:
         info['local_sessions'] = re.findall(r'^  - \[\d\] (.*?)$', bof_output[bof_num]['output'], re.MULTILINE)
 
@@ -733,7 +733,7 @@ def open_windows_info(bof_output):
     bof_num = 37
 
     if callback_output_failed(bof_output[bof_num]):
-        info['open_windows'] = ['?']
+        info['open_windows'] = None
     else:
         data = bof_output[bof_num]['output']
         data = data.split('\n')
@@ -867,6 +867,7 @@ def bofbelt_report( demonID, bof_output ):
     try:
         demon.ConsoleWrite( demon.CONSOLE_INFO, 'Processes Information')
         # TODO: add PID
+        printed_data = False
         proctypes = ['browser', 'interesting', 'defensive']
         submenus = ['Browsers', 'Interesting processes', 'Defensive processes']
         for i in range(len(proctypes)):
@@ -877,6 +878,9 @@ def bofbelt_report( demonID, bof_output ):
             demon.ConsoleWrite( demon.CONSOLE_INFO, submenu)
             for elem in report['processes'][proctype]:
                 demon.ConsoleWrite( demon.CONSOLE_INFO, f' - {elem} -> {report["processes"][proctype][elem]}')
+                printed_data = True
+        if printed_data is False:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, '(No interesting processes found)')
         demon.ConsoleWrite( demon.CONSOLE_INFO, '')
     except Exception as e:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f'Error obtaining Processes Information: {e}')
@@ -937,15 +941,18 @@ def bofbelt_report( demonID, bof_output ):
     try:
         demon.ConsoleWrite( demon.CONSOLE_INFO, 'Local Sessions Information')
         sessions = report['local_sessions']['local_sessions']
-        num_sessions = len(sessions)
-        max_num = 10
-        if num_sessions > max_num:
-            sessions = sessions[:max_num]
-            demon.ConsoleWrite( demon.CONSOLE_INFO, f'Only showing {max_num} session of {num_sessions}. Run \'enumLocalSessions\' to get the full list.')
-        if num_sessions == 0:
-            demon.ConsoleWrite( demon.CONSOLE_INFO, f'No sessions found')
-        for session in sessions:
-            demon.ConsoleWrite( demon.CONSOLE_INFO, f'  - {session}')
+        if sessions is None:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f'(Failed to enumerate local sessions)')
+        else:
+            num_sessions = len(sessions)
+            max_num = 10
+            if num_sessions > max_num:
+                sessions = sessions[:max_num]
+                demon.ConsoleWrite( demon.CONSOLE_INFO, f'Only showing {max_num} session of {num_sessions}. Run \'enumLocalSessions\' to get the full list.')
+            if num_sessions == 0:
+                demon.ConsoleWrite( demon.CONSOLE_INFO, f'No sessions found')
+            for session in sessions:
+                demon.ConsoleWrite( demon.CONSOLE_INFO, f'  - {session}')
         demon.ConsoleWrite( demon.CONSOLE_INFO, '')
     except Exception as e:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f'Error obtaining Local Sessions Information: {e}')
@@ -953,15 +960,18 @@ def bofbelt_report( demonID, bof_output ):
     try:
         demon.ConsoleWrite( demon.CONSOLE_INFO, 'Open windows Information')
         windows = report['open_windows']['open_windows']
-        num_windows = len(windows)
-        max_num = 10
-        if num_windows > max_num:
-            windows = windows[:max_num]
-            demon.ConsoleWrite( demon.CONSOLE_INFO, f'Only showing {max_num} windows of {num_windows}. Run \'windowlist\' to get the full list.')
-        if num_windows == 0:
-            demon.ConsoleWrite( demon.CONSOLE_INFO, f'No windows found')
-        for window in windows:
-            demon.ConsoleWrite( demon.CONSOLE_INFO, f'  - {window}')
+        if windows is None:
+            demon.ConsoleWrite( demon.CONSOLE_INFO, f'(Failed to enumerate open windows)')
+        else:
+            num_windows = len(windows)
+            max_num = 10
+            if num_windows > max_num:
+                windows = windows[:max_num]
+                demon.ConsoleWrite( demon.CONSOLE_INFO, f'Only showing {max_num} windows of {num_windows}. Run \'windowlist\' to get the full list.')
+            if num_windows == 0:
+                demon.ConsoleWrite( demon.CONSOLE_INFO, f'No windows found')
+            for window in windows:
+                demon.ConsoleWrite( demon.CONSOLE_INFO, f'  - {window}')
         demon.ConsoleWrite( demon.CONSOLE_INFO, '')
     except Exception as e:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f'Error obtaining Open windows Information: {e}')

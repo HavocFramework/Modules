@@ -1471,7 +1471,7 @@ def tasklist_parse_params( demon, params ):
 
     return packer.getbuffer()
 
-def tasklist( demonID, *params ):
+def sa_tasklist( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
     demon  = Demon( demonID )
@@ -1532,4 +1532,4 @@ RegisterCommand( netuptime, "", "netuptime", "Returns information about the boot
 RegisterCommand( netview, "", "netview", "lists local workstations and servers", 0, "[opt: netbios_domain_name]", "" )
 RegisterCommand( quser, "", "quser", "Simple implementation of quser.exe usingt the Windows API", 0, "<OPT:TARGET>", "10.10.10.10" )
 #RegisterCommand( bofdir, "", "bofdir", "Lists a target directory using BOF.", 0, "[directory] [/s]", "C:\\Windows\\Temp" )
-RegisterCommand( tasklist, "", "tasklist", "This command displays a list of currently running processes on either a local or remote machine.", 0, "[hostname]", "" )
+RegisterCommand( sa_tasklist, "", "tasklist", "This command displays a list of currently running processes on either a local or remote machine.", 0, "[hostname]", "" )
