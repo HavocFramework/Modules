@@ -450,8 +450,6 @@ def get_password_policy_parse_params( demon, params ):
 
     packer.addWstr(hostname)
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/get_password_policy.{demon.ProcessArch}.o", packer.getbuffer(), False )
-
     return packer.getbuffer()
 
 def get_password_policy( demonID, *params ):
