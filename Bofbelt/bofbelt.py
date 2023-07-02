@@ -772,6 +772,7 @@ def bofbelt_report( demonID, bof_output ):
         demon.ConsoleWrite( demon.CONSOLE_INFO, f"Process Arch : {demon.ProcessArch}" )
         demon.ConsoleWrite( demon.CONSOLE_INFO, f"IP           : {report['os']['ip']}" )
         demon.ConsoleWrite( demon.CONSOLE_INFO, f"DNS          : {report['os']['DNS']}" )
+        demon.ConsoleWrite( demon.CONSOLE_INFO, f"Domain       : {demon.Domain if demon.Domain else 'Not joined'}" )
         demon.ConsoleWrite( demon.CONSOLE_INFO, f"PPL          : {'Enabled (!)' if report['os']['PPL'] else 'Disabled'}" )
         demon.ConsoleWrite( demon.CONSOLE_INFO, f"AppLocker    : {'Enabled (!)' if report['os']['AppLocker'] else 'Disabled'}" )
         demon.ConsoleWrite( demon.CONSOLE_INFO, '')
