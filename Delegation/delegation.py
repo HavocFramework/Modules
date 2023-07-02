@@ -56,6 +56,12 @@ def get_delegation( demonID, *params ):
         'rbcd': '(&(msDS-AllowedToActOnBehalfOfOtherIdentity=*)(!(UserAccountControl:1.2.840.113556.1.4.803:=2)))'
     }
 
+    del_attrs = {
+        'constrained': 'sAMAccountName,msDS-AllowedToDelegateTo',
+        'unconstrained': 'sAMAccountName',
+        'rbcd': 'sAMAccountName'
+    }
+
     num_params = len(params)
     query = ''
     attributes = ''
@@ -67,7 +73,7 @@ def get_delegation( demonID, *params ):
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
         return False
 
-    if num_params > 5:
+    if num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
         return False
 
@@ -76,10 +82,12 @@ def get_delegation( demonID, *params ):
         return False
 
     query = del_query[ params[ 0 ].lower() ]
+    attrs = del_attrs[ params[ 0 ].lower() ]
 
     if num_params >= 2:
         attributes = params[ 1 ]
 
+    # not used
     if num_params >= 3:
         result_limit = params[ 2 ]
 
@@ -90,7 +98,7 @@ def get_delegation( demonID, *params ):
         domain = params[ 4 ]
 
     packer.addstr(query)
-    packer.addstr(attributes)
+    packer.addstr(attrs)
     packer.adduint32(result_limit)
     packer.addstr(hostname)
     packer.addstr(domain)
@@ -123,7 +131,7 @@ def get_spns( demonID, *params ):
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
         return False
 
-    if num_params > 5:
+    if num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
         return False
 
@@ -133,6 +141,7 @@ def get_spns( demonID, *params ):
 
     query = spn_query[ params[ 0 ] ]
 
+    # not used
     if num_params >= 2:
         attributes = params[ 1 ]
 
@@ -157,5 +166,5 @@ def get_spns( demonID, *params ):
 
     return TaskID
 
-RegisterCommand( get_delegation, "", "get-delegation", "Enumerate a given domain for different types of abusable Kerberos Delegation settings.", 0, "[Constrained,Unconstrained,RBCD] [opt: attribute] [opt: results_limit] [opt: DC hostname or IP] [opt: Distingished Name]", "constrained" )
-RegisterCommand( get_spns, "", "get-spns", "Enumerate a given domain for user accounts with SPNs and ASREP.", 0, "[spn,ASREP] [opt: attribute] [opt: results_limit] [opt: DC hostname or IP] [opt: Distingished Name]", "spn" )
+RegisterCommand( get_delegation, "", "get-delegation", "Enumerate a given domain for different types of abusable Kerberos Delegation settings.", 0, "[Constrained,Unconstrained,RBCD]", "constrained" )
+RegisterCommand( get_spns, "", "get-spns", "Enumerate a given domain for user accounts with SPNs and ASREP.", 0, "[spn,ASREP]", "spn" )
