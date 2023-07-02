@@ -51,9 +51,8 @@ def get_delegation( demonID, *params ):
     demon  = Demon( demonID )
 
     del_query = {
-        'constrained': '(&(userAccountControl:1.2.840.113556.1.4.803:=524288)(!(UserAccountControl:1.2.840.113556.1.4.803:=2)))',
-        'constrainedproto': '(&(userAccountControl:1.2.840.113556.1.4.803:=16777216)(!(UserAccountControl:1.2.840.113556.1.4.803:=2)))',
-        'unconstrained': '(&(msDS-AllowedToDelegateTo=*)(!(UserAccountControl:1.2.840.113556.1.4.803:=2)))',
+        'constrained': '(&(objectCategory=computer)(userAccountControl:1.2.840.113556.1.4.803:=16777216))',
+        'unconstrained': '(&(objectClass=computer)(primarygroupid=515)(userAccountControl:1.2.840.113556.1.4.803:=524288))',
         'rbcd': '(&(msDS-AllowedToActOnBehalfOfOtherIdentity=*)(!(UserAccountControl:1.2.840.113556.1.4.803:=2)))'
     }
 
@@ -158,5 +157,5 @@ def get_spns( demonID, *params ):
 
     return TaskID
 
-RegisterCommand( get_delegation, "", "get-delegation", "Enumerate a given domain for different types of abusable Kerberos Delegation settings.", 0, "[Constrained,ConstrainedProto,Unconstrained,RBCD] [opt: attribute] [opt: results_limit] [opt: DC hostname or IP] [opt: Distingished Name]", "constrained" )
+RegisterCommand( get_delegation, "", "get-delegation", "Enumerate a given domain for different types of abusable Kerberos Delegation settings.", 0, "[Constrained,Unconstrained,RBCD] [opt: attribute] [opt: results_limit] [opt: DC hostname or IP] [opt: Distingished Name]", "constrained" )
 RegisterCommand( get_spns, "", "get-spns", "Enumerate a given domain for user accounts with SPNs and ASREP.", 0, "[spn,ASREP] [opt: attribute] [opt: results_limit] [opt: DC hostname or IP] [opt: Distingished Name]", "spn" )
