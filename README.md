@@ -30,3 +30,6 @@ Kerberos implementation for the Havoc Framework.
 
 ### Delegation
 Find delegation settings, users with SPNs and ASREP using LDAP.  
+
+### SamDump
+Dump the SAM registry.  
