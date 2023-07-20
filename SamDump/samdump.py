@@ -62,4 +62,4 @@ def samdump(demonID, *params):
 
     return TaskID
 
-RegisterCommand( samdump, "", "samdump", "Dump the SAM, SECURITY and SYSTEM registries", 0, "<folder>", "C:\\Windowds\\Temp\\" )
+RegisterCommand( samdump, "", "samdump", "Dump the SAM, SECURITY and SYSTEM registries", 0, "<folder>", "C:\\Windows\\Temp\\" )
