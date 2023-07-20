@@ -420,7 +420,8 @@ def nslookup( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run DNS query" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/nslookup.{demon.ProcessArch}.o", packed_params, False )
+    # nslookup can hang, so let's run it in threaded mode
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/nslookup.{demon.ProcessArch}.o", packed_params, True )
 
     return TaskID
 
@@ -948,7 +949,8 @@ def ldapsearch( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run ldap query" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/ldapsearch.{demon.ProcessArch}.o", packed_params, False )
+    # ldapsearch can hang, so let's run it in threaded mode
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/ldapsearch.{demon.ProcessArch}.o", packed_params, True )
 
     return TaskID
 
