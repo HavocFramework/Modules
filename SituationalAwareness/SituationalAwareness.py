@@ -1399,14 +1399,14 @@ def quser_parse_params( demon, params ):
 
     packer.addstr(hostname)
 
-    return packer.getbuffer()
+    return packer.getbuffer(), hostname
 
 def quser( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
     demon  = Demon( demonID )
 
-    packed_params = quser_parse_params( demon, params )
+    packed_params, hostname = quser_parse_params( demon, params )
     if packed_params is None:
         return False
 
