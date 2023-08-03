@@ -45,21 +45,21 @@ BOOL putStringInClass(IWbemClassObject* obj, BSTR key, BSTR val, tag_CIMTYPE_ENU
 
 void CreateCreds(COAUTHINFO** authInfo, COAUTHIDENTITY** authidentity, wchar_t* user, wchar_t* password, wchar_t* domain, int IsCurrent) {
 
-    COAUTHIDENTITY* id = (COAUTHIDENTITY*)KERNEL32$HeapAlloc(KERNEL32$GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(COAUTHIDENTITY));
+    COAUTHIDENTITY* id = NULL;
+
+    if ( IsCurrent )
     {
         id = (COAUTHIDENTITY*)KERNEL32$HeapAlloc(KERNEL32$GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(COAUTHIDENTITY));
-        id->User = (USHORT*)user;
-        id->Password = (USHORT*)password;
-        id->Domain = (USHORT*)domain;
-        id->UserLength = MSVCRT$wcslen((const wchar_t*)id->User);
-        id->PasswordLength = MSVCRT$wcslen((const wchar_t*)id->Password);
-        id->DomainLength = MSVCRT$wcslen((const wchar_t*)id->Domain);
-        id->Flags = SEC_WINNT_AUTH_IDENTITY_UNICODE;
-    }
-
-    if (IsCurrent == 0)
-    {
-        id = NULL;
+        {
+            id = (COAUTHIDENTITY*)KERNEL32$HeapAlloc(KERNEL32$GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(COAUTHIDENTITY));
+            id->User = (USHORT*)user;
+            id->Password = (USHORT*)password;
+            id->Domain = (USHORT*)domain;
+            id->UserLength = MSVCRT$wcslen((const wchar_t*)id->User);
+            id->PasswordLength = MSVCRT$wcslen((const wchar_t*)id->Password);
+            id->DomainLength = MSVCRT$wcslen((const wchar_t*)id->Domain);
+            id->Flags = SEC_WINNT_AUTH_IDENTITY_UNICODE;
+        }
     }
 
     COAUTHINFO* inf = (COAUTHINFO*)KERNEL32$HeapAlloc(KERNEL32$GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(COAUTHINFO));
