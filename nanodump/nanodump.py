@@ -57,7 +57,7 @@ def nanodump_parse_params(demon, params):
     silent_process_exit = ''
     use_lsass_shtinkering = False
     use_seclogon_duplicate = False
-    spoof_callstack = 0
+    spoof_callstack = False
 
     skip = False
     for i in range(num_params):
@@ -140,19 +140,7 @@ def nanodump_parse_params(demon, params):
             # use the seclogon race condition to dup an LSASS handle
             use_seclogon_duplicate = True
         elif param == "--spoof-callstack" or param == "-sc":
-            skip = True
-            if i + 1 >= num_params:
-                demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --spoof-callstack value" )
-                return None
-            if params[i + 1] == "svchost":
-                spoof_callstack = 1
-            elif params[i + 1] == "wmi":
-                spoof_callstack = 2
-            elif params[i + 1] == "rpc":
-                spoof_callstack = 3
-            else:
-                demon.ConsoleWrite( demon.CONSOLE_ERROR, "invalid --spoof-callstack value" )
-                return None
+            spoof_callstack = True
         elif param == "--help" or param == "-h":
             demon.ConsoleWrite( demon.CONSOLE_INFO, "usage: nanodump [--write C:\\Windows\\Temp\\doc.docx] [--valid] [--duplicate] [--elevate-handle] [--duplicate-elevate] [--seclogon-leak-local] [--seclogon-leak-remote C:\Windows\notepad.exe] [--seclogon-duplicate] [--spoof-callstack svchost] [--silent-process-exit C:\\Windows\\Temp] [--shtinkering] [--fork] [--snapshot] [--getpid] [--help]" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "Dumpfile options:" )
@@ -352,7 +340,7 @@ def nanodump_parse_params(demon, params):
     packer.addbool(use_seclogon_leak_remote)
     packer.addstr(seclogon_leak_remote_binary)
     packer.addbool(use_seclogon_duplicate)
-    packer.adduint32(spoof_callstack)
+    packer.addbool(spoof_callstack)
     packer.addbool(use_silent_process_exit)
     packer.addstr(silent_process_exit)
     packer.addbool(use_lsass_shtinkering)
