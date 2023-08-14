@@ -30,20 +30,24 @@ def psexec( demonID, *param ):
 
     if len(param) < 3:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough arguments" )
-        return
-    else: 
-        Host    = param[ 1 ]
-        SvcName = param[ 2 ]
-        SvcPath = param[ 3 ]
+        return False
 
-        if exists( SvcPath ) == False:
-            demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Service executable not found: {SvcPath}" )
-            return
-        else:
-            SvcBinary = open( SvcPath, 'rb' ).read()
-            if len(SvcBinary) == 0:
-                demon.ConsoleWrite( demon.CONSOLE_ERROR, "Specified service executable is empty" )
-                return
+    if len(param) > 3:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many arguments" )
+        return False
+
+    Host    = param[ 1 ]
+    SvcName = param[ 2 ]
+    SvcPath = param[ 3 ]
+
+    if exists( SvcPath ) is False:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Service executable not found: {SvcPath}" )
+        return False
+    else:
+        SvcBinary = open( SvcPath, 'rb' ).read()
+        if len(SvcBinary) == 0:
+            demon.ConsoleWrite( demon.CONSOLE_ERROR, "Specified service executable is empty" )
+            return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute {SvcPath} on {Host} using psexec" )
 

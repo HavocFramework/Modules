@@ -1,5 +1,4 @@
-from havoc import Demon, RegisterCommand, RegisterModule
-import re
+from havoc import Demon, RegisterCommand
 
 class SAPacker:
     def __init__(self):
@@ -234,31 +233,6 @@ def reg_query( demonID, *params ):
 
     return TaskID
 
-def reg_query_with_callback( demonID, callback, *params ):
-    demon  : Demon  = None
-    demon  = Demon( demonID )
-
-    packed_params = reg_query_parse_params( demon, params )
-    if packed_params is None:
-        return False
-
-    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/reg_query.{demon.ProcessArch}.o", packed_params )
-
-def generic_callback( demonID, worked, output ):
-    if worked:
-        with open('/tmp/bof_output.txt', 'a'):
-            f.write(output)
-
-def sit_aw( demonID, *params ):
-    TaskID : str    = None
-    demon  : Demon  = None
-    demon  = Demon( demonID )
-
-    return demon.InlineExecuteGetOutput( my_callback, "go", f"ObjectFiles/reg_query.{demon.ProcessArch}.o", b'' )
-
-RegisterCommand( sit_aw, "", "sit-aw", "Get basic information about the current system", 0, "", "" )
-
-
 def reg_query_recursive_parse_params( demon, params ):
     packer = SAPacker()
 
@@ -350,16 +324,18 @@ def wmi_query_parse_params( demon, params ):
     if num_params > 2:
         namespace = params[ 2 ]
 
+    resource = f"\\\\{server}\\{namespace}"
+
     packer.addWstr(server)
     packer.addWstr(namespace)
     packer.addWstr(query)
+    packer.addWstr(resource)
 
     return packer.getbuffer()
 
 def wmi_query( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = SAPacker()
     demon  = Demon( demonID )
 
     packed_params = wmi_query_parse_params( demon, params )
@@ -444,7 +420,8 @@ def nslookup( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run DNS query" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/nslookup.{demon.ProcessArch}.o", packed_params, False )
+    # nslookup can hang, so let's run it in threaded mode
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/nslookup.{demon.ProcessArch}.o", packed_params, True )
 
     return TaskID
 
@@ -473,8 +450,6 @@ def get_password_policy_parse_params( demon, params ):
         return None
 
     packer.addWstr(hostname)
-
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/get_password_policy.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return packer.getbuffer()
 
@@ -876,7 +851,6 @@ def adcs_enum( demonID, *params ):
 def enumlocalsessions( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = SAPacker()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -975,7 +949,8 @@ def ldapsearch( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run ldap query" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/ldapsearch.{demon.ProcessArch}.o", packed_params, False )
+    # ldapsearch can hang, so let's run it in threaded mode
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/ldapsearch.{demon.ProcessArch}.o", packed_params, True )
 
     return TaskID
 
@@ -1424,22 +1399,93 @@ def quser_parse_params( demon, params ):
 
     packer.addstr(hostname)
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/quser.{demon.ProcessArch}.o", packer.getbuffer(), False )
-
-    return packer.getbuffer()
+    return packer.getbuffer(), hostname
 
 def quser( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
     demon  = Demon( demonID )
 
-    packed_params = quser_parse_params( demon, params )
+    packed_params, hostname = quser_parse_params( demon, params )
     if packed_params is None:
         return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to obtain the list RDP connections on {hostname}" )
 
     demon.InlineExecute( TaskID, "go", f"ObjectFiles/quser.{demon.ProcessArch}.o", packed_params, False )
+
+    return TaskID
+
+def bofdir_parse_params( demon, params ):
+    packer = SAPacker()
+
+    num_params = len(params)
+    targetdir  = '.\\'
+    subdirs    = 0
+
+    if num_params > 2:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return None
+
+    if num_params > 0:
+        targetdir = params[0]
+
+    if num_params == 2 and params[1] != '/s':
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid parameter: {params[1]}" )
+        return None
+
+    if num_params == 2 and params[1] == '/s':
+        subdirs = 1
+
+    packer.addWstr(targetdir)
+    packer.addshort(subdirs)
+
+    return packer.getbuffer()
+
+def bofdir( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = bofdir_parse_params( demon, params )
+    if packed_params is None:
+        return False
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to list a directory" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/dir.{demon.ProcessArch}.o", packed_params, False )
+
+    return TaskID
+
+def tasklist_parse_params( demon, params ):
+    packer = SAPacker()
+
+    num_params = len(params)
+    hostname   = ''
+
+    if num_params > 1:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return None
+
+    if num_params > 0:
+        hostname = params[0]
+
+    packer.addWstr(hostname)
+
+    return packer.getbuffer()
+
+def sa_tasklist( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = tasklist_parse_params( demon, params )
+    if packed_params is None:
+        return False
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon list running processes" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/tasklist.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
@@ -1488,3 +1534,5 @@ RegisterCommand( netsharesAdmin, "", "netsharesAdmin", "List shares on local or 
 RegisterCommand( netuptime, "", "netuptime", "Returns information about the boot time on the local (or a remote) machine", 0, "[opt: hostname]", "" )
 RegisterCommand( netview, "", "netview", "lists local workstations and servers", 0, "[opt: netbios_domain_name]", "" )
 RegisterCommand( quser, "", "quser", "Simple implementation of quser.exe usingt the Windows API", 0, "<OPT:TARGET>", "10.10.10.10" )
+#RegisterCommand( bofdir, "", "bofdir", "Lists a target directory using BOF.", 0, "[directory] [/s]", "C:\\Windows\\Temp" )
+RegisterCommand( sa_tasklist, "", "tasklist", "This command displays a list of currently running processes on either a local or remote machine.", 0, "[hostname]", "" )

