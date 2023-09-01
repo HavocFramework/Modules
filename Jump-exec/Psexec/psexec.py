@@ -28,11 +28,11 @@ def psexec( demonID, *param ):
 
     demon = Demon( demonID )
 
-    if len(param) < 3:
+    if len(param) < 4:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough arguments" )
         return False
 
-    if len(param) > 3:
+    if len(param) > 4:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many arguments" )
         return False
 
