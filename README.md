@@ -33,3 +33,6 @@ Find delegation settings, users with SPNs and ASREP using LDAP.
 
 ### SamDump
 Dump the SAM registry.  
+
+### Migrate
+Automigrate WoW64 demons to x64.  
