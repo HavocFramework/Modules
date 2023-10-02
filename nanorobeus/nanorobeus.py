@@ -327,7 +327,7 @@ def kerberoast( demonID, *param ):
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "One argument must be entered" )
         return
 
-    arg1 = param[ 1 ]
+    arg1 = param[ 0 ]
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute kerberoast" )
 
