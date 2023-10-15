@@ -16,7 +16,7 @@ class Packer:
         self.buffer += pack(fmt, len(s)+1, s)
         self.size += calcsize(fmt)
 
-def scshell( demonID, *param ):
+def scshell( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
     packer : Packer = Packer()
@@ -28,13 +28,13 @@ def scshell( demonID, *param ):
 
     demon = Demon( demonID )
 
-    if len(param) < 3:
+    if len(params) < 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough arguments" )
         return
     else: 
-        Host    = param[ 1 ]
-        SvcName = param[ 2 ]
-        SvcPath = param[ 3 ]
+        Host    = params[ 0 ]
+        SvcName = params[ 1 ]
+        SvcPath = params[ 2 ]
 
         if exists( SvcPath ) == False:
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Service executable not found: {SvcPath}" )

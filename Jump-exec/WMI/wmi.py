@@ -54,7 +54,6 @@ def wmi_eventsub( demonID, *params ):
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "x86 is not supported" )
         return False
 
-    params = params[1:]
     num_params = len(params)
 
     target   = ''
@@ -113,7 +112,6 @@ def wmi_proccreate( demonID, *params ):
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "x86 is not supported" )
         return False
 
-    params = params[1:]
     num_params = len(params)
 
     target     = ''
