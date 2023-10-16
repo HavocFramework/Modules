@@ -8,21 +8,6 @@ def is_hex_number(number):
 def is_base64(s):
     return re.match(r'^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$', number) is not None
 
-class Packer:
-    def __init__(self):
-        self.buffer : bytes = b''
-        self.size   : int   = 0
-
-    def getbuffer(self):
-        return pack("<L", self.size) + self.buffer
-
-    def addstr(self, s):
-        if isinstance(s, str):
-            s = s.encode("utf-8")
-        fmt = "<L{}s".format(len(s) + 1)
-        self.buffer += pack(fmt, len(s)+1, s)
-        self.size += calcsize(fmt)
-
 def luid( demonID, *param ):
     TaskID : str    = None
     demon  : Demon  = None

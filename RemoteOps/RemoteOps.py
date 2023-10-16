@@ -1,53 +1,10 @@
 from havoc import Demon, RegisterCommand, RegisterModule
 import re
 
-class RemOpsPacker:
-    def __init__(self):
-        self.buffer : bytes = b''
-        self.size   : int   = 0
-
-    def getbuffer(self):
-        return pack("<L", self.size) + self.buffer
-
-    def addstr(self, s):
-        if s is None:
-            s = ''
-        if isinstance(s, str):
-            s = s.encode("utf-8" )
-        fmt = "<L{}s".format(len(s) + 1)
-        self.buffer += pack(fmt, len(s)+1, s)
-        self.size += calcsize(fmt)
-
-    def addWstr(self, s):
-        s = s.encode("utf-16_le")
-        fmt = "<L{}s".format(len(s) + 2)
-        self.buffer += pack(fmt, len(s)+2, s)
-        self.size += calcsize(fmt)
-
-    def addbytes(self, b):
-        fmt = "<L{}s".format(len(b))
-        self.buffer += pack(fmt, len(b), b)
-        self.size += calcsize(fmt)
-
-    def addbool(self, b):
-        fmt = '<I'
-        self.buffer += pack(fmt, 1 if b else 0)
-        self.size += calcsize(fmt)
-
-    def adduint32(self, n):
-        fmt = '<I'
-        self.buffer += pack(fmt, n)
-        self.size += calcsize(fmt)
-
-    def addshort(self, n):
-        fmt = '<h'
-        self.buffer += pack(fmt, n)
-        self.size += calcsize(fmt)
-
 def adcs_request( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = RemOpsPacker()
+    packer = Packer()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -109,7 +66,7 @@ def adcs_request( demonID, *params ):
 def addusertogroup( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = RemOpsPacker()
+    packer = Packer()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -150,7 +107,7 @@ def addusertogroup( demonID, *params ):
 def enableuser( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = RemOpsPacker()
+    packer = Packer()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -183,7 +140,7 @@ def enableuser( demonID, *params ):
 def setuserpass( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = RemOpsPacker()
+    packer = Packer()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -219,7 +176,7 @@ def setuserpass( demonID, *params ):
 def reg_delete( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = RemOpsPacker()
+    packer = Packer()
     demon  = Demon( demonID )
 
     reghives = {
@@ -281,7 +238,7 @@ def reg_delete( demonID, *params ):
 def reg_save( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = RemOpsPacker()
+    packer = Packer()
     demon  = Demon( demonID )
 
     reghives = {
@@ -325,7 +282,7 @@ def reg_save( demonID, *params ):
 def reg_set( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = RemOpsPacker()
+    packer = Packer()
     demon  = Demon( demonID )
 
     regtypes = {
@@ -431,7 +388,7 @@ def reg_set( demonID, *params ):
 def sc_create( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = RemOpsPacker()
+    packer = Packer()
     demon  = Demon( demonID )
 
     service_type = {
@@ -509,7 +466,7 @@ def sc_create( demonID, *params ):
 def sc_start( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = RemOpsPacker()
+    packer = Packer()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -539,7 +496,7 @@ def sc_start( demonID, *params ):
 def sc_stop( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = RemOpsPacker()
+    packer = Packer()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -569,7 +526,7 @@ def sc_stop( demonID, *params ):
 def sc_delete( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = RemOpsPacker()
+    packer = Packer()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -599,7 +556,7 @@ def sc_delete( demonID, *params ):
 def sc_description( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = RemOpsPacker()
+    packer = Packer()
     demon  = Demon( demonID )
 
     num_params = len(params)
@@ -632,7 +589,7 @@ def sc_description( demonID, *params ):
 def adduser( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = RemOpsPacker()
+    packer = Packer()
     demon  = Demon( demonID )
 
     num_params = len(params)

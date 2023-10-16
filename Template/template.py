@@ -1,5 +1,4 @@
 from havoc import Demon, RegisterCommand
-from struct import pack, calcsize
 
 def testdll(demonID, *param):
     TaskID : str    = None

@@ -1,43 +1,12 @@
 from havoc import Demon, RegisterCommand
-from struct import pack, calcsize
 import re
 import time
 
 def is_full_path(path):
     return re.match(r'^[a-zA-Z]:\\', path) is not None
 
-class NNDPacker:
-    def __init__(self):
-        self.buffer : bytes = b''
-        self.size   : int   = 0
-
-    def getbuffer(self):
-        return pack("<L", self.size) + self.buffer
-
-    def addstr(self, s):
-        if isinstance(s, str):
-            s = s.encode("utf-8" )
-        fmt = "<L{}s".format(len(s) + 1)
-        self.buffer += pack(fmt, len(s)+1, s)
-        self.size += calcsize(fmt)
-
-    def addbytes(self, b):
-        fmt = "<L{}s".format(len(b))
-        self.buffer += pack(fmt, len(b), b)
-        self.size += calcsize(fmt)
-
-    def addbool(self, b):
-        fmt = '<I'
-        self.buffer += pack(fmt, 1 if b else 0)
-        self.size += calcsize(fmt)
-
-    def adduint32(self, n):
-        fmt = '<I'
-        self.buffer += pack(fmt, n)
-        self.size += calcsize(fmt)
-
 def nanodump_parse_params(demon, params):
-    packer = NNDPacker()
+    packer = Packer()
 
     num_params = len(params)
     get_pid = False
@@ -350,7 +319,7 @@ def nanodump_parse_params(demon, params):
 def nanodump(demonID, *params):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = NNDPacker()
+    packer = Packer()
 
     demon = Demon( demonID )
 
@@ -369,7 +338,7 @@ def nanodump(demonID, *params):
     return TaskID
 
 def nanodump_ppl_dump_parse_params(demon, params):
-    packer = NNDPacker()
+    packer = Packer()
 
     num_params = len(params)
     use_valid_sig = False
@@ -439,7 +408,7 @@ def nanodump_ppl_dump_parse_params(demon, params):
 def nanodump_ppl_dump(demonID, *params):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = NNDPacker()
+    packer = Packer()
 
     demon = Demon( demonID )
 
@@ -464,7 +433,7 @@ def nanodump_ppl_dump(demonID, *params):
 def nanodump_ppl_medic(demonID, *params):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = NNDPacker()
+    packer = Packer()
 
     num_params = len(params)
     use_valid_sig = False
@@ -548,7 +517,7 @@ def nanodump_ppl_medic(demonID, *params):
 def nanodump_ssp(demonID, *params):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = NNDPacker()
+    packer = Packer()
 
     num_params = len(params)
     nanodump_ssp_dll = b''

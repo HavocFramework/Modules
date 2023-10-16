@@ -1,21 +1,5 @@
 
 from havoc import Demon, RegisterCommand
-from struct import pack, calcsize
-
-class Packer:
-    def __init__(self):
-        self.buffer : bytes = b''
-        self.size   : int   = 0
-
-    def getbuffer(self):
-        return pack("<L", self.size) + self.buffer
-
-    def addstr(self, s):
-        if isinstance(s, str):
-            s = s.encode("utf-8")
-        fmt = "<L{}s".format(len(s) + 1)
-        self.buffer += pack(fmt, len(s)+1, s)
-        self.size += calcsize(fmt)
 
 def PowerPick(demonID, *param):
     TaskID   : str    = None
