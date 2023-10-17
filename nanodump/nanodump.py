@@ -319,7 +319,6 @@ def nanodump_parse_params(demon, params):
 def nanodump(demonID, *params):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = Packer()
 
     demon = Demon( demonID )
 
@@ -408,7 +407,6 @@ def nanodump_ppl_dump_parse_params(demon, params):
 def nanodump_ppl_dump(demonID, *params):
     TaskID : str    = None
     demon  : Demon  = None
-    packer = Packer()
 
     demon = Demon( demonID )
 

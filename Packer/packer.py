@@ -13,6 +13,8 @@ class Packer:
         return pack("<L", self.size) + self.buffer
 
     def addstr(self, s):
+        if s is None:
+            s = ''
         if isinstance(s, str):
             s = s.encode("utf-8" )
         fmt = "<L{}s".format(len(s) + 1)
@@ -20,12 +22,16 @@ class Packer:
         self.size   += calcsize(fmt)
 
     def addWstr(self, s):
+        if s is None:
+            s = ''
         s = s.encode("utf-16_le")
         fmt = "<L{}s".format(len(s) + 2)
         self.buffer += pack(fmt, len(s)+2, s)
         self.size   += calcsize(fmt)
 
     def addbytes(self, b):
+        if b is None:
+            b = b''
         fmt = "<L{}s".format(len(b))
         self.buffer += pack(fmt, len(b), b)
         self.size   += calcsize(fmt)
