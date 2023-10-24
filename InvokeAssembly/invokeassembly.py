@@ -20,15 +20,15 @@ def InvokeAssembly( demonID, *param ):
         return
 
     try:
-        Assembly = open( param[ 1 ], 'rb' )
+        Assembly = open( param[ 0 ], 'rb' )
 
         packer.addstr( "DefaultAppDomain" )
         packer.addstr( "v4.0.30319" )
         packer.addstr( str(Assembly.read()) )
-        packer.addstr( " " + ''.join( param[ 2: ] ) )
+        packer.addstr( " " + ''.join( param[ 1: ] ) )
 
     except OSError:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Failed to open assembly file: " + param[ 1 ] )
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Failed to open assembly file: " + param[ 0 ] )
         return
 
     arg = packer.getbuffer() 
