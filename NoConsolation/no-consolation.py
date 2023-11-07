@@ -123,7 +123,6 @@ def noconsolation_parse_params( demon, params ):
 
     # Iterate through args given
     cmdline = pename
-    #for ($y = $i + 1; $y < size(@_); $y++)
     for y in range(i + 1, len(params)):
         arg = params[ y ]
         arg = arg.replace('\\"', '"')
