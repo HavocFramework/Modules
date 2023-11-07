@@ -39,12 +39,12 @@ class Packer:
     def addbool(self, b):
         fmt = '<I'
         self.buffer += pack(fmt, 1 if b else 0)
-        self.size   += calcsize(fmt)
+        self.size   += 4
 
     def adduint32(self, n):
         fmt = '<I'
         self.buffer += pack(fmt, n)
-        self.size   += calcsize(fmt)
+        self.size   += 4
 
     def addint(self, dint):
         self.buffer += pack("<i", dint)
@@ -53,4 +53,4 @@ class Packer:
     def addshort(self, n):
         fmt = '<h'
         self.buffer += pack(fmt, n)
-        self.size   += calcsize(fmt)
+        self.size   += 2
