@@ -1,4 +1,5 @@
 from havoc import Demon, RegisterCommand, RegisterModule
+from struct import pack, calcsize
 from os.path import exists
 import re
 

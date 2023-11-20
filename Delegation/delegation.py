@@ -1,4 +1,5 @@
 from havoc import Demon, RegisterCommand, RegisterModule
+from struct import pack, calcsize
 import re
 
 class DelegationPacker:

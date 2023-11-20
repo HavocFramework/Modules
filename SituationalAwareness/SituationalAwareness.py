@@ -1,4 +1,5 @@
 from havoc import Demon, RegisterCommand
+from struct import pack, calcsize
 
 class SAPacker:
     def __init__(self):
