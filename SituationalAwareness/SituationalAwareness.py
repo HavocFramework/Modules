@@ -922,7 +922,7 @@ def ldapsearch_parse_params( demon, params ):
         attributes = params[ 1 ]
 
     if num_params >= 3:
-        result_limit = params[ 2 ]
+        result_limit = int( params[ 2 ] )
 
     if num_params >= 4:
         hostname = params[ 3 ]
