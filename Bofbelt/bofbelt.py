@@ -3,49 +3,6 @@ import json
 import re
 import os
 
-class BBPacker:
-    def __init__(self):
-        self.buffer : bytes = b''
-        self.size   : int   = 0
-
-    def getbuffer(self):
-        return pack("<L", self.size) + self.buffer
-
-    def addstr(self, s):
-        if s is None:
-            s = ''
-        if isinstance(s, str):
-            s = s.encode("utf-8" )
-        fmt = "<L{}s".format(len(s) + 1)
-        self.buffer += pack(fmt, len(s)+1, s)
-        self.size += calcsize(fmt)
-
-    def addWstr(self, s):
-        s = s.encode("utf-16_le")
-        fmt = "<L{}s".format(len(s) + 2)
-        self.buffer += pack(fmt, len(s)+2, s)
-        self.size += calcsize(fmt)
-
-    def addbytes(self, b):
-        fmt = "<L{}s".format(len(b))
-        self.buffer += pack(fmt, len(b), b)
-        self.size += calcsize(fmt)
-
-    def addbool(self, b):
-        fmt = '<I'
-        self.buffer += pack(fmt, 1 if b else 0)
-        self.size += calcsize(fmt)
-
-    def adduint32(self, n):
-        fmt = '<I'
-        self.buffer += pack(fmt, n)
-        self.size += calcsize(fmt)
-
-    def addshort(self, n):
-        fmt = '<h'
-        self.buffer += pack(fmt, n)
-        self.size += calcsize(fmt)
-
 def ipconfig_with_callback( demonID, callback, *params ):
     demon  : Demon  = None
     demon  = Demon( demonID )
@@ -71,7 +28,7 @@ def windowlist_with_callback( demonID, callback, *params ):
     return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/windowlist.{demon.ProcessArch}.o", b'' )
 
 def reg_query_parse_params( demon, params ):
-    packer = BBPacker()
+    packer = Packer()
 
     reghives = {
         'HKCR': 0,
@@ -135,7 +92,7 @@ def reg_query_with_callback( demonID, callback, *params ):
     return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/reg_query.{demon.ProcessArch}.o", packed_params )
 
 def wmi_query_parse_params( demon, params ):
-    packer = BBPacker()
+    packer = Packer()
 
     query     = ''
     server    = '.'
@@ -197,7 +154,7 @@ def enumlocalsessions_with_callback( demonID, callback, *params ):
     return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/enumlocalsessions.{demon.ProcessArch}.o", b'' )
 
 def userenum_parse_parans( demon, params ):
-    packer = BBPacker()
+    packer = Packer()
 
     num_params = len(params)
 
@@ -235,7 +192,7 @@ def userenum_with_callback( demonID, callback, *params ):
     return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/netuserenum.{demon.ProcessArch}.o", packed_params )
 
 def bofdir_parse_params( demon, params ):
-    packer = BBPacker()
+    packer = Packer()
 
     num_params = len(params)
     targetdir  = '.\\'
@@ -286,7 +243,7 @@ def bofdir_with_callback( demonID, callback, *params ):
     return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/dir.{demon.ProcessArch}.o", packed_params )
 
 def tasklist_parse_params( demon, params ):
-    packer = BBPacker()
+    packer = Packer()
 
     num_params = len(params)
     hostname   = ''

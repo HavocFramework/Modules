@@ -1,21 +1,6 @@
 from havoc import Demon, RegisterCommand, RegisterModule
 from os.path import exists
 
-class Packer:
-    def __init__(self):
-        self.buffer : bytes = b''
-        self.size   : int   = 0
-
-    def getbuffer(self):
-        return pack("<L", self.size) + self.buffer
-
-    def addstr(self, s):
-        if isinstance(s, str):
-            s = s.encode("utf-8")
-        fmt = "<L{}s".format(len(s) + 1)
-        self.buffer += pack(fmt, len(s)+1, s)
-        self.size += calcsize(fmt)
-
 def psexec( demonID, *param ):
     TaskID : str    = None
     demon  : Demon  = None
@@ -28,11 +13,11 @@ def psexec( demonID, *param ):
 
     demon = Demon( demonID )
 
-    if len(param) < 3:
+    if len(param) < 4:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough arguments" )
         return False
 
-    if len(param) > 3:
+    if len(param) > 4:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many arguments" )
         return False
 
