@@ -1,0 +1,6 @@
+[submodule "NoConsolation/No-Consolation"]
+	path = NoConsolation/No-Consolation
+	url = https://github.com/fortra/No-Consolation
+[submodule "nanodump/nanodump"]
+	path = nanodump/nanodump
+	url = https://github.com/fortra/nanodump
