@@ -1,0 +1,3 @@
+[submodule "RemoteOps/CS-Remote-OPs-BOF"]
+	path = RemoteOps/CS-Remote-OPs-BOF
+	url = https://github.com/trustedsec/CS-Remote-OPs-BOF
