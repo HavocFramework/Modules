@@ -987,7 +987,7 @@ def bofbelt_report( demonID, bof_output ):
 # output : the content of all CALLBACK_OUTPUT
 # error  : the content of all CALLBACK_ERROR
 def bofbelt_callback( demonID, TaskID, worked, output, error ):
-    filename = '/tmp/bofbelt.json'
+    filename = f'/tmp/bofbelt-{demonID}.json'
 
     # first, get the json that contains all the previous BOF output
     try:
