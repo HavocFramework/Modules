@@ -13,17 +13,17 @@ def psexec( demonID, *param ):
 
     demon = Demon( demonID )
 
-    if len(param) < 4:
+    if len(param) < 3:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough arguments" )
         return False
 
-    if len(param) > 4:
+    if len(param) > 3:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many arguments" )
         return False
 
-    Host    = param[ 1 ]
-    SvcName = param[ 2 ]
-    SvcPath = param[ 3 ]
+    Host    = param[ 0 ]
+    SvcName = param[ 1 ]
+    SvcPath = param[ 2 ]
 
     if exists( SvcPath ) is False:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Service executable not found: {SvcPath}" )
