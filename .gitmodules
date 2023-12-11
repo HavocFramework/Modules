@@ -1,3 +1,8 @@
 [submodule "RemoteOps/CS-Remote-OPs-BOF"]
 	path = RemoteOps/CS-Remote-OPs-BOF
 	url = https://github.com/trustedsec/CS-Remote-OPs-BOF
+
+[submodule "SituationalAwareness/CS-Situational-Awareness-BOF"]
+	path = SituationalAwareness/CS-Situational-Awareness-BOF
+	url = https://github.com/trustedsec/CS-Situational-Awareness-BOF
+
