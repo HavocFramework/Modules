@@ -4,3 +4,6 @@
 [submodule "nanodump/nanodump"]
 	path = nanodump/nanodump
 	url = https://github.com/fortra/nanodump
+[submodule "SituationalAwareness/CS-Situational-Awareness-BOF"]
+	path = SituationalAwareness/CS-Situational-Awareness-BOF
+	url = https://github.com/trustedsec/CS-Situational-Awareness-BOF
