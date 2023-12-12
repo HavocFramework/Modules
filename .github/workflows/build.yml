@@ -18,5 +18,8 @@ jobs:
     - name: Install Python3-dev
       run: sudo apt-get install python3-dev
 
+    - name: Install nasm
+      run: sudo apt-get install nasm
+
     - name: Build BOFs
       run: make
