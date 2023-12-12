@@ -2,7 +2,7 @@ NAME 			= nanodump
 BIN			= bin
 
 all:
-	@ cd $(NAME); make -f Makefile.mingw
+	@ make -C $(NAME) -f Makefile.mingw
 	@ find $(NAME)/dist -name '*.o' -exec cp {} $(BIN)/ \;
 
 clean:

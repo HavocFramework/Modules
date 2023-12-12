@@ -1,6 +1,17 @@
-all:
+SUBDIRS := $(filter-out Template, $(shell echo */))
+
+.PHONY: all $(SUBDIRS)
+
+all: UPDATE $(SUBDIRS)
+
+UPDATE:
+	@ echo "Updating submodules"
 	@ git submodule update --init --recursive
-	@ $(foreach BOF, $(wildcard */), [ -f $(BOF)/makefile ] && [ "$(BOF)" != "Template/" ] && make -C $(BOF) || true ; )
-	@ $(foreach BOF, $(wildcard */*/makefile), [ -f $(BOF) ] && make -C $(dir $(BOF)) || true ; )
 
-
+$(SUBDIRS):
+	@ if [ -f $@/makefile -o -f $@/Makefile ]; then \
+		echo "Building $@"; \
+		$(MAKE) -C $@; \
+	else \
+		echo "Skipping $@ (Makefile not found)"; \
+	fi
