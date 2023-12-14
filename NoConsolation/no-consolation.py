@@ -161,7 +161,7 @@ def noconsolation( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to run {pename} inline" )
 
-    demon.InlineExecute( TaskID, "go", f"/home/user/repositorios/No-Consolation/dist/NoConsolation.{demon.ProcessArch}.o", packed_params, False )
+    demon.InlineExecute( TaskID, "go", f"bin/NoConsolation.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
