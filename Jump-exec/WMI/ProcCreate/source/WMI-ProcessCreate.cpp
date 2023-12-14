@@ -8,7 +8,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include <wbemcli.h>
-#include <comdef.h>
+//#include <comdef.h>
 #include <combaseapi.h>
 #pragma comment(lib, "wbemuuid.lib")
 #pragma comment(lib, "comsuppw.lib")
@@ -121,7 +121,7 @@ void go(char* buff, int len) {
 	CreateCreds(&authInfo, &authidentity, bwusername, bwpassword, bwdomain, IsCurrent);
 
 	// Doesnt currently work but should let you use current context
-	if (IsCurrent == 0)
+	if (IsCurrent == 1)
 	{
 	authidentity = NULL;
 	}

@@ -106,7 +106,7 @@ def wmi_proccreate( demonID, *params ):
     packer.addWstr(command)
     packer.addbool(is_current)
 
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to run a VBS script in {target} via wmi" )
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to run command on {target} via wmi" )
 
     demon.InlineExecute( TaskID, "go", f"ProcCreate/bin/ProcCreate.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
