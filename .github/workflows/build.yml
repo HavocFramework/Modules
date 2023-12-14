@@ -1,0 +1,28 @@
+name: build
+
+on: [pull_request, push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Set up MinGW
+      uses: egor-tensin/setup-mingw@v2
+      with:
+        platform: x64
+
+    - name: apt update
+      run: sudo apt-get update
+      
+    - name: Install pefile
+      run: sudo apt-get -y install python3-pefile
+
+    - name: Install nasm
+      run: sudo apt-get -y install nasm
+
+    - name: Build BOFs
+      run: make
