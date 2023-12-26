@@ -93,11 +93,72 @@ def uptime( demonID, *param ):
     demon  : Demon  = None
 
     demon  = Demon( demonID )
-    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to lists system boot time" )
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list system boot time" )
 
     demon.InlineExecute( TaskID, "go", f"ObjectFiles/uptime.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
+
+def listmods( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+
+    demon  = Demon( demonID )
+    
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list modules" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/listmods.{demon.ProcessArch}.o", b'', False )
+
+    return TaskID
+
+
+def probe_parse_params( demon, params ):
+    packer = Packer()
+
+    num_params = len(params)
+    server = ''
+
+    if num_params == 2:
+        server = params[ 0 ]
+        port = int( params[ 1 ] )
+    elif num_params < 2:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return None
+    elif num_params > 2:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return None
+
+    packer.addstr(server)
+    packer.adduint32(port)
+
+    return packer.getbuffer()
+
+def probe( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = probe_parse_params( demon, params )
+    if packed_params is None:
+        return False
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to probe remote host" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/probe.{demon.ProcessArch}.o", packed_params, False )
+
+    return TaskID
+
+def adv_audit_policies( demonID, *param ):
+    TaskID : str    = None
+    demon  : Demon  = None
+
+    demon  = Demon( demonID )
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to retrieve the advanced security audit policies" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/adv_audit_policies.{demon.ProcessArch}.o", b'', False )
+
+    return TaskID
+
 
 def whoami( demonID, *param ):
     TaskID : str    = None
@@ -433,7 +494,7 @@ def list_firewall_rules( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to list all firewall rules" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/get_password_policy.{demon.ProcessArch}.o", b'', False )
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/list_firewall_rules.{demon.ProcessArch}.o", b'', False )
 
     return TaskID
 
@@ -879,7 +940,7 @@ def ldapsearch_parse_params( demon, params ):
         attributes = params[ 1 ]
 
     if num_params >= 3:
-        result_limit = params[ 2 ]
+        result_limit = int( params[ 2 ] )
 
     if num_params >= 4:
         hostname = params[ 3 ]
@@ -908,6 +969,42 @@ def ldapsearch( demonID, *params ):
 
     # ldapsearch can hang, so let's run it in threaded mode
     demon.InlineExecute( TaskID, "go", f"ObjectFiles/ldapsearch.{demon.ProcessArch}.o", packed_params, True )
+
+    return TaskID
+
+
+def netloggedon_parse_params( demon, params ):
+    packer = Packer()
+
+    num_params = len(params)
+    computer = ''
+
+    if num_params == 0:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return None
+    elif num_params == 1:
+        computer = params[ 0 ]
+    elif num_params > 1:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return None
+
+    packer.addWstr(computer)
+    packer.adduint32(1)
+
+    return packer.getbuffer()
+
+def netloggedon( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    demon  = Demon( demonID )
+
+    packed_params = netloggedon_parse_params( demon, params )
+    if packed_params is None:
+        return False
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to enumerate logged in user" )
+
+    demon.InlineExecute( TaskID, "go", f"ObjectFiles/netloggedon.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
@@ -1446,6 +1543,9 @@ def sa_tasklist( demonID, *params ):
 
     return TaskID
 
+RegisterCommand( adv_audit_policies, "", "adv_audit_policies", "Retrieve advanced security audit policies", 0, "", "" )
+RegisterCommand( listmods, "", "listmods", "List process modules (DLL).", 0, "", "" )
+RegisterCommand( probe, "", "probe", "Check if a specific port is open", 0, "", "" )
 RegisterCommand( arp, "", "arp", "Lists out ARP table", 0, "", "" )
 RegisterCommand( driversigs, "", "driversigs", "checks drivers for known edr vendor names", 0, "", "" )
 RegisterCommand( ipconfig, "", "ipconfig", "Lists out adapters, system hostname and configured dns serve", 0, "", "" )
@@ -1463,7 +1563,7 @@ RegisterCommand( wmi_query, "", "wmi_query", "Run a wmi query and display result
 RegisterCommand( nslookup, "", "nslookup", "Make a DNS query. DNS server is the server you want to query (do not specify or 0 for default). Record type is something like A, AAAA, or ANY", 0, "hostname [opt:dns server] [opt: record type]", "dc01" )
 RegisterCommand( env, "", "env", "Print environment variables.", 0, "", "" )
 RegisterCommand( get_password_policy, "", "get_password_policy", "Gets a server or DC's configured password policy", 0, "[hostname]", "" )
-#RegisterCommand( list_firewall_rules, "", "list_firewall_rules", "List Windows firewall rules", 0, "", "" )
+RegisterCommand( list_firewall_rules, "", "list_firewall_rules", "List Windows firewall rules", 0, "", "" )
 RegisterCommand( cacls, "", "cacls", "List user permissions for the specified file, wildcards supported", 0, "[filepath]", "C:\\Windows\\Temp\\test.txt" )
 RegisterCommand( schtasksenum, "", "schtasksenum", "Enumerate scheduled tasks on the local or remote computer", 0, "[opt: server]", "" )
 RegisterCommand( schtasksquery, "", "schtasksquery", "Query the given task on the local or remote computer", 0, "[opt: server] [taskpath]", "" )
@@ -1477,7 +1577,8 @@ RegisterCommand( adcs_enum, "", "adcs_enum", "Enumerate CAs and templates in the
 RegisterCommand( enumlocalsessions, "", "enumlocalsessions", "Enumerate currently attached user sessions both local and over RDP", 0, "", "" )
 RegisterCommand( enum_filter_driver, "", "enum_filter_driver", "Enumerate filter drivers", 0, "[opt: system]", "" )
 RegisterCommand( ldapsearch, "", "ldapsearch", "Execute LDAP searches (NOTE: specify *,ntsecuritydescriptor as attribute parameter if you want all attributes + base64 encoded ACL of the objects, this can then be resolved using BOFHound. Could possibly break pagination, although everything seemed fine during testing.)", 0, "query [opt: attribute] [opt: results_limit] [opt: DC hostname or IP] [opt: Distingished Name]", "\"(&(samAccountType=805306368)(userAccountControl:1.2.840.113556.1.4.803:=4194304))\"" )
-RegisterCommand( netsession, "", "get-netsession", "Enumerate sessions on the local or specified computer", 0, "[opt:computer]", "" )
+RegisterCommand( netloggedon, "", "netloggedon", "Enumerate users on the local or specified computer", 0, "[hostname]", "" )
+RegisterCommand( netsession, "", "netsession", "Enumerate sessions on the local or specified computer", 0, "[opt:computer]", "" )
 RegisterCommand( netGroupList, "", "netGroupList", "List groups from the default or specified domain", 0, "[opt: domain]", "" )
 RegisterCommand( netGroupListMembers, "", "netGroupListMembers", "List group members from the default or specified domain", 0, "groupname [opt: domain]", "" )
 RegisterCommand( netLocalGroupList, "", "netLocalGroupList", "List local groups from the local or specified computer", 0, "[opt: server]", "" )
