@@ -12,18 +12,18 @@ def mimidrv( demonID, *params ):
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
-        return True
+        return False
     elif num_params == 1:
         pid = params[ 0 ]
     elif num_params > 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
-        return True
+        return False
 
     try:
         pid = int( pid )
     except Exception as e:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid PID" )
-        return True
+        return False
 
     packer.adduint32(pid)
 
