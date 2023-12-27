@@ -619,7 +619,7 @@ def adduser( demonID, *params ):
 
     return TaskID
 
-RegisterCommand( adcs_request, "", "adcs_request", "Request an enrollment certificate", 0, "/CA:ca [/TEMPLATE:template] [/SUBJECT:subject] [/ALTNAME:altname] [/INSTALL] [/MACHINE]", "1337 c:\\windwos\\temp\\test.txt" )
+RegisterCommand( adcs_request, "", "adcs_request", "Request an enrollment certificate", 0, "/CA:ca [/TEMPLATE:template] [/SUBJECT:subject] [/ALTNAME:altname] [/INSTALL] [/MACHINE]", "1337 c:\\windows\\temp\\test.txt" )
 RegisterCommand( addusertogroup, "", "addusertogroup", "Add the specified user to the specified group", 0, """<USERNAME> <GROUPNAME> <Server> <DOMAIN>
          USERNAME   Required. The user name to activate/enable. 
          GROUPNAME  Required. The group to add the user to.
@@ -640,7 +640,7 @@ RegisterCommand( setuserpass, "", "setuserpass", "Sets the password for the spec
                    the domain name for the user if it is a domain account, or
                    use \"\" to target an account on the local machine.""", "pwnedUser Password123! computer132 \"\"" )
 RegisterCommand( reg_delete, "", "reg_delete", "Deletes the registry key or value", 0, """<OPT:HOSTNAME> <HIVE> <REGPATH> <OPT:REGVALUE>
-         HOSTNAME Optional. The host to connect to and run the commnad on.
+         HOSTNAME Optional. The host to connect to and run the command on.
          HIVE     Required. The registry hive containing the REGPATH. Possible 
                   values:
                     HKLM
@@ -662,7 +662,7 @@ RegisterCommand( reg_save, "", "reg_save", "Saves the registry path and all subk
          FILEOUT  Required. The output file. 
 Note:    The FILEOUT is saved to disk on target, so don't forget to clean up.""", "HKLM Some\\Path c:\\windows\\temp\\reg.txt" )
 RegisterCommand( reg_set, "", "reg_set", "This command creates or sets the specified registry key (or value) on the target host.", 0, """<OPT:HOSTNAME> <HIVE> <REGPATH> <KEY> <TYPE> <DATA>
-         HOSTNAME Optional. The host to connect to and run the commnad on.
+         HOSTNAME Optional. The host to connect to and run the command on.
          HIVE     Required. The registry hive containing the REGPATH. Possible 
                   values:
                     HKLM
@@ -707,7 +707,7 @@ RegisterCommand( sc_create, "", "sc_create", "This command creates a service on 
                       2 - SERVICE_KERNEL_DRIVER (Driver service)
                       3 - SERVICE_WIN32_OWN_PROCESS (Service that runs in its own process) <-- Default
                       4 - SERVICE_WIN32_SHARE_PROCESS (Service that shares a process with one or more other services)
-         HOSTNAME     Optional. The host to connect to and run the commnad on. The
+         HOSTNAME     Optional. The host to connect to and run the command on. The
                       local system is targeted if a HOSTNAME is not specified.""", "mimidrv mimidrv C:\\Windows\\Temp\\mimidrv.sys \"\" 0 3 2" )
 RegisterCommand( sc_start, "", "sc_start", "This command starts the specified service on the target host.", 0, """<SVCNAME> <OPT:HOSTNAME>
          SVCNAME  Required. The name of the service to start.
@@ -715,16 +715,16 @@ RegisterCommand( sc_start, "", "sc_start", "This command starts the specified se
                   local system is targeted if a HOSTNAME is not specified.""", "mimidrv" )
 RegisterCommand( sc_stop, "", "sc_stop", "This command stops the specified service on the target host.", 0, """<SVCNAME> <OPT:HOSTNAME>
          SVCNAME  Required. The name of the service to stop.
-         HOSTNAME Optional. The host to connect to and run the commnad on. The
+         HOSTNAME Optional. The host to connect to and run the command on. The
                   local system is targeted if a HOSTNAME is not specified.""", "mimidrv" )
 RegisterCommand( sc_delete, "", "sc_delete", "This command deletes the specified service on the target host.", 0, """<SVCNAME> <OPT:HOSTNAME>
          SVCNAME  Required. The name of the service to delete.
-         HOSTNAME Optional. The host to connect to and run the commnad on. The
+         HOSTNAME Optional. The host to connect to and run the command on. The
                   local system is targeted if a HOSTNAME is not specified.""", "mimidrv" )
 RegisterCommand( sc_description, "", "sc_description", "This command sets the description of an existing service on the target host.", 0, """<SVCNAME> <DESCRIPTION> <OPT:HOSTNAME>
          SVCNAME      Required. The name of the service to create.
          DESCRIPTION  Required. The description of the service.
-         HOSTNAME     Optional. The host to connect to and run the commnad on. The
+         HOSTNAME     Optional. The host to connect to and run the command on. The
                       local system is targeted if a HOSTNAME is not specified.""", "mimidrv \"definitely not a mimikatz kernel driver\"" )
 RegisterCommand( adduser, "", "adduser", "Add a new user to a machine.", 0, """<USERNAME> <PASSWORD> <SERVER>
          USERNAME   Required. The name of the new user. 
