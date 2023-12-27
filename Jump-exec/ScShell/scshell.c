@@ -214,5 +214,5 @@ EXIT:
     if ( Success )
         BeaconPrintf( CALLBACK_OUTPUT, "scshell successful executed on %s", Host );
     else
-        BeaconPrintf( CALLBACK_ERROR, "scshell failed to execut on %s", Host );
+        BeaconPrintf( CALLBACK_ERROR, "scshell failed to execute on %s", Host );
 }
