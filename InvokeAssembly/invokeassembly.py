@@ -37,4 +37,4 @@ def InvokeAssembly( demonID, *param ):
 
     return TaskID
 
-RegisterCommand( InvokeAssembly, "dotnet", "execute", "executes a dotnet assembly in a separate process", 0, "[/path/to/assembl.exe] (args)", "/tmp/Seatbelt.exe -group=user" )
+RegisterCommand( InvokeAssembly, "dotnet", "execute", "executes a dotnet assembly in a separate process", 0, "[/path/to/assembly.exe] (args)", "/tmp/Seatbelt.exe -group=user" )
