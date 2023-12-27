@@ -17,7 +17,7 @@ def InvokeAssembly( demonID, *param ):
     
     if len( param ) < 2:
         demon.ConsoleWrite(demon.CONSOLE_ERROR, "Not enough arguments")
-        return
+        return False
 
     try:
         Assembly = open( param[ 0 ], 'rb' )
@@ -29,7 +29,7 @@ def InvokeAssembly( demonID, *param ):
 
     except OSError:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Failed to open assembly file: " + param[ 0 ] )
-        return
+        return False
 
     arg = packer.getbuffer() 
 

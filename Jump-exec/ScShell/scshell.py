@@ -15,7 +15,7 @@ def scshell( demonID, *params ):
 
     if len(params) < 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough arguments" )
-        return
+        return False
     else: 
         Host    = params[ 0 ]
         SvcName = params[ 1 ]
@@ -23,12 +23,12 @@ def scshell( demonID, *params ):
 
         if exists( SvcPath ) == False:
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Service executable not found: {SvcPath}" )
-            return
+            return False
         else:
             SvcBinary = open( SvcPath, 'rb' ).read()
             if len(SvcBinary) == 0:
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, "Specified service executable is empty" )
-                return
+                return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute {SvcPath} on {Host} using scshell" )
 

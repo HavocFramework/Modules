@@ -14,7 +14,7 @@ def PowerPick(demonID, *param):
 
     if len( param ) < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough arguments" )
-        return
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to execute unmanaged powershell commands" )
 
