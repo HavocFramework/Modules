@@ -1,4 +1,5 @@
 from havoc import Demon, RegisterCommand
+from struct import pack, calcsize
 
 def arp( demonID, *param ):
     TaskID : str    = None
