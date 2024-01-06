@@ -50,7 +50,7 @@ def sessions( demonID, *param ):
 
     if num_params > 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many arguments" )
-        return
+        return False
     elif num_params == 2:
         arg1 = param[ 1 ]
         arg2 = param[ 2 ]
@@ -64,7 +64,7 @@ def sessions( demonID, *param ):
         arg1 = param[ 1 ]
         if arg1 != '/all':
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid first argument: {arg1}" )
-            return
+            return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute sessions" )
 
@@ -94,21 +94,21 @@ def klist( demonID, *param ):
 
     if num_params > 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many arguments" )
-        return
+        return False
     elif num_params == 2:
         arg1 = param[ 1 ]
         arg2 = param[ 2 ]
         if arg1 != '/luid':
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid first argument: {arg1}" )
-            return
+            return False
         if not is_hex_number(arg2):
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid second argument: {arg2}" )
-            return
+            return False
     elif num_params == 1:
         arg1 = param[ 1 ]
         if arg1 != '/all':
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid first argument: {arg1}" )
-            return
+            return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute klist" )
 
@@ -138,21 +138,21 @@ def dump( demonID, *param ):
 
     if num_params > 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many arguments" )
-        return
+        return False
     elif num_params == 2:
         arg1 = param[ 1 ]
         arg2 = param[ 2 ]
         if arg1 != '/luid':
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid first argument: {arg1}" )
-            return
+            return False
         if not is_hex_number(arg2):
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid second argument: {arg2}" )
-            return
+            return False
     elif num_params == 1:
         arg1 = param[ 1 ]
         if arg1 != '/all':
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid first argument: {arg1}" )
-            return
+            return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute dump" )
 
@@ -182,30 +182,30 @@ def ptt( demonID, *param ):
 
     if num_params > 3:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many arguments" )
-        return
+        return False
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough arguments" )
-        return
+        return False
 
     arg1 = param[ 1 ]
     if not is_base64(arg1):
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid first argument: {arg1}" )
-        return
+        return False
 
     if num_params == 2:
         arg2 = param[ 2 ]
         if arg2 != '/all':
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid second argument: {arg2}" )
-            return
+            return False
     elif num_params == 3:
         arg2 = param[ 2 ]
         arg3 = param[ 3 ]
         if arg2 != '/luid':
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid second argument: {arg2}" )
-            return
+            return False
         if not is_hex_number(arg3):
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid third argument: {arg3}" )
-            return
+            return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute ptt" )
 
@@ -235,20 +235,20 @@ def purge( demonID, *param ):
 
     if num_params > 2:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many arguments" )
-        return
+        return False
     elif num_params == 2:
         arg1 = param[ 1 ]
         arg2 = param[ 2 ]
         if arg1 != '/luid':
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid first argument: {arg1}" )
-            return
+            return False
         if not is_hex_number(arg2):
             demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid second argument: {arg2}" )
-            return
+            return False
     elif num_params == 1:
         arg1 = param[ 1 ]
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Invalid first argument: {arg1}" )
-        return
+        return False
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to execute purge" )
 
@@ -278,7 +278,7 @@ def tgtdeleg( demonID, *param ):
 
     if num_params != 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "One argument must be entered" )
-        return
+        return False
 
     arg1 = param[ 1 ]
 
@@ -310,7 +310,7 @@ def kerberoast( demonID, *param ):
 
     if num_params != 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "One argument must be entered" )
-        return
+        return False
 
     arg1 = param[ 0 ]
 

@@ -19,7 +19,7 @@ def samdump(demonID, *params):
 
     if num_params != 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing the path" )
-        return True
+        return False
 
     path = params[ 0 ]
 

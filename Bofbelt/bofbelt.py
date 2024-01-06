@@ -716,7 +716,7 @@ def bofbelt_report( demonID, bof_output ):
         #print(json.dumps(report, indent=2))
     except Exception as e:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, f"Failed to parse BOF data: {e}" )
-        return True
+        return False
 
     # OS
 
