@@ -166,5 +166,5 @@ EXIT:
     if ( Success )
         BeaconPrintf( HAVOC_CONSOLE_GOOD, "psexec successful executed on %s", Host );
     else
-        BeaconPrintf( HAVOC_CONSOLE_ERRO, "psexec failed to execut on %s", Host );
+        BeaconPrintf( HAVOC_CONSOLE_ERRO, "psexec failed to execute on %s", Host );
 }
