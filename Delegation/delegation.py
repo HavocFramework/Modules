@@ -62,7 +62,7 @@ def get_delegation( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run ldap query" )
 
-    demon.InlineExecute( TaskID, "go", f"bin/ldapsearch.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"../SituationalAwareness/ObjectFiles/ldapsearch.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -104,7 +104,7 @@ def get_spns( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run ldap query" )
 
-    demon.InlineExecute( TaskID, "go", f"bin/ldapsearch.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"../SituationalAwareness/ObjectFiles/ldapsearch.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
@@ -147,7 +147,7 @@ def get_asrep( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, "Tasked demon to run ldap query" )
 
-    demon.InlineExecute( TaskID, "go", f"bin/ldapsearch.{demon.ProcessArch}.o", packer.getbuffer(), False )
+    demon.InlineExecute( TaskID, "go", f"../SituationalAwareness/ObjectFiles/ldapsearch.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
 
