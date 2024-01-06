@@ -7,25 +7,25 @@ def ipconfig_with_callback( demonID, callback, *params ):
     demon  : Demon  = None
     demon  = Demon( demonID )
 
-    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/ipconfig.{demon.ProcessArch}.o", b'' )
+    return demon.InlineExecuteGetOutput( callback, "go", f"../SituationalAwareness/ObjectFiles/ipconfig.{demon.ProcessArch}.o", b'' )
 
 def uptime_with_callback( demonID, callback, *params ):
     demon  : Demon  = None
     demon  = Demon( demonID )
 
-    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/uptime.{demon.ProcessArch}.o", b'' )
+    return demon.InlineExecuteGetOutput( callback, "go", f"../SituationalAwareness/ObjectFiles/uptime.{demon.ProcessArch}.o", b'' )
 
 def whoami_with_callback( demonID, callback, *params ):
     demon  : Demon  = None
     demon  = Demon( demonID )
 
-    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/whoami.{demon.ProcessArch}.o", b'' )
+    return demon.InlineExecuteGetOutput( callback, "go", f"../SituationalAwareness/ObjectFiles/whoami.{demon.ProcessArch}.o", b'' )
 
 def windowlist_with_callback( demonID, callback, *params ):
     demon  : Demon  = None
     demon  = Demon( demonID )
 
-    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/windowlist.{demon.ProcessArch}.o", b'' )
+    return demon.InlineExecuteGetOutput( callback, "go", f"../SituationalAwareness/ObjectFiles/windowlist.{demon.ProcessArch}.o", b'' )
 
 def reg_query_parse_params( demon, params ):
     packer = Packer()
@@ -89,7 +89,7 @@ def reg_query_with_callback( demonID, callback, *params ):
     if packed_params is None:
         return False
 
-    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/reg_query.{demon.ProcessArch}.o", packed_params )
+    return demon.InlineExecuteGetOutput( callback, "go", f"../SituationalAwareness/ObjectFiles/reg_query.{demon.ProcessArch}.o", packed_params )
 
 def wmi_query_parse_params( demon, params ):
     packer = Packer()
@@ -133,13 +133,13 @@ def wmi_query_with_callback( demonID, callback, *params ):
     if packed_params is None:
         return False
 
-    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/wmi_query.{demon.ProcessArch}.o", packed_params )
+    return demon.InlineExecuteGetOutput( callback, "go", f"../SituationalAwareness/ObjectFiles/wmi_query.{demon.ProcessArch}.o", packed_params )
 
 def env_with_callback( demonID, callback, *params ):
     demon  : Demon  = None
     demon  = Demon( demonID )
 
-    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/env.{demon.ProcessArch}.o", b'' )
+    return demon.InlineExecuteGetOutput( callback, "go", f"../SituationalAwareness/ObjectFiles/env.{demon.ProcessArch}.o", b'' )
 
 def enumlocalsessions_with_callback( demonID, callback, *params ):
     demon  : Demon  = None
@@ -151,7 +151,7 @@ def enumlocalsessions_with_callback( demonID, callback, *params ):
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
         return False
 
-    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/enumlocalsessions.{demon.ProcessArch}.o", b'' )
+    return demon.InlineExecuteGetOutput( callback, "go", f"../SituationalAwareness/ObjectFiles/enumlocalsessions.{demon.ProcessArch}.o", b'' )
 
 def userenum_parse_parans( demon, params ):
     packer = Packer()
@@ -189,7 +189,7 @@ def userenum_with_callback( demonID, callback, *params ):
     if packed_params is None:
         return False
 
-    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/netuserenum.{demon.ProcessArch}.o", packed_params )
+    return demon.InlineExecuteGetOutput( callback, "go", f"../SituationalAwareness/ObjectFiles/netuserenum.{demon.ProcessArch}.o", packed_params )
 
 def bofdir_parse_params( demon, params ):
     packer = Packer()
@@ -228,7 +228,7 @@ def bofdir( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to list a directory" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/dir.{demon.ProcessArch}.o", packed_params, False )
+    demon.InlineExecute( TaskID, "go", f"../SituationalAwareness/ObjectFiles/dir.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 
@@ -240,7 +240,7 @@ def bofdir_with_callback( demonID, callback, *params ):
     if packed_params is None:
         return False
 
-    return demon.InlineExecuteGetOutput( callback, "go", f"ObjectFiles/dir.{demon.ProcessArch}.o", packed_params )
+    return demon.InlineExecuteGetOutput( callback, "go", f"../SituationalAwareness/ObjectFiles/dir.{demon.ProcessArch}.o", packed_params )
 
 def tasklist_parse_params( demon, params ):
     packer = Packer()
@@ -270,7 +270,7 @@ def tasklist( demonID, *params ):
 
     TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon list running processes" )
 
-    demon.InlineExecute( TaskID, "go", f"ObjectFiles/tasklist.{demon.ProcessArch}.o", packed_params, False )
+    demon.InlineExecute( TaskID, "go", f"../SituationalAwareness/ObjectFiles/tasklist.{demon.ProcessArch}.o", packed_params, False )
 
     return TaskID
 

