@@ -27,6 +27,7 @@ def nanodump_parse_params(demon, params):
     use_lsass_shtinkering = False
     use_seclogon_duplicate = False
     spoof_callstack = False
+    chunk_size = 0xf000
 
     skip = False
     for i in range(num_params):
@@ -298,6 +299,7 @@ def nanodump_parse_params(demon, params):
     packer.adduint32(pid)
     packer.addstr(dump_path)
     packer.addbool(write_file)
+    packer.adduint32(chunk_size)
     packer.addbool(use_valid_sig)
     packer.addbool(fork)
     packer.addbool(snapshot)
