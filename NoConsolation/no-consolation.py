@@ -35,6 +35,7 @@ def noconsolation_parse_params( demon, params ):
     path_set      = False
     path          = ''
     pebytes       = b''
+    link_to_peb   = False
 
     if num_params < 1:
         demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid number of arguments" )
@@ -87,6 +88,8 @@ def noconsolation_parse_params( demon, params ):
                 demon.ConsoleWrite( demon.CONSOLE_ERROR, "missing --unload-pe value" )
                 return None, None
             unload_pe = params[i + 1]
+        elif param == '--link-to-peb' or param == '-ltp':
+            link_to_peb = True
         elif os.path.exists( param ) or is_windows_path( param ):
             path_set = True
             path     = param
@@ -112,6 +115,7 @@ def noconsolation_parse_params( demon, params ):
             demon.ConsoleWrite( demon.CONSOLE_INFO, "    --dont-save, -ds                      Optional. Do not save this binary in memory" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "    --list-pes, -lpe                      Optional. List all PEs that have been loaded in memory" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "    --unload-pe PE_NAME, -upe PE_NAME     Optional. Unload from memory a PE" )
+            demon.ConsoleWrite( demon.CONSOLE_INFO, "    --link-to-peb, -ltp                   Optional. Load the PE into the PEB" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "    /path/to/binary.exe                   Required. Full path to the windows EXE/DLL you wish you run inside Beacon. If already loaded, you can simply specify the binary name." )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "    ARG1 ARG2                             Optional. Parameters for the PE. Must be provided after the path" )
             demon.ConsoleWrite( demon.CONSOLE_INFO, "" )
@@ -191,6 +195,7 @@ def noconsolation_parse_params( demon, params ):
     packer.addstr(unload_pe)
     packer.addstr("<unknown user>")
     packer.addstr(datetime.now().strftime('%H:%M:%S %Y-%m-%d'))
+    packer.addbool(link_to_peb)
 
     return packer.getbuffer(), pename
 
