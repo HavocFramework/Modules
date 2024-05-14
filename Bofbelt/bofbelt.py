@@ -1,4 +1,5 @@
 from havoc import Demon, RegisterCommand
+from struct import pack, calcsize
 import json
 import re
 import os
