@@ -1,0 +1,37 @@
+beacon_command_register(
+    "timestomp-bof", 
+    "Timestomps the creation, last access and last write time of a target file to match a supplied source file that exists on the same system.", 
+    "Synopsis: timestomp-bof <target-file> <source-file>"
+);
+
+alias timestomp-bof {
+    if(size(@_) != 3)
+    {
+        berror($1, "Incorrect usage!");
+        berror($1, beacon_command_detail("timestomp-bof"));
+        return;
+    }
+
+    local('$barch $handle $data $args');
+    
+    # Get beacon architecture
+    $barch = barch($1);
+
+    # Ensure we are in an x64 beacon
+    if ($barch !eq 'x64') {
+        berror($1, "We just support x64 at the moment.");
+        return;
+    }
+
+    # Load BOF
+    $handle = openf(script_resource("timestomp. $+ $barch $+ .o"));
+    $data = readb($handle, -1);
+    closef($handle);
+
+    # Pack args
+    $args = bof_pack($1, "zz", $2, $3);
+    
+    btask($1, "TimeStomp_bof: by robot");
+
+    beacon_inline_execute($1, $data, "go", $args);
+}
