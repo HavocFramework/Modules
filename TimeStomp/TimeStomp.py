@@ -1,7 +1,7 @@
 from havoc import Demon, RegisterCommand, RegisterModule
 import re
 
-def enableuser( demonID, *params ):
+def timestomp( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
     packer = Packer()
